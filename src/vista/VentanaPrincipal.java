@@ -58,7 +58,9 @@ class PanelPrincipal extends JPanel {
 	JMenuItem menuItem_helpContent;
 	JMenuItem menuItem_about;
 
-	JFrame frame;
+	//JFrame frame;
+	
+	
 	
 	public PanelPrincipal() {
 		crearMenu();
