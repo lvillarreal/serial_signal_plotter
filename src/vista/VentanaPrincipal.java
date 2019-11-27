@@ -1,7 +1,7 @@
 package vista;
 
 import javax.swing.*;
-
+import java.awt.*;
 
 // MARCO o FRAME
 public class VentanaPrincipal extends JFrame {
@@ -20,10 +20,13 @@ public class VentanaPrincipal extends JFrame {
 	 */
 	public void startFrame(String title) {
 		PanelPrincipal panel_principal = new PanelPrincipal();
+		this.add(panel_principal);
 		this.setJMenuBar(panel_principal.get_barra());
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);	// el marco se abre con ventana completa
 		this.setTitle(title);
 		this.setVisible(true);
+		
+		
 	}
 }
 
@@ -31,7 +34,7 @@ public class VentanaPrincipal extends JFrame {
 // LAMINA o PANEL
 class PanelPrincipal extends JPanel {
 
-	//hola
+	/* OBJETOS RELACIONADOS AL MENU */
 	
 	JMenuBar barra;		// Objeto que almacena la barra de menu
 	
@@ -59,15 +62,34 @@ class PanelPrincipal extends JPanel {
 	JMenuItem menuItem_helpContent;
 	JMenuItem menuItem_about;
 
-	//JFrame frame;
+	/* OBJETOS RELACIONADOS A LA COMUNICACION SERIE */
 	
-	
+	JTextField puertoCOM;	// El usuario ingresa el puerto COM al que se desea conectar
+	JButton buttonConnect;	// Boton para conectar con puerto COM
 	
 	public PanelPrincipal() {
-		crearMenu();
+		// setMenu crea el menu
+		setMenu();
+		// setSerieConection crea la seccion para la conexion serie
+		setSerieConection();
+
 	}
 	
-	private void crearMenu() {
+	private void setSerieConection() {
+			
+		puertoCOM = new JTextField("COM 1");
+
+		puertoCOM.setEditable(true);
+
+		add(puertoCOM);
+		puertoCOM.setLocation(300, 10);
+		//puertoCOM.setVisible(true);
+		
+
+
+	}
+	
+	private void setMenu() {
 		// Inicializacion JMenuBar
 		barra = new JMenuBar();
 		
@@ -130,6 +152,7 @@ class PanelPrincipal extends JPanel {
 		barra.add(menu_view);
 		barra.add(menu_help);
 		
+
 	}
 	
 	public JMenuBar get_barra() {
