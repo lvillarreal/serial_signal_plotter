@@ -31,6 +31,7 @@ public class VentanaPrincipal extends JFrame {
 // LAMINA o PANEL
 class PanelPrincipal extends JPanel {
 
+	//hola
 	
 	JMenuBar barra;		// Objeto que almacena la barra de menu
 	
