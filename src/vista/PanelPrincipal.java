@@ -1,23 +1,28 @@
 package vista;
 
+import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
+import controlador.*;
 
+// Vista del model MVC
 public class PanelPrincipal extends JPanel{
 	//ATRIBUTOS DE CLASE
-	
+		
 	// variables para la distribucion de los objetos
-	private int gridx;
-	private int gridy;
 	
 	private JTextField text_port;	// campo de texto para introducir el puerto 
 	private JButton button_connect;	// boton para conectar
+	private JLabel label;
+	private JLabel console;
+
+	static final String ButtonConnectPushed = "ButtonConnectedPushed";	// Para ActionCommand del boton connect
 	
 	
 	public PanelPrincipal() {
 		
 		configPanel();
-		setObjetos();
+		setObjects();
 	}
 	
 	// Configuracion del panel
@@ -26,7 +31,7 @@ public class PanelPrincipal extends JPanel{
 		setBackground(new Color(56,68,54));
 	}
 	
-	private void setObjetos() {
+	private void setObjects() {
 	
 		// GridBagConstraints es una clase que en sus atributos contiene la informacion de la ubicacion de 
 		// los objetos dentro del panel
@@ -56,20 +61,16 @@ public class PanelPrincipal extends JPanel{
 		// BOTON CONNECT
 		
 		// Instanciacion del boton para la conexion serial
-		button_connect = new JButton("CONNECT");
-		button_connect.setToolTipText("Presione para conectar con el puerto serie");
-		c.gridx = 3; 		// El campo de texto empieza en la columna cero.
-		c.gridy = 0; 		// El campo de texto empieza en la fila cero
-		c.gridwidth = 1; 	// El campo de texto ocupa una columna.
-		c.gridheight = 1;   // El campo de texto ocupa una fila.
-		c.weightx = 0.0d;	    
-		c.insets = new Insets(10,10,10,10);
-		this.add(button_connect,c);		// se agrega al panel
 		
+		button_connect = setButton(c,"CONNECT",3,0,1,1,0.0,10);
+		button_connect.setToolTipText("Presione para conectar con el puerto serie");
+		button_connect.setActionCommand(ButtonConnectPushed);
+
+		this.add(button_connect,c);		// se agrega al panel
 		c.weightx = 0.0;
 		
 		// SECCION DE LA GRAFICA
-		JLabel label = new JLabel("RECORDAR CAMBIAR POR LA GRAFICA");
+		label = new JLabel("RECORDAR CAMBIAR POR LA GRAFICA");
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setOpaque(true);
 		
@@ -86,8 +87,10 @@ public class PanelPrincipal extends JPanel{
 
 		c.weightx = 0.0;
 		c.weighty = 0.0;
+		
+		
 		// SECCION DE CONSOLE
-		JLabel console = new JLabel("CONSOLA");
+		console = new JLabel("CONSOLA");
 		console.setOpaque(true);
 		console.setBackground(Color.WHITE);
 		console.setForeground(Color.BLACK);
@@ -103,6 +106,26 @@ public class PanelPrincipal extends JPanel{
 		
 
 	}
-
+		
+	private JButton setButton(GridBagConstraints c,String name,int gridx, int gridy,int gridwidth, int gridheight,double weightx, int gap) {
+		JButton button = new JButton(name);
+		
+		
+		c.gridx = gridx; 		// El campo de texto empieza en la columna cero.
+		c.gridy = gridy; 		// El campo de texto empieza en la fila cero
+		c.gridwidth = gridwidth; 	// El campo de texto ocupa una columna.
+		c.gridheight = gridheight;   // El campo de texto ocupa una fila.
+		c.weightx = weightx;	    
+		c.insets = new Insets(gap,gap,gap,gap);	
+		
+		return button;
+		
+	}
 	
+	public JButton getButtonConnect() {
+		return button_connect;
+	}
 }
+
+
+

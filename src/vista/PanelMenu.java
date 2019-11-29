@@ -55,7 +55,7 @@ public class PanelMenu extends JPanel {
 		
 		// Inicializacion JMenuItem
 			//Items de file
-		menuItem_save = new JMenuItem("Save");
+		menuItem_save   = new JMenuItem("Save");
 		menuItem_saveAs = new JMenuItem("Save As...");
 		menuItem_import = new JMenuItem("Import...");
 		menuItem_export = new JMenuItem("Export...");
@@ -79,11 +79,11 @@ public class PanelMenu extends JPanel {
 
 			// file
 		menu_file.add(menuItem_save);
-		menu_file.addSeparator();
+//		menu_file.addSeparator();
 		menu_file.add(menuItem_saveAs);
 		menu_file.addSeparator();
 		menu_file.add(menuItem_import);
-		menu_file.addSeparator();
+//		menu_file.addSeparator();
 		menu_file.add(menuItem_export);
 		menu_file.addSeparator();
 		menu_file.add(menuItem_exit);

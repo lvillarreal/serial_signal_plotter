@@ -1,8 +1,8 @@
 
-import vista.VentanaPrincipal;
+import vista.Vista;
 
 public class Main {
 	public static void main(String args[]) {
-		VentanaPrincipal ventana1 = new VentanaPrincipal();
+		Vista ventana1 = new Vista();
 	}
 }
