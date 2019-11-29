@@ -6,8 +6,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+/*
 public class PanelMenu extends JPanel {
-	/* OBJETOS RELACIONADOS AL MENU */
+	// OBJETOS RELACIONADOS AL MENU 
 	
 	private JMenuBar barra;		// Objeto que almacena la barra de menu
 	
@@ -114,4 +115,4 @@ public class PanelMenu extends JPanel {
 		return barra;
 	}
 	
-}
+}*/

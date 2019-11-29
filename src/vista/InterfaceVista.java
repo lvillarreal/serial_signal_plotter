@@ -8,7 +8,7 @@ public interface InterfaceVista {
 
 	void setGrafica();
 	
-	static final String ButtonConnectPushed = "ButtonConnect";
-	
+	static final String ButtonConnectPushed = "ButtonConnectedPushed";	// Para ActionCommand del boton connect
+
 	
 }

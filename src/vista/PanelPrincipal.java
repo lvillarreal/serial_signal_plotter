@@ -5,6 +5,7 @@ import java.awt.*;
 import javax.swing.*;
 import controlador.*;
 
+/*
 // Vista del model MVC
 public class PanelPrincipal extends JPanel{
 	//ATRIBUTOS DE CLASE
@@ -126,6 +127,6 @@ public class PanelPrincipal extends JPanel{
 		return button_connect;
 	}
 }
-
+*/
 
 
