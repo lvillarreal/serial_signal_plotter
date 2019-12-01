@@ -26,11 +26,11 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	private JMenuItem menuItem_export;
 	private JMenuItem menuItem_exit;
 	
-	//Items de edit
 	
 	//Items de view
 	private JMenuItem menuItem_graph;
 	private JMenuItem menuItem_math;
+	private JMenuItem menuItem_SerialPorts;
 		
 	//Items de help
     private JMenuItem menuItem_helpContent;
@@ -41,8 +41,9 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	private JTextField text_port;	// campo de texto para introducir el puerto 
 	private JButton button_connect;	// boton para conectar
 	private JLabel label;			// CAMBIAR POR LA GRAFICA
-	private JLabel console;
-
+	
+	private JTextArea console;
+	private JInternalFrame frame_console;
 	
 	// PANELES
 	
@@ -114,7 +115,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			//Items de view
 		menuItem_graph = new JMenuItem("Graph");
 		menuItem_math  = new JMenuItem("Math");
-		
+		menuItem_SerialPorts = new JMenuItem("Serial Ports");
 			//Items de help
 		menuItem_helpContent = new JMenuItem("Help Contents");
 		menuItem_about       = new JMenuItem("About Signal Plotter");
@@ -144,6 +145,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		menu_view.addSeparator();
 		menu_view.add(menuItem_math);
 		menu_view.addSeparator();
+		menu_view.add(menuItem_SerialPorts);
 		
 			//help
 		menu_help.add(menuItem_helpContent);
@@ -156,7 +158,16 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		barra.add(menu_view);
 		barra.add(menu_help);
 		
+		
+		// CONFIGURACION DE OPCIONES
+		
+		//VIEW
+		menuItem_SerialPorts.setActionCommand(InterfaceVista.ListSerialPorts);
+		
 	}
+	
+	
+	
 	
 	// METODOS RELACIONADOS AL PANEL PRINCIPAL
 	
@@ -173,9 +184,10 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	private void configPanel() {
 		panel_principal = new JPanel();
 		panel_principal.setLayout(new GridBagLayout());
-		panel_principal.setBackground(new Color(56,68,54));
+		panel_principal.setBackground(new Color(23,100,105));
 	}
 	
+	// Instanciacion configuracion y distribucion de los objetos del panel
 	private void setObjects() {
 	
 		// GridBagConstraints es una clase que en sus atributos contiene la informacion de la ubicacion de 
@@ -233,24 +245,58 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		c.weighty = 0.0;
 		
 		
-		// SECCION DE CONSOLE
-		console = new JLabel("CONSOLA");
+		/*// SECCION DE CONSOLE
+		console = new JLabel();
 		console.setOpaque(true);
 		console.setBackground(Color.WHITE);
 		console.setForeground(Color.BLACK);
+		*/
 		
-		c.gridx = 0;
-		c.gridy = 2;
-		c.gridwidth = 4; 
-		c.gridheight = 1;
-		c.weighty = 0.3;
-		c.weightx = 1.0;
-		c.insets = new Insets(10,10,10,10);
-		panel_principal.add(console, c);
+		
+		frame_console = setConsole(c,"Console",0,2,4,1,1.0,0.3,10);
+		configConsole(frame_console);
+		
+		
+		panel_principal.add(frame_console, c);
 		
 
 	}
 		
+	private void configConsole(JInternalFrame frame_console) {
+		
+		 // set flow layout for the frame  
+        frame_console.getContentPane().setLayout(new BorderLayout());  
+        
+        console = new JTextArea(JFrame.MAXIMIZED_HORIZ,JFrame.MAXIMIZED_VERT); 
+        
+        JScrollPane scrollableTextArea = new JScrollPane(console);  
+        
+  
+        scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);  
+        scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  
+  
+        frame_console.getContentPane().add(scrollableTextArea); 
+		
+	}
+	
+	// Crea el frame interno donde estará la consola
+	private JInternalFrame setConsole(GridBagConstraints c,String name,int gridx, int gridy,int gridwidth, int gridheight,double weightx,double weighty, int gap) {
+		
+		JInternalFrame console = new JInternalFrame(name);
+		console.setVisible(true);
+		c.gridx = gridx; 		// El campo de texto empieza en la columna cero.
+		c.gridy = gridy; 		// El campo de texto empieza en la fila cero
+		c.gridwidth = gridwidth; 	// El campo de texto ocupa una columna.
+		c.gridheight = gridheight;   // El campo de texto ocupa una fila.
+		c.weightx = weightx;
+		c.weighty = weighty;
+		c.insets = new Insets(gap,gap,gap,gap);	
+				
+		return console;
+		
+	}
+	
+	
 	// Crea, configura y ubica el boton connect
 	private JButton setButton(GridBagConstraints c,String name,int gridx, int gridy,int gridwidth, int gridheight,double weightx, int gap) {
 		JButton button = new JButton(name);
@@ -269,10 +315,21 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 	}
 	
+	// SECCION MANEJO DE CONSOLE
+	
+	
+	public void setListCommPorts(String line) {
+		console.setText(console.getText()+">> "+line+"\r\n");
+	}
+	
+	
+	
+	// METODOS DE INTERFACE VISTA
 	
 	@Override
 	public void setControlador(Controlador c) {
-		button_connect.addActionListener((ActionListener) c);
+		button_connect.addActionListener( c);
+		menuItem_SerialPorts.addActionListener(c);
 	}
 
 	@Override
