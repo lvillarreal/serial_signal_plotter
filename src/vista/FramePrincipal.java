@@ -47,7 +47,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	
 	// PANELES
 	
-	private JPanel panel_menu;
+	//private JPanel panel_menu;
 	private JPanel panel_principal;
 	
 	
@@ -78,7 +78,6 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 		this.setExtendedState(MAXIMIZED_BOTH);	// el marco se abre con ventana completa
 		this.setTitle(title);
-
 		this.setVisible(true);
 		
 		
@@ -88,7 +87,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	
 	// Inicializa el menu
 	private void startMenu() {
-		panel_menu = new JPanel();
+		//panel_menu = new JPanel();
 		setMenu();
 		this.setJMenuBar(this.barra);
 		
@@ -158,8 +157,10 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		barra.add(menu_view);
 		barra.add(menu_help);
 		
-		
 		// CONFIGURACION DE OPCIONES
+		// FILE
+		
+		menuItem_exit.setActionCommand(InterfaceVista.MenuButtonExitPushed);
 		
 		//VIEW
 		menuItem_SerialPorts.setActionCommand(InterfaceVista.ListSerialPorts);
@@ -225,6 +226,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		panel_principal.add(button_connect,c);		// se agrega al panel
 		c.weightx = 0.0;
 		
+		
 		// SECCION DE LA GRAFICA
 		label = new JLabel("RECORDAR CAMBIAR POR LA GRAFICA");
 		label.setHorizontalAlignment(JLabel.CENTER);
@@ -244,14 +246,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		c.weightx = 0.0;
 		c.weighty = 0.0;
 		
-		
-		/*// SECCION DE CONSOLE
-		console = new JLabel();
-		console.setOpaque(true);
-		console.setBackground(Color.WHITE);
-		console.setForeground(Color.BLACK);
-		*/
-		
+		// SECCION CONSOLA
 		
 		frame_console = setConsole(c,"Console",0,2,4,1,1.0,0.3,10);
 		configConsole(frame_console);
@@ -274,7 +269,9 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
   
         scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);  
         scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  
-  
+        
+        console.setEditable(false);
+        
         frame_console.getContentPane().add(scrollableTextArea); 
 		
 	}
@@ -310,7 +307,6 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		c.insets = new Insets(gap,gap,gap,gap);	
 		button.setToolTipText("Presione para conectar con el puerto serie");
 		button.setActionCommand(ButtonConnectPushed);
-		
 		return button;
 		
 	}
@@ -330,6 +326,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	public void setControlador(Controlador c) {
 		button_connect.addActionListener( c);
 		menuItem_SerialPorts.addActionListener(c);
+		menuItem_exit.addActionListener(c);
 	}
 
 	@Override
