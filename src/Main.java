@@ -6,7 +6,8 @@ import modelo.*;
 public class Main {
 	public static void main(String args[]) {
 		InterfaceVista vista = new FramePrincipal();
-		Modelo modelo = new Modelo();
+		InterfaceModelo modelo = new DataBase();
+		
 		Controlador controlador = new Controlador(modelo,vista);
 		
 		// inicializa ventana principal
@@ -14,6 +15,7 @@ public class Main {
 		
 		vista.setControlador(controlador);
 
+//		ConfigGraph ventana2 = new ConfigGraph();
 		
 	}
 }
