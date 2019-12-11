@@ -217,26 +217,31 @@ class barOptions implements Runnable{
 		switch (option) {
 		case InterfaceVista.ConfigSamplingRate:
 			dataIn = JOptionPane.showInputDialog("Sample rate [Hz]");
-			while(!isDouble(dataIn) && !(dataIn == null) || (Double.parseDouble(dataIn)<0)) {			
-				dataIn = JOptionPane.showInputDialog(null, "Enter frequency in Hz (double value)", "Error!", JOptionPane.ERROR_MESSAGE);
-			}
-
-			if(isDouble(dataIn)) {
-				fs = Double.parseDouble(dataIn);
-				modelo.setFs(fs);
-				modelo.setSampleRateUnits("Hz");
-				vista.writeConsole("New sample rate set successfully");
+			if (dataIn != null) {
+				while(!isDouble(dataIn) && !(dataIn == null) || (Double.parseDouble(dataIn)<0)) {			
+					dataIn = JOptionPane.showInputDialog(null, "Enter frequency in Hz (double value)", "Error!", JOptionPane.ERROR_MESSAGE);
+					if(dataIn == null) return;
+				}
+			
+				if(isDouble(dataIn)) {
+					fs = Double.parseDouble(dataIn);
+					modelo.setFs(fs);
+					modelo.setSampleRateUnits("Hz");
+					vista.writeConsole("New sample rate set successfully");
+				}
 			}
 			break;
 			
 		case InterfaceVista.ConfigGraphAddSampleRate:
 			dataIn = vista.getConfigSampleRate();
-			if(isDouble(dataIn)) {
-				modelo.setFs(Double.parseDouble(dataIn));
-				modelo.setSampleRateUnits(vista.getSampleRateUnits());
-				vista.writeConsole("New sample rate set successfully");
-			}else {
-				vista.writeConsole("ERROR! Sample rate not saved");
+			if (dataIn != null) {
+				if(isDouble(dataIn)) {
+					modelo.setFs(Double.parseDouble(dataIn));
+					modelo.setSampleRateUnits(vista.getSampleRateUnits());
+					vista.writeConsole("New sample rate set successfully");
+				}else {
+					vista.writeConsole("ERROR! Sample rate not saved");
+				}
 			}
 		}
 
@@ -249,26 +254,30 @@ class barOptions implements Runnable{
 		switch (option) {
 		case InterfaceVista.ConfigTimeRange:
 			dataIn = JOptionPane.showInputDialog("Set time range [ms]");
-
-			while(!isDouble(dataIn) && !(dataIn == null) || (Double.parseDouble(dataIn)<0)) {
-				dataIn = JOptionPane.showInputDialog(null, "Enter time in milliseconds (double value)", "Error!", JOptionPane.ERROR_MESSAGE);
-			}
-			
-			if(isDouble(dataIn)) {
-				timeRange = Double.parseDouble(dataIn);
-				modelo.setTimeRange(timeRange);
-				modelo.setTimeUnits("ms");
+			if (dataIn != null) {
+				while(!isDouble(dataIn) && !(dataIn == null) || (Double.parseDouble(dataIn)<0)) {
+					dataIn = JOptionPane.showInputDialog(null, "Enter time in milliseconds (double value)", "Error!", JOptionPane.ERROR_MESSAGE);
+					if(dataIn == null) return;
+				}
+				
+				if(isDouble(dataIn)) {
+					timeRange = Double.parseDouble(dataIn);
+					modelo.setTimeRange(timeRange);
+					modelo.setTimeUnits("ms");
+				}
 			}
 			break;
 			
 		case InterfaceVista.ConfigGraphAddTime:
 			dataIn = vista.getConfigTimeRange();
-			if(isDouble(dataIn)) {
-				modelo.setTimeRange(Double.parseDouble(dataIn));
-				modelo.setTimeUnits(vista.getTimeRangeUnits());
-				vista.writeConsole("New time range set successfully");
-			}else {
-				vista.writeConsole("ERROR! Time range not saved");
+			if (dataIn != null) {
+				if(isDouble(dataIn)) {
+					modelo.setTimeRange(Double.parseDouble(dataIn));
+					modelo.setTimeUnits(vista.getTimeRangeUnits());
+					vista.writeConsole("New time range set successfully");
+				}else {
+					vista.writeConsole("ERROR! Time range not saved");
+				}
 			}
 		}
 		
