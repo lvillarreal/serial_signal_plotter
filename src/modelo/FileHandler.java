@@ -13,6 +13,8 @@ public class FileHandler {
     private BufferedReader br;
     private String linea;
     
+    private RandomAccessFile raf;
+    
 	public FileHandler() {
 		FILE_NAME = null;
 		archivo = null;
@@ -25,10 +27,13 @@ public class FileHandler {
 	public byte openFile(String FILE_NAME) {
 		try {
 			this.FILE_NAME = FILE_NAME;
-	         // Apertura del fichero y creacion de BufferedReader para poder
+	         
+			//raf = new RandomAccessFile(this.FILE_NAME,"r");
+			
+			// Apertura del fichero y creacion de BufferedReader para poder
 	         // hacer una lectura comoda (disponer del metodo readLine()).
-			 //System.out.println("ENTRO openFile");
-	         archivo = new File (FILE_NAME);
+			  
+			 archivo = new File (FILE_NAME);
 	         fr = new FileReader (archivo);
 	         br = new BufferedReader(fr);
 	         //System.out.println("ARCHIVO ABIERTO");
@@ -42,7 +47,8 @@ public class FileHandler {
 	
 	public byte FileReadReset() {
 		try{
-			fr.reset();
+			
+			br.reset();
 			return 0;
 		}catch(Exception e) {
 			return -1;

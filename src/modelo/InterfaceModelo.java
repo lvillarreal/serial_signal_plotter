@@ -9,11 +9,11 @@ package modelo;
 	 void setSampleRateUnits(String units);
 	 void setTimeUnits(String units);
 	 
-	 void calculateFFT();
+	 byte calculateFFT();
 	 byte openFile();
 	 byte closeFile();
 	 String readLine();
-	 String getFileName();
+	 String getFileName(byte option);
 	
 	 String getSignalName();
 	 String getTimeUnits();
@@ -36,4 +36,8 @@ package modelo;
 		final static byte CloseFileReader = 0;
 		final static byte CloseFileWriter = 1;
 
+		final static byte fileData = 0;
+		final static byte fileFFT = 1;
+		final static byte fftCalculateOk = 2;
+		
 }

@@ -112,7 +112,7 @@ class SerialComm implements Runnable{
 			status = modelo.openFile();
 			
 			if (status == InterfaceModelo.OpenFileSuccessfully) {	// si se abre satisfactoriamente
-				vista.writeConsole("File \""+modelo.getFileName()+"\" opened successfully");
+				vista.writeConsole("File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" opened successfully");
 				
 				// inhabilita el boton de start
 			    vista.setButtonEnable(InterfaceVista.ButtonStartEnable, false);
@@ -143,15 +143,15 @@ class SerialComm implements Runnable{
 				status = modelo.closeFile();
 				
 				if(status == InterfaceModelo.closeFileSuccessfully) {	// si el archivo se cierra correctamente
-					vista.writeConsole("File \""+modelo.getFileName()+"\" closed successfully" );
+					vista.writeConsole("File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" closed successfully" );
 					
 					// se habilita el boton start
 					vista.setButtonEnable(InterfaceVista.ButtonStartEnable, true);
 				}else if(status == InterfaceModelo.CloseFileError) {	
-					vista.writeConsole("ERROR. File \""+modelo.getFileName()+"\" cannot be closed" );
+					vista.writeConsole("ERROR. File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be closed" );
 				}
 			}else {	// el archivo no se abrio correctamente
-				vista.writeConsole("ERROR. File \""+modelo.getFileName()+"\" cannot be opened" );
+				vista.writeConsole("ERROR. File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be opened" );
 				
 			}
 			
@@ -251,9 +251,20 @@ class barOptions implements Runnable{
 	
 
 	private void calculateFFT() {
-		
-		modelo.calculateFFT();
-		
+		byte status = modelo.calculateFFT();
+		switch(status) {
+		case InterfaceModelo.OpenFileError:
+			vista.writeConsole("ERROR. \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be opened");
+			break;
+			
+		case InterfaceModelo.CreateFileError:
+			vista.writeConsole("ERROR. \""+modelo.getFileName(InterfaceModelo.fileFFT)+"\" cannot be opened");
+			break;
+			
+		case InterfaceModelo.fftCalculateOk:
+			vista.writeConsole("FFT calculated successfully");
+		}
+
 	}
 	
 	private void setSignalName() {

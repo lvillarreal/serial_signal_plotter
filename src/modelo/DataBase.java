@@ -15,13 +15,14 @@ public class DataBase implements InterfaceModelo {
 	private double Ts;			// periodo de muestreo
 	private String signal_name;	// nombre de la señal
 	
-	private ArrayList<Float> signalData;	// dato recibido por puerto comm
-	
-	private static String FILE_NAME = "files/DataBase.txt";
+
+	private static String FILE_NAME;
+	private static String fft_FILE_NAME;
 	
 	public DataBase() {
 		this.fft = new FFT();
 		this.file_handler = new FileHandler();
+		
 		// valores por defecto
 		this.signal_name = "Signal name";
 		this.fs = 1;
@@ -30,12 +31,15 @@ public class DataBase implements InterfaceModelo {
 		this.time_units = "ms";
 		this.sample_rate_units = "kHz";
 		
+		FILE_NAME = "files/DataBase.txt";
+		fft_FILE_NAME = "files/signal_fft.txt";
+		
 	}
 	
 	
 	@Override
-	public void calculateFFT() {
-		fft.fft(FILE_NAME);
+	public byte calculateFFT() {
+		return fft.fft(FILE_NAME,fft_FILE_NAME);
 	}
 	
 	@Override
@@ -110,8 +114,16 @@ public class DataBase implements InterfaceModelo {
 	}
 	
 	@Override
-	public String getFileName() {
-		return this.FILE_NAME;
+	public String getFileName(byte option) {
+		switch (option) {
+		case InterfaceModelo.fileData:
+			return this.FILE_NAME;
+			
+		
+		case InterfaceModelo.fileFFT:
+			return this.fft_FILE_NAME;
+		}
+		return "";
 	}
 	
 }
