@@ -32,12 +32,15 @@ public interface InterfaceVista {
 	String getConfigTimeRange();
 	String getTimeRangeUnits();
 	String getNewSignalName();
+
 	
 	// ActionCommands para los eventos
 	static final String ButtonConnectPushed = "ButtonConnectedPushed";	// Para ActionCommand del boton connect
 	static final String ButtonStartPushed = "ButtonStartPushed";		// Para comenzar la captura de datos
+	
 	static final String ListSerialPorts = "ListSerialPorts";			// Para listar los puertos seriales conectados
 	static final String MenuButtonExitPushed = "MenuButtonExitPushed";	// Cuando se presiona el boton File/Exit
+	static final String CalculateFFT = "CalculateFFT";
 	static final String ConfigTimeRange = "ConfigTimeRange";			// Configurar rango de tiempo de la grafica
 	static final String ConfigSamplingRate = "ConfigSamplingRate";		// Configurar frecuencia de muestreo
 	

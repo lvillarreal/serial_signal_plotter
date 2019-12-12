@@ -5,17 +5,24 @@ import java.io.*;
 // Manejo de archivos para el funcionamiento 
 public class FileHandler {
 	
-	private String FILE_NAME = null;
-	private File archivo = null;
-	private FileReader fr = null;
-    private BufferedReader br = null;
+	private String FILE_NAME;
+	private File archivo;
+	private FileReader fr;
+	private FileWriter fw;
+	private PrintWriter pw;
+    private BufferedReader br;
     private String linea;
     
 	public FileHandler() {
-		
+		FILE_NAME = null;
+		archivo = null;
+		fr = null;
+		pw = null;
+		br = null;
+		linea = null;
 	}
 	
-	public String openFile(String FILE_NAME) {
+	public byte openFile(String FILE_NAME) {
 		try {
 			this.FILE_NAME = FILE_NAME;
 	         // Apertura del fichero y creacion de BufferedReader para poder
@@ -25,26 +32,100 @@ public class FileHandler {
 	         fr = new FileReader (archivo);
 	         br = new BufferedReader(fr);
 	         //System.out.println("ARCHIVO ABIERTO");
-	         return "Archivo "+" \""+FILE_NAME+"\" "+ "abierto correctamente";
+	         return InterfaceModelo.OpenFileSuccessfully;
 		}catch(Exception e) {
 			//System.out.println("ERROR, NO SE ENCUENTRA EL ARCHIVO");
 			e.printStackTrace();
-			return "No se encuentra el Archivo "+" "+"\""+FILE_NAME+"\"";
+			return InterfaceModelo.OpenFileError;
 		}
 	}
 	
-	public String closeFile() {
-		 try{                    
-            if( fr != null ){   
-               fr.close();   
-               //System.out.println("ARCHIVO CERRADO");
-               return "Archivo "+" \""+FILE_NAME+"\" "+ "cerrado correctamente";
-            }else return "Se intenta cerrar archivo y aún no se ha leido completamente";                  
-		  }catch (Exception e2){ 
-	           e2.printStackTrace();
-	           return "ERROR al cerrar el archivo "+" \""+FILE_NAME+"\"";
-	        }
+	public byte FileReadReset() {
+		try{
+			fr.reset();
+			return 0;
+		}catch(Exception e) {
+			return -1;
+		}
+	}
+	
+	public byte closeFile() {
+		
+		 try{      
+			
+	            if( fr != null ){   
+	            	
+	               fr.close();   
+	               //System.out.println("ARCHIVO CERRADO");
+	               return InterfaceModelo.closeFileSuccessfully;
+	            		  
+	            }else if( fw != null ){   
+		               fw.close();   
+		               //System.out.println("ARCHIVO CERRADO");
+		               return InterfaceModelo.closeFileSuccessfully;
+		            		  
+		            }else return 1;
+				}catch (Exception e2){ 
+			         e2.printStackTrace();
+			         return InterfaceModelo.CloseFileError;
+			    }
+		
+		
+		/*switch(option) {
+		
+		case InterfaceModelo.CloseFileReader:
+			 try{                    
+	            if( fr != null ){   
+	               fr.close();   
+	               //System.out.println("ARCHIVO CERRADO");
+	               return InterfaceModelo.closeFileSuccessfully;
+	            		  
+	            }else return 1;
+		            
+				}catch (Exception e2){ 
+			         e2.printStackTrace();
+			         return InterfaceModelo.CloseFileError;
+			    }
+			 
+			 
+		case InterfaceModelo.CloseFileWriter:
+			 try{                    
+	            if( fw != null ){   
+	               fw.close();   
+	               //System.out.println("ARCHIVO CERRADO");
+	               return InterfaceModelo.closeFileSuccessfully;
+	            		  
+	            }else return 1;
+		            
+				}catch (Exception e2){ 
+			         e2.printStackTrace();
+			         return InterfaceModelo.CloseFileError;
+	            }
+			 
+		}*/
 		 
+	}
+	
+	public byte printLine(String line) {
+		try {
+			pw.println(line);
+			return InterfaceModelo.printLineSuccessfully;
+		}catch(Exception e) {
+			return InterfaceModelo.printLineError;
+		}
+	}
+	
+	public byte createFile(String name) {
+        try
+        {
+            fw = new FileWriter(name);
+            pw = new PrintWriter(fw);
+
+            return InterfaceModelo.CreateFileSuccessfully;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return InterfaceModelo.CreateFileError;
+        }
 	}
 	
 	public String readLine() {
@@ -56,6 +137,11 @@ public class FileHandler {
 		}
 		return linea;
 		
+	}
+	
+	public long getCantLines() {
+		if (br != null) return br.lines().count();
+		else return InterfaceModelo.OpenFileError;
 	}
 	
 	/*public void readFile() {

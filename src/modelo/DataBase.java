@@ -6,6 +6,8 @@ public class DataBase implements InterfaceModelo {
 	
 	private FileHandler file_handler;	// clase para el manejo de archivos
 	
+	private FFT fft;
+	
 	private String sample_rate_units; // unidades de frecuencia de muestreo
 	private String time_units;	// unidades del rango de tiempo
 	private double time_range;	// rango de tiempo de la grafica
@@ -18,6 +20,7 @@ public class DataBase implements InterfaceModelo {
 	private static String FILE_NAME = "files/DataBase.txt";
 	
 	public DataBase() {
+		this.fft = new FFT();
 		this.file_handler = new FileHandler();
 		// valores por defecto
 		this.signal_name = "Signal name";
@@ -29,7 +32,12 @@ public class DataBase implements InterfaceModelo {
 		
 	}
 	
-
+	
+	@Override
+	public void calculateFFT() {
+		fft.fft(FILE_NAME);
+	}
+	
 	@Override
 	public String getSampleRateUnits() {
 		return this.sample_rate_units;
@@ -76,18 +84,20 @@ public class DataBase implements InterfaceModelo {
 	
 
 	@Override
-	public String openFile() {
+	public byte openFile() {
 		return file_handler.openFile(FILE_NAME);
 	}
 	
 	@Override 
-	public String closeFile() {
+	public byte closeFile() {
 		return file_handler.closeFile();
 	}
 	@Override
 	public String readLine() {
 		return file_handler.readLine();
 	}
+	
+
 	
 	@Override
 	public void setSampleRateUnits(String units) {
@@ -99,5 +109,9 @@ public class DataBase implements InterfaceModelo {
 		this.time_units = units;
 	}
 	
+	@Override
+	public String getFileName() {
+		return this.FILE_NAME;
+	}
 	
 }

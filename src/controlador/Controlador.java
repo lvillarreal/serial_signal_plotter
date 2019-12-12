@@ -61,6 +61,8 @@ public class Controlador implements ActionListener{
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ButtonStartPushed)){
 				t_serialComm.start();
+			}else if(e.getActionCommand().equals(InterfaceVista.CalculateFFT)){
+				t_barOptions.start();
 
 				
 			}
@@ -99,7 +101,7 @@ class SerialComm implements Runnable{
 
 	private void actualiceChart() {
 		
-			String status = null;
+			int status;
 			String line = null;
 			int index = 0;
 
@@ -108,38 +110,51 @@ class SerialComm implements Runnable{
 
 			// Se abre el archivo
 			status = modelo.openFile();
-			vista.writeConsole(status);
 			
-			// Controla que si el archivo no existe, no continue en el metodo
-			if(status.equalsIgnoreCase("No se encuentra el Archivo  \"files/DataBase.txt\"")){
-				vista.setButtonEnable(InterfaceVista.ButtonStartEnable, true);
-				return;
-			}else {
-		    vista.setButtonEnable(InterfaceVista.ButtonStartEnable, false);
-			// Se lee la frecuencia de muestreo que el sistema esta utilizando
-			fs = Double.parseDouble(modelo.readLine());
-			vista.writeConsole("Frecuencia de muestreo: "+fs + " [Hz]");
-			modelo.setFs(fs); // Se guarda la frecuencia de muestreo
-			modelo.setSampleRateUnits("Hz");
-			
-			// Se borran los datos actuales del grafico
-			vista.deleteChartData();
-			
-			// Se leen los datos
-			line = modelo.readLine();
-			//vista.writeConsole(line);
-	
-			while (line != null) {
-				vista.actualiceChartData(((double )index)/fs, Double.parseDouble(line));
-				index =index + 1;
+			if (status == InterfaceModelo.OpenFileSuccessfully) {	// si se abre satisfactoriamente
+				vista.writeConsole("File \""+modelo.getFileName()+"\" opened successfully");
+				
+				// inhabilita el boton de start
+			    vista.setButtonEnable(InterfaceVista.ButtonStartEnable, false);
+			    
+				// Se lee la frecuencia de muestreo que el sistema esta utilizando
+				fs = Double.parseDouble(modelo.readLine());
+				vista.writeConsole("Sample rate: "+fs + " [Hz]");
+				
+				modelo.setFs(fs); // Se guarda la frecuencia de muestreo
+				modelo.setSampleRateUnits("Hz");
+				
+				// Se borran los datos actuales del grafico
+				vista.deleteChartData();
+				
+				// Se leen los datos  del archivo
+				
 				line = modelo.readLine();
-				//vista.writeConsole(String.valueOf(((double )index)/fs)+" ; "+line );
+				//vista.writeConsole(line);
+		
+				while (line != null) {
+					vista.actualiceChartData(((double )index)/fs, Double.parseDouble(line));
+					index =index + 1;
+					line = modelo.readLine();
+					//vista.writeConsole(String.valueOf(((double )index)/fs)+" ; "+line );
+				}
+				
+				// Se cierra el archivo
+				status = modelo.closeFile();
+				
+				if(status == InterfaceModelo.closeFileSuccessfully) {	// si el archivo se cierra correctamente
+					vista.writeConsole("File \""+modelo.getFileName()+"\" closed successfully" );
+					
+					// se habilita el boton start
+					vista.setButtonEnable(InterfaceVista.ButtonStartEnable, true);
+				}else if(status == InterfaceModelo.CloseFileError) {	
+					vista.writeConsole("ERROR. File \""+modelo.getFileName()+"\" cannot be closed" );
+				}
+			}else {	// el archivo no se abrio correctamente
+				vista.writeConsole("ERROR. File \""+modelo.getFileName()+"\" cannot be opened" );
+				
 			}
 			
-			status = modelo.closeFile();
-			vista.writeConsole(status);
-			vista.setButtonEnable(InterfaceVista.ButtonStartEnable, true);
-			}
 	}
 			
 	
@@ -226,11 +241,20 @@ class barOptions implements Runnable{
 				setSignalName();
 				break;
 				
+			case InterfaceVista.CalculateFFT:
+				calculateFFT();
+				break;
+				
 
 		}
 	}
 	
 
+	private void calculateFFT() {
+		
+		modelo.calculateFFT();
+		
+	}
 	
 	private void setSignalName() {
 		//vista.setSignalName(vista.getNewSignalName());

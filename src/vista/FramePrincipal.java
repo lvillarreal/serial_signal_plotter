@@ -43,6 +43,8 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	private XYchart grafica;
 	
 	
+	
+	
 	/* OBJETOS RELACIONADOS AL MENU */
 	
 	private JMenuBar barra;		// Objeto que almacena la barra de menu
@@ -50,6 +52,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	// Opciones del menu
 	private JMenu menu_file;
 	private JMenu menu_view;
+	private JMenu menu_math;
 	private JMenu menu_config;
 	private JMenu menu_help;
 	
@@ -65,12 +68,17 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	
 	//Items de view
 	private JMenu menuItem_view_graph;
-	private JMenuItem menuItem_view_math;
+	//private JMenuItem menuItem_view_math;
 	private JMenuItem menuItem_view_SerialPorts;
 	
 		// Graph
 		private JMenuItem menuItem_view_graph_getRangeTime;
 		private JMenuItem menuItem_view_graph_Fs;	// frecuencia de muestreo
+		
+		
+	// Items de Math
+		private JMenuItem menuItem_math_fft;
+		
 		
 	// Items de Config
 		
@@ -156,6 +164,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		// Inicializacion JMenu
 		menu_file   = new JMenu("File");
 		menu_view   = new JMenu("View");
+		menu_math   = new JMenu("Math");
 		menu_config = new JMenu("Config.");
 		menu_help 	= new JMenu("Help");
 		
@@ -169,7 +178,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 			//Items de view
 		menuItem_view_graph = new JMenu("Graph");
-		menuItem_view_math  = new JMenuItem("Math");
+		//menuItem_view_math  = new JMenuItem("Math");
 		menuItem_view_SerialPorts = new JMenuItem("Serial Ports");
 				 
 				//Items de Graph
@@ -178,6 +187,11 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 				menuItem_view_graph_Fs = new JMenuItem("Show sample rate");
 				this.menuItem_view_graph_Fs.setToolTipText("Muestra en consola la frecuencia de muestreo actual. Valor por defecto: 1 kHz");
 			
+			
+			// Items de Math
+				menuItem_math_fft = new JMenuItem("FFT");
+				menuItem_math_fft.setToolTipText("Calcula la fft de la señal muestreada. Guarda el resultado en \"files/signal_fft.txt\". Grafica el resultado. ");
+				
 			// Items de Config
 				this.menuItem_config_graph = new JMenu("Graph");
 				
@@ -218,14 +232,18 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			//view
 		menu_view.add(menuItem_view_graph);
 		menu_view.addSeparator();
-		menu_view.add(menuItem_view_math);
+		//menu_view.add(menuItem_view_math);
 		menu_view.addSeparator();
 		menu_view.add(menuItem_view_SerialPorts);
 				
 					// graph
 					menuItem_view_graph.add(menuItem_view_graph_getRangeTime);
 					menuItem_view_graph.add(menuItem_view_graph_Fs);	
-				
+			
+			// Math
+			menu_math.add(menuItem_math_fft);
+			menu_math.addSeparator();		
+			
 			// Config.
 		menu_config.add(this.menuItem_config_graph);
 					
@@ -247,6 +265,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			// Barra
 		barra.add(menu_file);
 		barra.add(menu_view);
+		barra.add(menu_math);
 		barra.add(menu_config);
 		barra.add(menu_help);
 		
@@ -264,6 +283,9 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		menuItem_view_SerialPorts.setActionCommand(InterfaceVista.ListSerialPorts);
 		this.menuItem_view_graph_Fs.setActionCommand(InterfaceVista.GetSamplingRate);
 		this.menuItem_view_graph_getRangeTime.setActionCommand(InterfaceVista.GetTimeRange);
+		
+		// MATH
+		menuItem_math_fft.setActionCommand(InterfaceVista.CalculateFFT);
 		
 		// CONFIG
 		this.menuItem_config_graph_all.setActionCommand(InterfaceVista.ConfigGraph);
@@ -603,6 +625,9 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		this.menuItem_view_graph_Fs.addActionListener(c);
 		this.menuItem_view_graph_getRangeTime.addActionListener(c);
 		
+		// Math section
+		menuItem_math_fft.addActionListener(c);
+		
 		// Config section
 		this.menuItem_config_setFs.addActionListener(c);
 		this.menuItem_config_setRangeTime.addActionListener(c);
@@ -749,6 +774,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		return this.jtf_set_signal_name.getText();
 				
 	}
+
 }
 
 
