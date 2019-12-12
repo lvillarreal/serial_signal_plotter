@@ -17,6 +17,7 @@ public class Controlador implements ActionListener{
 	
 	private InterfaceModelo modelo;
 	private InterfaceVista vista;
+	
 
 	
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
@@ -31,7 +32,7 @@ public class Controlador implements ActionListener{
 			Runnable r_barOptions = new barOptions(vista,modelo,e.getActionCommand());
 			Thread t_barOptions = new Thread(r_barOptions);
 			
-			Runnable r_serialComm = new SerialComm(vista,e.getActionCommand());
+			Runnable r_serialComm = new SerialComm(vista,modelo,e.getActionCommand());
 			Thread t_serialComm = new Thread(r_serialComm);
 			
 			if (e.getActionCommand().equals(InterfaceVista.ButtonConnectPushed)){
@@ -59,7 +60,9 @@ public class Controlador implements ActionListener{
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigGraphAddSignalName)){
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ButtonStartPushed)){
-				t_barOptions.start();
+				t_serialComm.start();
+
+				
 			}
 			
 		}
@@ -72,20 +75,74 @@ public class Controlador implements ActionListener{
 // Implementa las acciones que se realizan en la comunicacion serial. Lectura/escritura del puerto
 class SerialComm implements Runnable{
 	private InterfaceVista vista;
+	private InterfaceModelo modelo;
 	private String option;
 	
-	public SerialComm(InterfaceVista vista,String option) {
+	public SerialComm(InterfaceVista vista,InterfaceModelo modelo,String option) {
 		this.vista = vista;
+		this.modelo = modelo;
 		this.option = option;
 	}
 	
-	public void run() {
+	public void run() {	// metodo de interface runnable
 		switch(option) {
 		case InterfaceVista.ButtonConnectPushed:
 			buttonConnect();
 			break;
+			
+		case InterfaceVista.ButtonStartPushed:	
+			actualiceChart();
+			break;
 		}
 	}
+	
+
+	private void actualiceChart() {
+		
+			String status = null;
+			String line = null;
+			int index = 0;
+
+			
+			double fs = modelo.getSamplingRate();
+
+			// Se abre el archivo
+			status = modelo.openFile();
+			vista.writeConsole(status);
+			
+			// Controla que si el archivo no existe, no continue en el metodo
+			if(status.equalsIgnoreCase("No se encuentra el Archivo  \"files/DataBase.txt\"")){
+				vista.setButtonEnable(InterfaceVista.ButtonStartEnable, true);
+				return;
+			}else {
+		    vista.setButtonEnable(InterfaceVista.ButtonStartEnable, false);
+			// Se lee la frecuencia de muestreo que el sistema esta utilizando
+			fs = Double.parseDouble(modelo.readLine());
+			vista.writeConsole("Frecuencia de muestreo: "+fs + " [Hz]");
+			modelo.setFs(fs); // Se guarda la frecuencia de muestreo
+			modelo.setSampleRateUnits("Hz");
+			
+			// Se borran los datos actuales del grafico
+			vista.deleteChartData();
+			
+			// Se leen los datos
+			line = modelo.readLine();
+			//vista.writeConsole(line);
+	
+			while (line != null) {
+				vista.actualiceChartData(((double )index)/fs, Double.parseDouble(line));
+				index =index + 1;
+				line = modelo.readLine();
+				//vista.writeConsole(String.valueOf(((double )index)/fs)+" ; "+line );
+			}
+			
+			status = modelo.closeFile();
+			vista.writeConsole(status);
+			vista.setButtonEnable(InterfaceVista.ButtonStartEnable, true);
+			}
+	}
+			
+	
 	
 	private void buttonConnect() {
 		/*for (int i=1; i<=3000; i++){
@@ -169,22 +226,11 @@ class barOptions implements Runnable{
 				setSignalName();
 				break;
 				
-			case InterfaceVista.ButtonStartPushed:	//RECORDAR SACAR DE ESTA CLASE
-				actualiceChart();
-				break;
+
 		}
 	}
 	
-	// RECORDAR SACAR DE ESTA CLASE
-	private void actualiceChart() {
-		vista.deleteChartData();
-		double x = 0.0;
-		for (int i=0;i<10;i++) {
-			x = x+1;
-			vista.actualiceChartData(x, x);
-		}
-		vista.writeConsole("entro");
-	}
+
 	
 	private void setSignalName() {
 		//vista.setSignalName(vista.getNewSignalName());
@@ -208,7 +254,7 @@ class barOptions implements Runnable{
 	
 	// muestra en consola el rango de tiempo actual
 	private void getTimeRange() {
-		vista.writeConsole("Time range: " + modelo.getTimeRange()+" "+modelo.getTimeUnits());
+		vista.writeConsole("Time rang)e: " + modelo.getTimeRange()+" "+modelo.getTimeUnits());
 	}
 	
 	

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 public class DataBase implements InterfaceModelo {
 	
+	private FileHandler file_handler;	// clase para el manejo de archivos
+	
 	private String sample_rate_units; // unidades de frecuencia de muestreo
 	private String time_units;	// unidades del rango de tiempo
 	private double time_range;	// rango de tiempo de la grafica
@@ -13,7 +15,10 @@ public class DataBase implements InterfaceModelo {
 	
 	private ArrayList<Float> signalData;	// dato recibido por puerto comm
 	
+	private static String FILE_NAME = "files/DataBase.txt";
+	
 	public DataBase() {
+		this.file_handler = new FileHandler();
 		// valores por defecto
 		this.signal_name = "Signal name";
 		this.fs = 1;
@@ -21,6 +26,7 @@ public class DataBase implements InterfaceModelo {
 		this.time_range = 1;
 		this.time_units = "ms";
 		this.sample_rate_units = "kHz";
+		
 	}
 	
 
@@ -69,13 +75,19 @@ public class DataBase implements InterfaceModelo {
 	
 	
 
-
 	@Override
-	public void setSignalData(Integer dataIn) {
-		// TODO Auto-generated method stub
-		
+	public String openFile() {
+		return file_handler.openFile(FILE_NAME);
 	}
-	 
+	
+	@Override 
+	public String closeFile() {
+		return file_handler.closeFile();
+	}
+	@Override
+	public String readLine() {
+		return file_handler.readLine();
+	}
 	
 	@Override
 	public void setSampleRateUnits(String units) {

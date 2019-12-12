@@ -51,14 +51,13 @@ public class XYchart {
 //		renderer.setSeriesStroke(2, new BasicStroke(2.0f));
 		plot.setRenderer(renderer);	
 		
-		
 	}
 
 	public void createDataset() {
 		medicion = new XYSeries("Medicion");
-		medicion.add(1.0, 1.0);
-		medicion.add(2.0, 4.0);
-		medicion.add(3.0, 3.0);
+		//medicion.add(1.0, 1.0);
+		//medicion.add(2.0, 4.0);
+		//medicion.add(3.0, 3.0);
 		/*final XYSeries chrome = new XYSeries("Chrome");
 		chrome.add(1.0, 4.0);
 		chrome.add(2.0, 5.0);

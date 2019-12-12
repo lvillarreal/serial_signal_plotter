@@ -11,9 +11,8 @@ import org.jfree.chart.ChartPanel;
 
 // MARCO o FRAME
 public class FramePrincipal extends JFrame implements InterfaceVista{
+	
 
-	
-	
 
 	/*CONFIGURACION DE GRAFICA*/
 	private JFrame frame_conf_graph;
@@ -394,6 +393,22 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 	}
 	
+	
+	@Override 
+	public void setButtonEnable(String button,boolean option) {
+		switch (button) {
+		case InterfaceVista.ButtonStartEnable:
+			this.button_start.setEnabled(option);
+			break;
+		
+		case InterfaceVista.ButtonConnectEnable:
+			this.button_connect.setEnabled(option);
+			break;
+		}
+	}
+	
+	
+
 	
 	
 	// SECCION VENTANA EMERGENTE CONFIGURACION DE GRAFICA

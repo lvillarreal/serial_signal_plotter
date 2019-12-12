@@ -23,6 +23,9 @@ public interface InterfaceVista {
     void actualiceChartData(double x,double y);
     void deleteChartData();
     
+    void setButtonEnable(String button,boolean option);	// permite cambiar el texto de los botones
+    
+    
 	void writeConsole(String list);
 	String getConfigSampleRate();
 	String getSampleRateUnits();
@@ -47,4 +50,8 @@ public interface InterfaceVista {
 	static final String GetSamplingRate = "GetSamplingRate";	// muestra la frecuencia de muestreo actual
 	static final String GetTimeRange = "GetTimeRange";			// muestra el rango de tiempo de la grafica
 
+	static final String ButtonStartEnable = "ButtonStartEnable";	// permite habilitar y deshabilitar el boton start
+	static final String ButtonConnectEnable = "ButtonConnectEnable";	// permite habilitar y deshabilitar el boton connect
+
+	
 }
