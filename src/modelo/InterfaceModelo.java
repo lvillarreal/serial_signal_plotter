@@ -10,7 +10,7 @@ package modelo;
 	 void setTimeUnits(String units);
 	 
 	 byte calculateFFT();
-	 byte openFile();
+	 byte openFile(byte option);
 	 byte closeFile();
 	 String readLine();
 	 String getFileName(byte option);
@@ -37,7 +37,9 @@ package modelo;
 		final static byte CloseFileWriter = 1;
 
 		final static byte fileData = 0;
-		final static byte fileFFT = 1;
-		final static byte fftCalculateOk = 2;
+		final static byte fileFFTmodule = 1;
+		final static byte fftCalculateOk = 2;	// indica que la fft se calculo correctamente
+		final static byte fftShiftedOk = 3;		// indica que realizo bien el shift
+		final static byte fileFFTshiftedModule = 4;
 		
 }

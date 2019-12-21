@@ -77,9 +77,17 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 		
 	// Items de Math
-		private JMenuItem menuItem_math_fft;
+		private JMenu menuItem_math_fft;
 		
-		
+		// Items de FFT
+			private JMenuItem menuItem_math_fft_calculate;
+			private JMenu menuItem_math_fft_graph;
+				
+				// Items de graph
+				private JMenuItem menuItem_math_fft_graph_module;
+				private JMenuItem menuItem_math_fft_graph_angle;
+
+			
 	// Items de Config
 		
 	private JMenu menuItem_config_graph;
@@ -189,8 +197,20 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			
 			
 			// Items de Math
-				menuItem_math_fft = new JMenuItem("FFT");
+				menuItem_math_fft = new JMenu("FFT");
 				menuItem_math_fft.setToolTipText("Calcula la fft de la señal muestreada. Guarda el resultado en \"files/signal_fft.txt\". Grafica el resultado. ");
+				
+				// Items de FFT
+				this.menuItem_math_fft_calculate = new JMenuItem("Calculate");
+				this.menuItem_math_fft_graph = new JMenu("Graph");
+				
+					// Items de graph
+					this.menuItem_math_fft_graph_angle = new JMenuItem("Angle");
+					this.menuItem_math_fft_graph_module = new JMenuItem("Module");
+
+					
+				
+				
 				
 			// Items de Config
 				this.menuItem_config_graph = new JMenu("Graph");
@@ -244,6 +264,12 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			menu_math.add(menuItem_math_fft);
 			menu_math.addSeparator();		
 			
+				menuItem_math_fft.add(this.menuItem_math_fft_calculate);
+				menuItem_math_fft.add(this.menuItem_math_fft_graph);
+			
+				this.menuItem_math_fft_graph.add(this.menuItem_math_fft_graph_module);
+				this.menuItem_math_fft_graph.add(this.menuItem_math_fft_graph_angle);
+			
 			// Config.
 		menu_config.add(this.menuItem_config_graph);
 					
@@ -285,8 +311,10 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		this.menuItem_view_graph_getRangeTime.setActionCommand(InterfaceVista.GetTimeRange);
 		
 		// MATH
-		menuItem_math_fft.setActionCommand(InterfaceVista.CalculateFFT);
-		
+		this.menuItem_math_fft_calculate.setActionCommand(InterfaceVista.CalculateFFT);
+		this.menuItem_math_fft_graph_module.setActionCommand(InterfaceVista.GraphFFTmodule);
+		this.menuItem_math_fft_graph_angle.setActionCommand(InterfaceVista.GraphFFTangle);
+
 		// CONFIG
 		this.menuItem_config_graph_all.setActionCommand(InterfaceVista.ConfigGraph);
 		this.menuItem_config_setRangeTime.setActionCommand(InterfaceVista.ConfigTimeRange);
@@ -626,8 +654,9 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		this.menuItem_view_graph_getRangeTime.addActionListener(c);
 		
 		// Math section
-		menuItem_math_fft.addActionListener(c);
-		
+		this.menuItem_math_fft_calculate.addActionListener(c);
+		this.menuItem_math_fft_graph_module.addActionListener(c);
+		this.menuItem_math_fft_graph_angle.addActionListener(c);
 		// Config section
 		this.menuItem_config_setFs.addActionListener(c);
 		this.menuItem_config_setRangeTime.addActionListener(c);

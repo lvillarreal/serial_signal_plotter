@@ -15,9 +15,11 @@ public class DataBase implements InterfaceModelo {
 	private double Ts;			// periodo de muestreo
 	private String signal_name;	// nombre de la señal
 	
+	private String serialPort;
 
 	private static String FILE_NAME;
-	private static String fft_FILE_NAME;
+	private static String fftModule_FILE_NAME;
+	private static String fftModule_FILE_NAME_shifted;
 	
 	public DataBase() {
 		this.fft = new FFT();
@@ -30,16 +32,23 @@ public class DataBase implements InterfaceModelo {
 		this.time_range = 1;
 		this.time_units = "ms";
 		this.sample_rate_units = "kHz";
+		this.serialPort = null;
 		
 		FILE_NAME = "files/DataBase.txt";
-		fft_FILE_NAME = "files/signal_fft.txt";
+		fftModule_FILE_NAME = "files/signal_fft_module_noshifted.txt";
+		fftModule_FILE_NAME_shifted= "files/signal_fft_module.txt";
 		
 	}
 	
 	
 	@Override
 	public byte calculateFFT() {
-		return fft.fft(FILE_NAME,fft_FILE_NAME);
+		byte status=-1;
+		status = fft.fft(FILE_NAME,fftModule_FILE_NAME);
+		if(status != InterfaceModelo.fftCalculateOk ) return status;
+		
+		//return fft.fftShift(fftModule_FILE_NAME, fftModule_FILE_NAME_shifted);
+		return status;
 	}
 	
 	@Override
@@ -88,8 +97,18 @@ public class DataBase implements InterfaceModelo {
 	
 
 	@Override
-	public byte openFile() {
-		return file_handler.openFile(FILE_NAME);
+	public byte openFile(byte option) {
+		switch(option){
+		case InterfaceModelo.fileFFTmodule:
+			return file_handler.openFile(fftModule_FILE_NAME);
+		
+		case InterfaceModelo.fileData:
+			return file_handler.openFile(FILE_NAME);
+			
+		case InterfaceModelo.fileFFTshiftedModule:
+			return file_handler.openFile(this.fftModule_FILE_NAME_shifted);
+		}
+		return 0;
 	}
 	
 	@Override 
@@ -120,8 +139,12 @@ public class DataBase implements InterfaceModelo {
 			return this.FILE_NAME;
 			
 		
-		case InterfaceModelo.fileFFT:
-			return this.fft_FILE_NAME;
+		case InterfaceModelo.fileFFTmodule:
+			return this.fftModule_FILE_NAME;
+			
+		case InterfaceModelo.fileFFTshiftedModule:
+			return this.fftModule_FILE_NAME_shifted;
+			
 		}
 		return "";
 	}

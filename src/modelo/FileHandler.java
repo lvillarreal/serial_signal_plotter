@@ -12,8 +12,7 @@ public class FileHandler {
 	private PrintWriter pw;
     private BufferedReader br;
     private String linea;
-    
-    private RandomAccessFile raf;
+
     
 	public FileHandler() {
 		FILE_NAME = null;
@@ -27,8 +26,7 @@ public class FileHandler {
 	public byte openFile(String FILE_NAME) {
 		try {
 			this.FILE_NAME = FILE_NAME;
-	         
-			//raf = new RandomAccessFile(this.FILE_NAME,"r");
+	        
 			
 			// Apertura del fichero y creacion de BufferedReader para poder
 	         // hacer una lectura comoda (disponer del metodo readLine()).
@@ -45,15 +43,6 @@ public class FileHandler {
 		}
 	}
 	
-	public byte FileReadReset() {
-		try{
-			
-			br.reset();
-			return 0;
-		}catch(Exception e) {
-			return -1;
-		}
-	}
 	
 	public byte closeFile() {
 		
@@ -75,40 +64,6 @@ public class FileHandler {
 			         e2.printStackTrace();
 			         return InterfaceModelo.CloseFileError;
 			    }
-		
-		
-		/*switch(option) {
-		
-		case InterfaceModelo.CloseFileReader:
-			 try{                    
-	            if( fr != null ){   
-	               fr.close();   
-	               //System.out.println("ARCHIVO CERRADO");
-	               return InterfaceModelo.closeFileSuccessfully;
-	            		  
-	            }else return 1;
-		            
-				}catch (Exception e2){ 
-			         e2.printStackTrace();
-			         return InterfaceModelo.CloseFileError;
-			    }
-			 
-			 
-		case InterfaceModelo.CloseFileWriter:
-			 try{                    
-	            if( fw != null ){   
-	               fw.close();   
-	               //System.out.println("ARCHIVO CERRADO");
-	               return InterfaceModelo.closeFileSuccessfully;
-	            		  
-	            }else return 1;
-		            
-				}catch (Exception e2){ 
-			         e2.printStackTrace();
-			         return InterfaceModelo.CloseFileError;
-	            }
-			 
-		}*/
 		 
 	}
 	
@@ -145,34 +100,13 @@ public class FileHandler {
 		
 	}
 	
-	public long getCantLines() {
-		if (br != null) return br.lines().count();
+	public int getCantLines() {
+		if (br != null) return (int)br.lines().count();
 		else return InterfaceModelo.OpenFileError;
 	}
 	
-	/*public void readFile() {
-
-
-	         // Lectura del fichero
-	         String linea;
-	         while((linea=br.readLine())!=null)
-	            System.out.println(linea);
-	      }
-	      catch(Exception e){
-	         e.printStackTrace();
-	      }finally{
-	         // En el finally cerramos el fichero, para asegurarnos
-	         // que se cierra tanto si todo va bien como si salta 
-	         // una excepcion.
-	         try{                    
-	            if( null != fr ){   
-	               fr.close();     
-	            }                  
-	         }catch (Exception e2){ 
-	            e2.printStackTrace();
-	         }
-	      }
-	}*/
-	
+	public void delete() {
+		archivo.delete();
+	}
 	
 }

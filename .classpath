@@ -5,5 +5,6 @@
 	<classpathentry kind="lib" path="C:/Program Files/Java/eclipse/plugins/gnu.io.rxtx_2.1.7.4_v20071016.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Java/jfreechart-1.0.19/lib/jcommon-1.0.23.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Java/jfreechart-1.0.19/lib/jfreechart-1.0.19.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/Java-RxTx-in-Windows-10-USB-COM-ports-master/Win10RxTx/lib/RXTXcomm.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

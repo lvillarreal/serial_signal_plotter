@@ -6,7 +6,7 @@ import java.util.Enumeration;
 import javax.swing.JOptionPane;
 
 import gnu.io.CommPortIdentifier;
-
+import gnu.io.SerialPortEvent;
 import modelo.*;
 import vista.*;
 
@@ -63,7 +63,8 @@ public class Controlador implements ActionListener{
 				t_serialComm.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.CalculateFFT)){
 				t_barOptions.start();
-
+			}else if(e.getActionCommand().equals(InterfaceVista.GraphFFTmodule)){
+				t_barOptions.start();
 				
 			}
 			
@@ -99,7 +100,7 @@ class SerialComm implements Runnable{
 	}
 	
 
-	private void actualiceChart() {
+	synchronized private void actualiceChart() {
 		
 			int status;
 			String line = null;
@@ -109,7 +110,7 @@ class SerialComm implements Runnable{
 			double fs = modelo.getSamplingRate();
 
 			// Se abre el archivo
-			status = modelo.openFile();
+			status = modelo.openFile(InterfaceModelo.fileData);
 			
 			if (status == InterfaceModelo.OpenFileSuccessfully) {	// si se abre satisfactoriamente
 				vista.writeConsole("File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" opened successfully");
@@ -159,17 +160,57 @@ class SerialComm implements Runnable{
 			
 	
 	
-	private void buttonConnect() {
-		/*for (int i=1; i<=3000; i++){
-			System.out.println(i);
-			try {
-				Thread.sleep(4);
-				
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}*/
+	synchronized private void buttonConnect() {
+		vista.writeConsole("ENTRO A BUTTON CONNECT");
 	}
+	
+	/*
+	
+	    public void ArduinoConnection() {
+
+	        CommPortIdentifier portId = null;
+	
+	        try {
+
+	            serialPort = (SerialPort) portId.open(this.getClass().getName(), TIME_OUT);
+
+	            serialPort.setSerialPortParams(DATA_RATE,
+	                    SerialPort.DATABITS_8,
+	                    SerialPort.STOPBITS_1,
+	                    SerialPort.PARITY_NONE);
+
+	            Output = serialPort.getOutputStream();
+	            Input = serialPort.getInputStream();
+
+	            serialPort.addEventListener(this);
+	            serialPort.notifyOnDataAvailable(true);
+	        } catch (Exception e) {
+
+	            System.exit(ERROR);
+	        }
+
+	    }
+
+	    private int RecibirDatos() throws IOException {
+	        int Output = 0;
+	        Output = Input.read();
+	        return Output;
+	    }
+
+	    private void EnviarDatos(String data) {
+
+	        try {
+	            Output.write(data.getBytes());
+
+	        } catch (IOException e) {
+
+	            System.exit(ERROR);
+	        }
+	    }
+
+	
+	*/
+	
 	
 
 }
@@ -245,20 +286,25 @@ class barOptions implements Runnable{
 				calculateFFT();
 				break;
 				
+			case InterfaceVista.GraphFFTmodule:
+				actualiceChartFFT(InterfaceModelo.fileFFTmodule);
+				break;
+				
 
 		}
 	}
 	
 
 	private void calculateFFT() {
+		vista.writeConsole("FFT proccessing");
 		byte status = modelo.calculateFFT();
-		switch(status) {
+		switch(status) { 
 		case InterfaceModelo.OpenFileError:
 			vista.writeConsole("ERROR. \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be opened");
 			break;
 			
 		case InterfaceModelo.CreateFileError:
-			vista.writeConsole("ERROR. \""+modelo.getFileName(InterfaceModelo.fileFFT)+"\" cannot be opened");
+			vista.writeConsole("ERROR. \""+modelo.getFileName(InterfaceModelo.fileFFTmodule)+"\" cannot be opened");
 			break;
 			
 		case InterfaceModelo.fftCalculateOk:
@@ -266,6 +312,68 @@ class barOptions implements Runnable{
 		}
 
 	}
+	
+	
+	
+	private void actualiceChartFFT(byte file) {
+		
+		int status;
+		String line = null;
+		int index = 0;
+
+		
+		//double fs = modelo.getSamplingRate();
+
+		// Se abre el archivo
+		status = modelo.openFile(file);
+		
+		if (status == InterfaceModelo.OpenFileSuccessfully) {	// si se abre satisfactoriamente
+			vista.writeConsole("File \""+modelo.getFileName(InterfaceModelo.fileFFTshiftedModule)+"\" opened successfully");
+			
+			// inhabilita el boton de start
+		    vista.setButtonEnable(InterfaceVista.ButtonStartEnable, false);
+		    
+		    
+			// Se lee la frecuencia de muestreo que el sistema esta utilizando
+			fs = Double.parseDouble(modelo.readLine());
+			vista.writeConsole("Sample rate: "+fs + " [Hz]");
+			
+			//modelo.setFs(fs); // Se guarda la frecuencia de muestreo
+			//modelo.setSampleRateUnits("Hz");
+			
+			// Se borran los datos actuales del grafico
+			vista.deleteChartData();
+			
+			// Se leen los datos  del archivo
+			
+			line = modelo.readLine();
+			//vista.writeConsole(line);
+	
+			while (line != null) {
+				vista.actualiceChartData(((double )index)*fs, Double.parseDouble(line));
+				index =index + 1;
+				line = modelo.readLine();
+				//vista.writeConsole(String.valueOf(((double )index)/fs)+" ; "+line );
+			}
+			
+			// Se cierra el archivo
+			status = modelo.closeFile();
+			
+			if(status == InterfaceModelo.closeFileSuccessfully) {	// si el archivo se cierra correctamente
+				vista.writeConsole("File \""+modelo.getFileName(InterfaceModelo.fileFFTmodule)+"\" closed successfully" );
+				
+				// se habilita el boton start
+				vista.setButtonEnable(InterfaceVista.ButtonStartEnable, true);
+			}else if(status == InterfaceModelo.CloseFileError) {	
+				vista.writeConsole("ERROR. File \""+modelo.getFileName(InterfaceModelo.fileFFTmodule)+"\" cannot be closed" );
+			}
+		}else {	// el archivo no se abrio correctamente
+			vista.writeConsole("ERROR. File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be opened" );
+			
+		}
+		
+	}
+	
 	
 	private void setSignalName() {
 		//vista.setSignalName(vista.getNewSignalName());
@@ -289,7 +397,7 @@ class barOptions implements Runnable{
 	
 	// muestra en consola el rango de tiempo actual
 	private void getTimeRange() {
-		vista.writeConsole("Time rang)e: " + modelo.getTimeRange()+" "+modelo.getTimeUnits());
+		vista.writeConsole("Time range: " + modelo.getTimeRange()+" "+modelo.getTimeUnits());
 	}
 	
 	
@@ -397,11 +505,10 @@ class barOptions implements Runnable{
 	 	Enumeration ports = CommPortIdentifier.getPortIdentifiers();  
         
 	 	if(ports.hasMoreElements()) {
-	 		vista.writeConsole("Puertos conectados");
-            vista.writeConsole(((CommPortIdentifier)ports.nextElement()).getName().toString() );
+            vista.writeConsole(((CommPortIdentifier)ports.nextElement()).getName().toString() + " is connected");
 
 	 	}else {
-	 		vista.writeConsole("No se detectan puertos conectados");
+	 		vista.writeConsole("No serial ports connected");
 	 	}
         while(ports.hasMoreElements())  {
             vista.writeConsole(((CommPortIdentifier)ports.nextElement()).getName().toString() );
