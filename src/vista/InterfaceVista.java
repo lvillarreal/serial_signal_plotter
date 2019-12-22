@@ -32,7 +32,9 @@ public interface InterfaceVista {
 	String getConfigTimeRange();
 	String getTimeRangeUnits();
 	String getNewSignalName();
+	String getPortName();
 
+	
 	
 	// ActionCommands para los eventos
 	static final String ButtonConnectPushed = "ButtonConnectedPushed";	// Para ActionCommand del boton connect

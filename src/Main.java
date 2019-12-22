@@ -1,4 +1,6 @@
 
+import java.util.Map;
+
 import controlador.Controlador;
 import vista.*;
 import modelo.*;
@@ -14,8 +16,7 @@ public class Main {
 		vista.start();
 		
 		vista.setControlador(controlador);
-
-//		ConfigGraph ventana2 = new ConfigGraph();
+		Map<Thread, StackTraceElement[]> threads = Thread.getAllStackTraces();
 		
 	}
 }

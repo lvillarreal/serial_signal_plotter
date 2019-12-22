@@ -2,37 +2,41 @@ package controlador;
 
 import java.awt.event.*;
 import java.util.Enumeration;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPortEvent;
+import gnu.io.SerialPortEventListener;
 import modelo.*;
 import vista.*;
 
 
 
-public class Controlador implements ActionListener{
+public class Controlador implements ActionListener, SerialPortEventListener{
 	
 	
 	private InterfaceModelo modelo;
 	private InterfaceVista vista;
 	
+	private SerialCommunication serial_comm;
 
 	
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
 		this.modelo = modelo;
 		this.vista = vista;
+		serial_comm = new SerialCommunication();	// instanciacion de serialCommunication
 
 	}
 
 		@Override 
 		public void actionPerformed(ActionEvent e)  {
 			
-			Runnable r_barOptions = new barOptions(vista,modelo,e.getActionCommand());
+			Runnable r_barOptions = new barOptions(vista,modelo,serial_comm,e.getActionCommand());
 			Thread t_barOptions = new Thread(r_barOptions);
 			
-			Runnable r_serialComm = new SerialComm(vista,modelo,e.getActionCommand());
+			Runnable r_serialComm = new SerialComm(vista,modelo,serial_comm,this,e.getActionCommand());
 			Thread t_serialComm = new Thread(r_serialComm);
 			
 			if (e.getActionCommand().equals(InterfaceVista.ButtonConnectPushed)){
@@ -70,6 +74,49 @@ public class Controlador implements ActionListener{
 			
 		}
 
+		@Override
+		public void serialEvent(SerialPortEvent oEvent) {
+			int index = 0;
+			
+		    while (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+
+	            try {
+	                int datos; //Se declaran las variables
+	                datos = serial_comm.readData(); //Se lee los datos en el puerto serie
+
+	                if (datos > 0) { //Si el valor leido es mayor a 0...
+	                    serial_comm.setMensaje(serial_comm.getMensaje()+(char)datos); //Se acumula el mensaje
+
+	                    if (serial_comm.getMensaje().charAt(serial_comm.getMensaje().length() - 1) == ',') { //Cuando se recibe la coma
+	                        //el mensaje ha llegado a su final, por lo que se procede a imprimir
+	                        //La parte ENTERA de la humedad. Se busca el punto, donde quiera que esté
+	                        //y se transforma de String a entero
+	                     
+	                    	for (int i = 0; i <= serial_comm.getMensaje().length() - 1; i++) {
+	                            if (serial_comm.getMensaje().charAt(i) == '.') {
+	                                serial_comm.setDatoEntrada(Integer.parseInt(serial_comm.getMensaje().substring(0, i)));
+	                                System.out.println(serial_comm.getDatoEntrada());
+
+	                                serial_comm.setMensaje(""); //Se limpia la variable y se prepara para nueva lectura
+	            		            
+	                                vista.actualiceChartData(((double )index)/modelo.getSamplingRate(), (double)serial_comm.getDatoEntrada());
+	            		            index = index+1;
+	                            }
+	                        }
+	                    }
+	                
+	                }
+		            
+
+	            } catch (Exception e) {
+	                System.err.println(e.toString());
+	            }
+
+		    }
+			
+			
+		}
+
 		
 
 }
@@ -77,17 +124,22 @@ public class Controlador implements ActionListener{
 		
 // Implementa las acciones que se realizan en la comunicacion serial. Lectura/escritura del puerto
 class SerialComm implements Runnable{
+	
 	private InterfaceVista vista;
 	private InterfaceModelo modelo;
 	private String option;
+	private SerialCommunication serial_comm;
+	private Controlador c;
 	
-	public SerialComm(InterfaceVista vista,InterfaceModelo modelo,String option) {
+	public SerialComm(InterfaceVista vista,InterfaceModelo modelo,SerialCommunication serial_comm,Controlador c,String option) {
 		this.vista = vista;
 		this.modelo = modelo;
 		this.option = option;
+		this.serial_comm = serial_comm;
+		this.c = c;
 	}
 	
-	public void run() {	// metodo de interface runnable
+	 public void run() {	// metodo de interface runnable
 		switch(option) {
 		case InterfaceVista.ButtonConnectPushed:
 			buttonConnect();
@@ -100,7 +152,7 @@ class SerialComm implements Runnable{
 	}
 	
 
-	synchronized private void actualiceChart() {
+	 private void actualiceChart() {
 		
 			int status;
 			String line = null;
@@ -160,58 +212,15 @@ class SerialComm implements Runnable{
 			
 	
 	
-	synchronized private void buttonConnect() {
-		vista.writeConsole("ENTRO A BUTTON CONNECT");
+	private void buttonConnect() {
+		vista.deleteChartData();
+		modelo.setPortName(vista.getPortName());	//Se guarda el puerto ingresado  por el usuario
+		if(serial_comm.portConnect(c, modelo.getPortName()) == -1)	vista.writeConsole("Cannot connect to port "+vista.getPortName());
+		else vista.writeConsole(vista.getPortName()+" connection successfully");
+		
 	}
 	
-	/*
-	
-	    public void ArduinoConnection() {
 
-	        CommPortIdentifier portId = null;
-	
-	        try {
-
-	            serialPort = (SerialPort) portId.open(this.getClass().getName(), TIME_OUT);
-
-	            serialPort.setSerialPortParams(DATA_RATE,
-	                    SerialPort.DATABITS_8,
-	                    SerialPort.STOPBITS_1,
-	                    SerialPort.PARITY_NONE);
-
-	            Output = serialPort.getOutputStream();
-	            Input = serialPort.getInputStream();
-
-	            serialPort.addEventListener(this);
-	            serialPort.notifyOnDataAvailable(true);
-	        } catch (Exception e) {
-
-	            System.exit(ERROR);
-	        }
-
-	    }
-
-	    private int RecibirDatos() throws IOException {
-	        int Output = 0;
-	        Output = Input.read();
-	        return Output;
-	    }
-
-	    private void EnviarDatos(String data) {
-
-	        try {
-	            Output.write(data.getBytes());
-
-	        } catch (IOException e) {
-
-	            System.exit(ERROR);
-	        }
-	    }
-
-	
-	*/
-	
-	
 
 }
 
@@ -229,11 +238,13 @@ class barOptions implements Runnable{
 	private String option;
 	private InterfaceVista vista;
 	private InterfaceModelo modelo;
+	private SerialCommunication serial_comm;
 	
-	public barOptions(InterfaceVista vista,InterfaceModelo modelo,String option) {
+	public barOptions(InterfaceVista vista,InterfaceModelo modelo,SerialCommunication serial_comm,String option) {
 		this.option = option;
 		this.vista = vista;
 		this.modelo = modelo;
+		this.serial_comm = serial_comm;
 	}
 	
 	public void run() {
@@ -496,7 +507,8 @@ class barOptions implements Runnable{
 	
 	// Sale del programa
 	private void exitProgram() {
-		System.exit(0);
+		System.out.println(serial_comm.closePort());
+		//System.exit(0);
 	}
 	
 	// Lista en consola los puertos conectados

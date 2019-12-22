@@ -15,8 +15,12 @@ public class DataBase implements InterfaceModelo {
 	private double Ts;			// periodo de muestreo
 	private String signal_name;	// nombre de la señal
 	
-	private String serialPort;
+	// Seccion comunicacion serial
+	private String port_name;
+	private String portId;	// para verificar si el puerto esta conectado o no
 
+	
+	// Seccion archivos
 	private static String FILE_NAME;
 	private static String fftModule_FILE_NAME;
 	private static String fftModule_FILE_NAME_shifted;
@@ -32,7 +36,8 @@ public class DataBase implements InterfaceModelo {
 		this.time_range = 1;
 		this.time_units = "ms";
 		this.sample_rate_units = "kHz";
-		this.serialPort = null;
+		this.port_name = null;
+		this.portId = null;
 		
 		FILE_NAME = "files/DataBase.txt";
 		fftModule_FILE_NAME = "files/signal_fft_module_noshifted.txt";
@@ -130,6 +135,16 @@ public class DataBase implements InterfaceModelo {
 	@Override
 	public void setTimeUnits(String units) {
 		this.time_units = units;
+	}
+	
+	@Override
+	public void setPortName(String port_name) {
+		this.port_name = port_name;
+	}
+	
+	@Override
+	public String getPortName() {
+		return this.port_name;
 	}
 	
 	@Override

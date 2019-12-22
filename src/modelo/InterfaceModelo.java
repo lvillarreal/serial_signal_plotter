@@ -1,6 +1,8 @@
 package modelo;
 
- public interface InterfaceModelo {
+import gnu.io.SerialPort;
+
+public interface InterfaceModelo {
 
 	
 	 void setTimeRange(double time);
@@ -8,6 +10,7 @@ package modelo;
 	 void setSignalName(String name);
 	 void setSampleRateUnits(String units);
 	 void setTimeUnits(String units);
+	 void setPortName(String port_name);
 	 
 	 byte calculateFFT();
 	 byte openFile(byte option);
@@ -20,8 +23,8 @@ package modelo;
 	 double getTimeRange();
 	 double getSamplingRate();
 	 String getSampleRateUnits();
+	 String getPortName();
 
-	 
 		
 		final static byte OpenFileSuccessfully = 0;
 		final static byte closeFileSuccessfully = 0;

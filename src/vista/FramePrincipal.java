@@ -356,9 +356,10 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		// CAMPO DE TEXTO
 		
 		// Instanciacion del Campo de texto para la conexion serial
-		text_port = new JTextField("COM 1");	// se instancia el TextField con el texto COM 1 por defecto
+		text_port = new JTextField("COM1");	// se instancia el TextField con el texto COM 1 por defecto
 		text_port.setEnabled(true);				// se habilita el ingreso de texto por parte del usuario		
-		text_port.setToolTipText("Ingrese el puerto COM al que se ha conectado el dispositivo");
+		text_port.setToolTipText("Ingrese el puerto COM al que se ha conectado el dispositivo. Ej, COM1.");
+		text_port.setActionCommand(ButtonConnectPushed);	// Si presiona enter es como si presionara el boton connect
 		c.gridx = 2; 		// El campo de texto empieza en la columna cero.
 		c.gridy = 0; 		// El campo de texto empieza en la fila cero
 		c.gridwidth = 1; 	// El campo de texto ocupa una columna.
@@ -647,6 +648,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		// Serial communication section
 		button_connect.addActionListener(c);
 		button_start.addActionListener(c);
+		text_port.addActionListener(c);
 		
 		// view section
 		menuItem_view_SerialPorts.addActionListener(c);
@@ -804,6 +806,12 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 				
 	}
 
+	@Override
+	public String getPortName() {
+		return this.text_port.getText();
+				
+	}
+	
 }
 
 
