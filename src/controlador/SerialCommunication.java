@@ -15,7 +15,7 @@ import gnu.io.SerialPortEventListener;
 public class SerialCommunication{
 	 
     private static final int TIME_OUT = 2000;
-    private static final int DATA_RATE = 115200 ;
+    private static final int DATA_RATE = 250000 ;
     SerialPort serialPort;
     private CommPortIdentifier portId;
     private OutputStream Output;

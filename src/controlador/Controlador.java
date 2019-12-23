@@ -83,7 +83,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	            try {
 	                int datos; //Se declaran las variables
 	                datos = serial_comm.readData(); //Se lee los datos en el puerto serie
-
+	                //System.out.println(datos);
 	                if (datos > 0) { //Si el valor leido es mayor a 0...
 	                    serial_comm.setMensaje(serial_comm.getMensaje()+(char)datos); //Se acumula el mensaje
 
@@ -91,7 +91,8 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	                        //el mensaje ha llegado a su final, por lo que se procede a imprimir
 	                        //La parte ENTERA de la humedad. Se busca el punto, donde quiera que esté
 	                        //y se transforma de String a entero
-	                     
+	                    	System.out.println(serial_comm.getMensaje());
+	                    	serial_comm.setMensaje("");
 	                    	for (int i = 0; i <= serial_comm.getMensaje().length() - 1; i++) {
 	                            if (serial_comm.getMensaje().charAt(i) == '.') {
 	                                serial_comm.setDatoEntrada(Integer.parseInt(serial_comm.getMensaje().substring(0, i)));
