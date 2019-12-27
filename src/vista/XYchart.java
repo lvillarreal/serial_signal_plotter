@@ -75,6 +75,7 @@ public class XYchart {
 	
 	public void actualiceDataset(double x,double y) {
 		medicion.add(x,y);
+		
 	}
 	
 	public void actualiceTitle(String title) {
@@ -83,6 +84,7 @@ public class XYchart {
 	
 	public void deleteDataset() {
 		medicion.clear();
+		
 	}
 
 	
@@ -94,4 +96,12 @@ public class XYchart {
 		return plot;
 	}
 
+	public void viewDataset() {
+		System.out.println("Cantidad de items: "+medicion.getItemCount());
+		
+	}
+	
+	public double getDataItem(int index) {
+		return Integer.parseInt(String.valueOf(medicion.getY(index)));
+	}
 }

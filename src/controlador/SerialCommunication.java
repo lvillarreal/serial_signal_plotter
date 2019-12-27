@@ -20,6 +20,7 @@ public class SerialCommunication{
     private CommPortIdentifier portId;
     private OutputStream Output;
     private InputStream Input;
+    private boolean connected;
     
     private String mensaje;
     private int dato_entrada;
@@ -30,6 +31,7 @@ public class SerialCommunication{
     	Input = null;
     	mensaje = "";
     	dato_entrada = 0;
+    	connected = false;
     }
 
     public byte portConnect(Controlador c,String portName) {
@@ -48,7 +50,9 @@ public class SerialCommunication{
         }
 
         if (portId == null) {
-            return -1;	// si retorna -1 es por que hubo un error
+            connected = false;
+        	return -1;	// si retorna -1 es por que hubo un error
+            
         }
 
         try {
@@ -66,8 +70,9 @@ public class SerialCommunication{
             serialPort.addEventListener(c);
             serialPort.notifyOnDataAvailable(true);
             System.out.println("Se Conecto al puerto "+portName);
+            connected = true;
         } catch (Exception e) {
-
+        	connected = false;
             return -1;
         }
         return 0;
@@ -85,16 +90,35 @@ public class SerialCommunication{
     }
     
     
-    public byte closePort() {
+ /*   public byte closePort() {
     	try{
     		
     		serialPort.close();
+    		serialPort.disableReceiveFraming();
     		Output.close();
     		Input.close();
     		return 0;
     	}catch(Exception e) {
+    		e.printStackTrace();
     		return -1;
     	}
+    }*/
+    
+    public void closePort() {
+
+    	new Thread(){
+        @Override
+        public void run(){
+            try{
+            //serialPort.removeEventListener();
+            Input.close();
+            serialPort.close();
+            connected = false;
+            }catch (IOException e) {
+        		e.printStackTrace();
+            }
+        }
+        }.start();
     }
     
     public void setMensaje(String msje) {
@@ -111,6 +135,10 @@ public class SerialCommunication{
     
     public int getDatoEntrada() {
     	return this.dato_entrada;
+    }
+    
+    public boolean getState() {
+    	return connected;
     }
 
 }

@@ -24,8 +24,11 @@ public interface InterfaceVista {
     void deleteChartData();
     
     void setButtonEnable(String button,boolean option);	// permite cambiar el texto de los botones
+
+    void viewDataset();
+    double getDatasetItem(int index);
     
-    
+    void buttonSetVisible(String button);
 	void writeConsole(String list);
 	String getConfigSampleRate();
 	String getSampleRateUnits();
@@ -33,12 +36,13 @@ public interface InterfaceVista {
 	String getTimeRangeUnits();
 	String getNewSignalName();
 	String getPortName();
-
+	
 	
 	
 	// ActionCommands para los eventos
 	static final String ButtonConnectPushed = "ButtonConnectedPushed";	// Para ActionCommand del boton connect
 	static final String ButtonStartPushed = "ButtonStartPushed";		// Para comenzar la captura de datos
+	static final String ButtonDisconnectPushed = "ButtonDisconnectPushed";
 	
 	static final String ListSerialPorts = "ListSerialPorts";			// Para listar los puertos seriales conectados
 	static final String MenuButtonExitPushed = "MenuButtonExitPushed";	// Cuando se presiona el boton File/Exit

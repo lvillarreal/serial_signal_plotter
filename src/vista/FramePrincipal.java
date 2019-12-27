@@ -102,12 +102,15 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
     private JMenuItem menuItem_help_helpContent;
 	private JMenuItem menuItem_help_about;
 
+	
+	
 	// ATRIBUTOS RELACIONADOS AL PANEL PRINCIPAL
 	
-	private JTextField text_port;	// campo de texto para introducir el puerto 
-	private JButton button_connect;	// boton para conectar
-	private JButton button_start;	// Comineza a almacenar los datos recibidos por puerto serie
-	private JLabel label;			// CAMBIAR POR LA GRAFICA
+	private JTextField text_port;	    // campo de texto para introducir el puerto 
+	private JButton button_connect;	    // boton para conectar
+	private JButton button_disconnect;
+	private JButton button_start;	    // Comineza a almacenar los datos recibidos por puerto serie
+	private JLabel label;			    // CAMBIAR POR LA GRAFICA
 	
 	private JTextArea console;
 	private JInternalFrame frame_console;
@@ -379,10 +382,17 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		button_connect = setButton(c,"CONNECT",3,0,1,1,0.0,10);
 		button_connect.setToolTipText("Presione para conectar con el puerto serie");
 		button_connect.setActionCommand(ButtonConnectPushed);
-
+		button_connect.setVisible(true);
 		panel_principal.add(button_connect,c);		// se agrega al panel
 		c.weightx = 0.0;
 		
+		button_disconnect = setButton(c,"DISCONNECT",3,0,1,1,0.0,10);
+		button_disconnect.setVisible(false);
+		button_disconnect.setToolTipText("Presione para desconectar el puerto serie");
+		button_disconnect.setActionCommand(ButtonDisconnectPushed);
+
+		panel_principal.add(button_disconnect,c);		// se agrega al panel
+		c.weightx = 0.0;
 		
 		// Instanciacon del boton start
 		button_start = setButton(c,"START",2,1,2,1,0.0,20);
@@ -647,6 +657,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		
 		// Serial communication section
 		button_connect.addActionListener(c);
+		button_disconnect.addActionListener(c);
 		button_start.addActionListener(c);
 		text_port.addActionListener(c);
 		
@@ -812,6 +823,30 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 				
 	}
 	
+	@Override
+	public void viewDataset() {
+		grafica.viewDataset();
+	}
+	
+	@Override
+	public double getDatasetItem(int index) {
+		return grafica.getDataItem(index);
+	}
+
+	@Override
+	public void buttonSetVisible(String button) {
+		switch(button) {
+		case "connect":
+			this.button_connect.setVisible(true);
+			this.button_disconnect.setVisible(false);
+			break;
+		case"disconnect":
+			this.button_connect.setVisible(false);
+			this.button_disconnect.setVisible(true);
+			break;
+			
+		}
+	}
 }
 
 
