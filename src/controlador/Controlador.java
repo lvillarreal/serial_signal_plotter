@@ -24,6 +24,11 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	private int index;
 	private int buffer;
 	private int errores;
+	// status indica el estado en que se encuentra la comunicacion
+	// -1: no hay comunicacion
+	//  0: se estan recibiendo los datos de la medicion
+	//  1: se estan recibiendo datos de configuracion
+	private byte status;	
 	
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
 		this.modelo = modelo;
@@ -32,7 +37,14 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		index = 0;
 		buffer = 0;
 		errores = 0;
+		status = -1;
 	}
+	
+	// inicializa la comunicacion, pide al dispositivo la tasa de muestreo
+	// Se envia el valor ascii 2 (STX, inicio texto) para comenzar la transmision
+	// El client envia la tasa de muestreo en hertz, en 24 bits (3 bytes)
+	// Luego, el cliente envia ascii 4 (EOT, fin transmision);
+	// Una vez obtenida la informacion, se envia ascii 5 (ENQ, consulta) para comenzar a recibir la medicion del AD
 
 		@Override 
 		public void actionPerformed(ActionEvent e)  {
@@ -40,13 +52,32 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			Runnable r_barOptions = new barOptions(vista,modelo,serial_comm,e.getActionCommand());
 			Thread t_barOptions = new Thread(r_barOptions);
 			
-			Runnable r_serialComm = new SerialComm(vista,modelo,serial_comm,this,e.getActionCommand());
-			Thread t_serialComm = new Thread(r_serialComm);
+		//	Runnable r_serialComm = new SerialComm(vista,modelo,serial_comm,this,e.getActionCommand());
+		//	Thread t_serialComm = new Thread(r_serialComm);
 			
 			if (e.getActionCommand().equals(InterfaceVista.ButtonConnectPushed)){
-				t_serialComm.start();	
+				//t_serialComm.start();	
+				new Thread(){
+					@Override
+					public void run() {
+						if (buttonConnect() == 0) {
+							index = 0;
+							errores = 0;
+							buffer = 0;
+							vista.buttonSetVisible("disconnect"); 	// se activa el boton desconectar
+						}
+					}
+				}.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ButtonDisconnectPushed)){
-				t_serialComm.start();
+				//t_serialComm.start();
+				new Thread(){
+					@Override
+					public void run() {
+						if (buttonDisconnect() == 0) {
+							vista.buttonSetVisible("connect"); 	// se activa el boton conectar
+						}
+					}
+				}.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ListSerialPorts)){
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.MenuButtonExitPushed)){
@@ -70,7 +101,15 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigGraphAddSignalName)){
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ButtonStartPushed)){
-				t_serialComm.start();
+				//t_serialComm.start();
+				new Thread(){
+					@Override
+					public void run() {
+						status = 1;
+						serial_comm.sendData((char)2);
+						//actualiceChart();
+					}
+				}.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.CalculateFFT)){
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.GraphFFTmodule)){
@@ -85,31 +124,55 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		public void serialEvent(SerialPortEvent oEvent) {
 			
 			
-		    while ((oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) && (serial_comm.getState()==true)) {
+		    while ((oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) && (serial_comm.getState() == true)) {
 		    	
 	            try {
-	                int datos;
-	                datos = serial_comm.readData(); //Se lee los datos en el puerto serie
-	                datos = datos << 8;
-	                datos = datos + serial_comm.readData();
+	                int datos = 0;
 	                
+	                // serial_comm.getState retorna la variable state que se usa para saber si esta o no conectado
+	                if(serial_comm.getState() == true) {
+	                	if(status == 0) { // se recibe el dato del AD
+	                		datos = serial_comm.readData(); //Se lee los datos en el puerto serie
+	                		datos = datos << 8;
+	                		datos = datos + serial_comm.readData();
+	                	}else if(status == 1) {	//se recibe la tasa de muestreo
+	                		datos = serial_comm.readData();
+	                		System.out.println(datos);
+	                		datos = datos << 16;
+	                		System.out.println(datos);
+	                		datos = datos + serial_comm.readData();
+	                		System.out.println(datos);
+	                		datos = datos << 8;
+	                		System.out.println(datos);
+	                		datos = datos + serial_comm.readData();
+	                		System.out.println("FINAL: "+datos);
+
+	                		if (serial_comm.readData() == 4) {	// Si recibe 4 (EOT) es por que el cliente envio correctamente la tasa de muestreo
+	                			status = 0;
+	                			modelo.setFs(datos);
+	                			modelo.setSampleRateUnits("Hz");
+	                			serial_comm.sendData((char)5);	// se envia 5 para comenzar a recibir la info
+	                			System.out.println("TASA DE MUESTREO: "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
+	                		}
+	                	}
+	                }else break;
 	                if (datos > 0) { //Si el valor leido es mayor a 0...
 	                	
 	                    //serial_comm.setMensaje(serial_comm.getMensaje()+(char)datos); //Se acumula el mensaje
 		                //System.out.println(datos);
 		                
 		       
-		                if(buffer != 0 && (datos > buffer*0.1 && datos < buffer*10))
+		                if(buffer != 0 && (datos > buffer*0.01 && datos < buffer*100))
 		                	vista.actualiceChartData(index, datos);
 		                else if(buffer!=0){
 		                	errores+=1;
 		                	System.out.println("Errores: "+errores+" index: "+index);
 		                }
-		                buffer = datos;
+		                buffer = datos;	// guarda el dato para compararlo con el proximo dato, para saber si hubo error
 		                index+=1;
 
 	                    
-	                }     
+	                }else break;     
 	             /*       if (serial_comm.getMensaje().charAt(serial_comm.getMensaje().length() - 1) == ',') { //Cuando se recibe la coma
 	                        //el mensaje ha llegado a su final, por lo que se procede a imprimir
 	                        //La parte ENTERA de la humedad. Se busca el punto, donde quiera que esté
@@ -141,13 +204,94 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			
 		}
 
+
+		// metodos para la comunicacion serial
+		 private void actualiceChart() {
+				
+				int status;
+				String line = null;
+				int index = 0;
+
+				
+				double fs = modelo.getSamplingRate();
+
+				// Se abre el archivo
+				status = modelo.openFile(InterfaceModelo.fileData);
+				
+				if (status == InterfaceModelo.OpenFileSuccessfully) {	// si se abre satisfactoriamente
+					vista.writeConsole("File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" opened successfully");
+					
+					// inhabilita el boton de start
+				    vista.setButtonEnable(InterfaceVista.ButtonStartEnable, false);
+				    
+					// Se lee la frecuencia de muestreo que el sistema esta utilizando
+					fs = Double.parseDouble(modelo.readLine());
+					vista.writeConsole("Sample rate: "+fs + " [Hz]");
+					
+					modelo.setFs(fs); // Se guarda la frecuencia de muestreo
+					modelo.setSampleRateUnits("Hz");
+					
+					// Se borran los datos actuales del grafico
+					vista.deleteChartData();
+					
+					// Se leen los datos  del archivo
+					
+					line = modelo.readLine();
+					//vista.writeConsole(line);
+			
+					while (line != null) {
+						vista.actualiceChartData(((double )index)/fs, Double.parseDouble(line));
+						index =index + 1;
+						line = modelo.readLine();
+						//vista.writeConsole(String.valueOf(((double )index)/fs)+" ; "+line );
+					}
+					
+					// Se cierra el archivo
+					status = modelo.closeFile();
+					
+					if(status == InterfaceModelo.closeFileSuccessfully) {	// si el archivo se cierra correctamente
+						vista.writeConsole("File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" closed successfully" );
+						
+						// se habilita el boton start
+						vista.setButtonEnable(InterfaceVista.ButtonStartEnable, true);
+					}else if(status == InterfaceModelo.CloseFileError) {	
+						vista.writeConsole("ERROR. File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be closed" );
+					}
+				}else {	// el archivo no se abrio correctamente
+					vista.writeConsole("ERROR. File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be opened" );
+					
+				}
+				
+		}
+				
+		
+		
+		private byte buttonConnect() {
+			vista.deleteChartData();
+			modelo.setPortName(vista.getPortName());	//Se guarda el puerto ingresado  por el usuario
+			if(serial_comm.portConnect(this, modelo.getPortName()) == -1) {
+				vista.writeConsole("Cannot connect to port "+vista.getPortName());
+				return -1;
+			}
+			else {
+				vista.writeConsole(vista.getPortName()+" connection successfully");
+				return 0;
+			}
+			
+		}
+		
+		private byte buttonDisconnect() {
+			return serial_comm.closePort();
+		}
+
+
 		
 
 }
 
 		
 // Implementa las acciones que se realizan en la comunicacion serial. Lectura/escritura del puerto
-class SerialComm implements Runnable{
+/*class SerialComm implements Runnable{
 	
 	private InterfaceVista vista;
 	private InterfaceModelo modelo;
@@ -263,7 +407,7 @@ class SerialComm implements Runnable{
 
 }
 
-
+*/
 
 // Implementa lo relacionado a la barra de menu
 class barOptions implements Runnable{

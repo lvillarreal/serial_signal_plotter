@@ -16,7 +16,7 @@ public class SerialCommunication{
 	 
     private static final int TIME_OUT = 2000;
     private static final int DATA_RATE = 250000 ;
-    SerialPort serialPort;
+    private SerialPort serialPort;
     private CommPortIdentifier portId;
     private OutputStream Output;
     private InputStream Input;
@@ -71,11 +71,12 @@ public class SerialCommunication{
             serialPort.notifyOnDataAvailable(true);
             System.out.println("Se Conecto al puerto "+portName);
             connected = true;
+            return 0;
         } catch (Exception e) {
         	connected = false;
             return -1;
         }
-        return 0;
+        
     }
     
     public int readData() {
@@ -89,22 +90,36 @@ public class SerialCommunication{
     	return output;
     }
     
+    public byte sendData(char data) {
+
+            try {
+                Output.write(data);
+                return 0;
+            } catch (IOException e) {
+            	e.printStackTrace();
+            	return -1;
+            }
+      
+    }
     
- /*   public byte closePort() {
+    public byte closePort() {
     	try{
     		
+    		serialPort.removeEventListener();
+    		
     		serialPort.close();
-    		serialPort.disableReceiveFraming();
     		Output.close();
+    		
     		Input.close();
+    		connected = false;
     		return 0;
     	}catch(Exception e) {
     		e.printStackTrace();
     		return -1;
     	}
-    }*/
+    }
     
-    public void closePort() {
+ /*   public void closePort() {
 
     	new Thread(){
         @Override
@@ -119,7 +134,7 @@ public class SerialCommunication{
             }
         }
         }.start();
-    }
+    }*/
     
     public void setMensaje(String msje) {
     	this.mensaje = msje;
