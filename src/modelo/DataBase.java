@@ -14,6 +14,7 @@ public class DataBase implements InterfaceModelo {
 	private double fs;			// frecuencia de muestreo
 	private double Ts;			// periodo de muestreo
 	private String signal_name;	// nombre de la señal
+	private int cant_bits;
 	
 	// Seccion comunicacion serial
 	private String port_name;
@@ -38,6 +39,7 @@ public class DataBase implements InterfaceModelo {
 		this.sample_rate_units = "kHz";
 		this.port_name = null;
 		this.portId = null;
+		this.cant_bits = 18;
 		
 		FILE_NAME = "files/DataBase.txt";
 		fftModule_FILE_NAME = "files/signal_fft_module_noshifted.txt";
@@ -82,26 +84,6 @@ public class DataBase implements InterfaceModelo {
 	}
 	
 	@Override
-	public void setTimeRange(double time) {
-		time_range = time;
-		
-	}
-	@Override
-	public void setFs(double fs) {
-		this.fs = fs;
-		this.Ts = 1/fs;
-		
-	}
-	
-	@Override
-	public void setSignalName(String name) {
-		this.signal_name = name;
-		
-	}
-	
-	
-
-	@Override
 	public byte openFile(byte option) {
 		switch(option){
 		case InterfaceModelo.fileFFTmodule:
@@ -125,23 +107,6 @@ public class DataBase implements InterfaceModelo {
 		return file_handler.readLine();
 	}
 	
-
-	
-	@Override
-	public void setSampleRateUnits(String units) {
-		this.sample_rate_units = units;
-	}
-	
-	@Override
-	public void setTimeUnits(String units) {
-		this.time_units = units;
-	}
-	
-	@Override
-	public void setPortName(String port_name) {
-		this.port_name = port_name;
-	}
-	
 	@Override
 	public String getPortName() {
 		return this.port_name;
@@ -163,5 +128,54 @@ public class DataBase implements InterfaceModelo {
 		}
 		return "";
 	}
+	
+	public int getCantBits() {
+		return cant_bits;
+	}
+	
+	
+	
+	
+	
+	@Override
+	public void setCantBits(int bits) {
+		this.cant_bits = bits;
+	}
+	
+	@Override
+	public void setTimeRange(double time) {
+		time_range = time;
+		
+	}
+	@Override
+	public void setFs(double fs) {
+		this.fs = fs;
+		this.Ts = 1/fs;
+		
+	}
+	
+	@Override
+	public void setSignalName(String name) {
+		this.signal_name = name;
+		
+	}
+	
+	
+	@Override
+	public void setSampleRateUnits(String units) {
+		this.sample_rate_units = units;
+	}
+	
+	@Override
+	public void setTimeUnits(String units) {
+		this.time_units = units;
+	}
+	
+	@Override
+	public void setPortName(String port_name) {
+		this.port_name = port_name;
+	}
+	
+	
 	
 }

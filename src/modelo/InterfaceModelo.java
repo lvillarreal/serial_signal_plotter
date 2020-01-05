@@ -11,13 +11,15 @@ public interface InterfaceModelo {
 	 void setSampleRateUnits(String units);
 	 void setTimeUnits(String units);
 	 void setPortName(String port_name);
+	 void setCantBits(int bits);
 	 
 	 byte calculateFFT();
 	 byte openFile(byte option);
 	 byte closeFile();
 	 String readLine();
 	 String getFileName(byte option);
-	
+	 
+	 int getCantBits();
 	 String getSignalName();
 	 String getTimeUnits();
 	 double getTimeRange();

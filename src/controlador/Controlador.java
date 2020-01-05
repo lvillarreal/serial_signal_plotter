@@ -24,10 +24,13 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	private int index;
 	private int buffer;
 	private int errores;
+	private int fs;
+	private int count;	// variable auxiliar para contar los bytes recibidos
 	// status indica el estado en que se encuentra la comunicacion
 	// -1: no hay comunicacion
 	//  0: se estan recibiendo los datos de la medicion
-	//  1: se estan recibiendo datos de configuracion
+	//  2: espera ack
+	//  3: se recibe tasa de muestreo
 	private byte status;	
 	
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
@@ -35,16 +38,20 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		this.vista = vista;
 		serial_comm = new SerialCommunication();	// instanciacion de serialCommunication
 		index = 0;
-		buffer = 0;
+		buffer = -1;
 		errores = 0;
 		status = -1;
+		fs = 0;
+		count = 0;
 	}
 	
-	// inicializa la comunicacion, pide al dispositivo la tasa de muestreo
-	// Se envia el valor ascii 2 (STX, inicio texto) para comenzar la transmision
-	// El client envia la tasa de muestreo en hertz, en 24 bits (3 bytes)
-	// Luego, el cliente envia ascii 4 (EOT, fin transmision);
-	// Una vez obtenida la informacion, se envia ascii 5 (ENQ, consulta) para comenzar a recibir la medicion del AD
+	/*
+	 * PROTOCOLO DE COMUNICACION
+	 * Cuando se presiona el boton start se envia el codigo ascii 2 (STX,start of text) al dispositivo
+	 * El dispositivo responde con ACK (codigo ascii 6) y luego la tasa de muestreo, respresentada en 3 bytes (24 bits). Al final envia
+	 * el codigo ascii 4 (EOT, end of text)
+	 * Luego se envia el codigo ascii 5 (ENQ) para comenzar la transmision de la informacion*/
+	
 
 		@Override 
 		public void actionPerformed(ActionEvent e)  {
@@ -63,7 +70,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 						if (buttonConnect() == 0) {
 							index = 0;
 							errores = 0;
-							buffer = 0;
+							buffer = -1;
 							vista.buttonSetVisible("disconnect"); 	// se activa el boton desconectar
 						}
 					}
@@ -75,6 +82,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 					public void run() {
 						if (buttonDisconnect() == 0) {
 							vista.buttonSetVisible("connect"); 	// se activa el boton conectar
+							vista.writeConsole("COM Port disconnected");
 						}
 					}
 				}.start();
@@ -131,76 +139,73 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	                
 	                // serial_comm.getState retorna la variable state que se usa para saber si esta o no conectado
 	                if(serial_comm.getState() == true) {
+	                	
 	                	if(status == 0) { // se recibe el dato del AD
 	                		datos = serial_comm.readData(); //Se lee los datos en el puerto serie
 	                		datos = datos << 8;
 	                		datos = datos + serial_comm.readData();
-	                	}else if(status == 1) {	//se recibe la tasa de muestreo
+	                		index = index+1;
+	                		
+	                	}else if(status == 1) {	//Espera confirmacion (ACK)
+	           
 	                		datos = serial_comm.readData();
-	                		System.out.println(datos);
-	                		datos = datos << 16;
-	                		System.out.println(datos);
-	                		datos = datos + serial_comm.readData();
-	                		System.out.println(datos);
-	                		datos = datos << 8;
-	                		System.out.println(datos);
-	                		datos = datos + serial_comm.readData();
-	                		System.out.println("FINAL: "+datos);
-
-	                		if (serial_comm.readData() == 4) {	// Si recibe 4 (EOT) es por que el cliente envio correctamente la tasa de muestreo
-	                			status = 0;
-	                			modelo.setFs(datos);
+	                		if(datos == 6) {
+	                			status = 3;
+	                			fs = 0;
+	                			count = 0;
+	                		}
+	                	}else if(status == 3) {
+	                		datos = serial_comm.readData();
+	                		System.out.println("DATO RECIBIDO: "+datos);
+	                		count +=1;
+	                		if (datos == 10 && count == 4) {	// Si recibe 10 (new line) es porque envio correctamente la tasa de muestreo
+	                			
+	                   			modelo.setFs(fs);
 	                			modelo.setSampleRateUnits("Hz");
 	                			serial_comm.sendData((char)5);	// se envia 5 para comenzar a recibir la info
-	                			System.out.println("TASA DE MUESTREO: "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
+	                			count = 0;
+	                			status = 4;
+	                		}else {	   
+	                			fs = fs << 8;
+		                		fs = fs+datos;
+		                		
+	                		}
+	                		
+	                  	}else if(status == 4) {
+	                  		
+	                		datos = serial_comm.readData();
+	                		if(serial_comm.readData() == 4)	{
+	                			status = 0;
+	                			modelo.setCantBits(datos);
 	                		}
 	                	}
 	                }else break;
-	                if (datos > 0) { //Si el valor leido es mayor a 0...
+	                if ((datos > 0) && (status == 0)) { //Si el valor leido es mayor a 0...
 	                	
 	                    //serial_comm.setMensaje(serial_comm.getMensaje()+(char)datos); //Se acumula el mensaje
 		                //System.out.println(datos);
 		                
 		       
-		                if(buffer != 0 && (datos > buffer*0.01 && datos < buffer*100))
-		                	vista.actualiceChartData(index, datos);
-		                else if(buffer!=0){
+		                if(buffer != -1 && (datos > buffer*0.01 && datos < buffer*100)) {
+		                	vista.actualiceChartData(index/*(index-1)/modelo.getSamplingRate()*/, datos*(1/(Math.pow(2,modelo.getCantBits()))));
+		                    
+		                }else if(buffer!=0){
 		                	errores+=1;
-		                	System.out.println("Errores: "+errores+" index: "+index);
+		                	//System.out.println("Errores: "+errores+" index: "+index);
 		                }
 		                buffer = datos;	// guarda el dato para compararlo con el proximo dato, para saber si hubo error
-		                index+=1;
+		                //index = index+1;
 
 	                    
-	                }else break;     
-	             /*       if (serial_comm.getMensaje().charAt(serial_comm.getMensaje().length() - 1) == ',') { //Cuando se recibe la coma
-	                        //el mensaje ha llegado a su final, por lo que se procede a imprimir
-	                        //La parte ENTERA de la humedad. Se busca el punto, donde quiera que esté
-	                        //y se transforma de String a entero
-	                    	System.out.println(serial_comm.getMensaje());
-	                    	serial_comm.setMensaje("");
-	                    	for (int i = 0; i <= serial_comm.getMensaje().length() - 1; i++) {
-	                            if (serial_comm.getMensaje().charAt(i) == '.') {
-	                                serial_comm.setDatoEntrada(Integer.parseInt(serial_comm.getMensaje().substring(0, i)));
-	                                System.out.println(serial_comm.getDatoEntrada());
-
-	                                serial_comm.setMensaje(""); //Se limpia la variable y se prepara para nueva lectura
-	            		            
-	                                vista.actualiceChartData(((double )index)/modelo.getSamplingRate(), (double)serial_comm.getDatoEntrada());
-	            		            index = index+1;
-	                            }
-	                        }
-	                    }
-	                
-	                }*/
-		            
+	                }else break;                 
 
 	            } catch (Exception e) {
 	                System.err.println(e.toString());
 	            }
-
+	           
 		    }
 			
+		   
 			
 		}
 
@@ -700,7 +705,7 @@ class barOptions implements Runnable{
 	 	Enumeration ports = CommPortIdentifier.getPortIdentifiers();  
         
 	 	if(ports.hasMoreElements()) {
-            vista.writeConsole(((CommPortIdentifier)ports.nextElement()).getName().toString() + " is connected");
+            vista.writeConsole(((CommPortIdentifier)ports.nextElement()).getName().toString() + " is available");
 
 	 	}else {
 	 		vista.writeConsole("No serial ports connected");
