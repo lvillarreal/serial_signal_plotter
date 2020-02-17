@@ -66,7 +66,6 @@ public class SerialCommunication{
 
             Output = serialPort.getOutputStream();
             Input = serialPort.getInputStream();
-
             serialPort.addEventListener(c);
             serialPort.notifyOnDataAvailable(true);
             System.out.println("Se Conecto al puerto "+portName);

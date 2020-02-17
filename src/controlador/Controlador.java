@@ -26,6 +26,9 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	private int errores;
 	private int fs;
 	private int count;	// variable auxiliar para contar los bytes recibidos
+	private int cant_bytes;	// cantidad de bytes del dato medido
+	private boolean disconnect_flag; // indica cuando se desconecta el puerto serial
+	
 	// status indica el estado en que se encuentra la comunicacion
 	// -1: no hay comunicacion
 	//  0: se estan recibiendo los datos de la medicion
@@ -43,12 +46,15 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		status = -1;
 		fs = 0;
 		count = 0;
+		disconnect_flag = false;
+
 	}
 	
 	/*
 	 * PROTOCOLO DE COMUNICACION
 	 * Cuando se presiona el boton start se envia el codigo ascii 2 (STX,start of text) al dispositivo
-	 * El dispositivo responde con ACK (codigo ascii 6) y luego la tasa de muestreo, respresentada en 3 bytes (24 bits). Al final envia
+	 * El dispositivo responde con ACK (codigo ascii 6), luego la tasa de muestreo respresentada en 3 bytes (24 bits),
+	 * luego el codigo ascii 10 (new line) seguido de la cantidad de bits del AD (maximo 24). Al final envia
 	 * el codigo ascii 4 (EOT, end of text)
 	 * Luego se envia el codigo ascii 5 (ENQ) para comenzar la transmision de la informacion*/
 	
@@ -72,6 +78,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 							errores = 0;
 							buffer = -1;
 							vista.buttonSetVisible("disconnect"); 	// se activa el boton desconectar
+							disconnect_flag = false;
 						}
 					}
 				}.start();
@@ -83,6 +90,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 						if (buttonDisconnect() == 0) {
 							vista.buttonSetVisible("connect"); 	// se activa el boton conectar
 							vista.writeConsole("COM Port disconnected");
+							disconnect_flag = true;
 						}
 					}
 				}.start();
@@ -136,16 +144,28 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		    	
 	            try {
 	                int datos = 0;
-	                
+	                int i=0;
 	                // serial_comm.getState retorna la variable state que se usa para saber si esta o no conectado
 	                if(serial_comm.getState() == true) {
 	                	
 	                	if(status == 0) { // se recibe el dato del AD
+	                		
+	                		while(disconnect_flag == false && i<cant_bytes) {
+	                			
+		                			datos = datos << 8;
+		                			datos = datos + serial_comm.readData(); //Se lee los datos en el puerto serie	
+		                			i+=1;
+		                			System.out.println("info: "+datos);
+	                		}
+	                		index = index+1;
+	                		
+	                		/*
 	                		datos = serial_comm.readData(); //Se lee los datos en el puerto serie
+	                		
 	                		datos = datos << 8;
 	                		datos = datos + serial_comm.readData();
 	                		index = index+1;
-	                		
+	                		*/
 	                	}else if(status == 1) {	//Espera confirmacion (ACK)
 	           
 	                		datos = serial_comm.readData();
@@ -177,6 +197,10 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	                		if(serial_comm.readData() == 4)	{
 	                			status = 0;
 	                			modelo.setCantBits(datos);
+	                			if(datos<=8) cant_bytes = 1;
+	                			else if(datos >8 && datos <= 16) cant_bytes = 2;
+	                			else if(datos >16 && datos <= 24) cant_bytes = 3;
+	                			System.out.println("cant bits: "+datos);
 	                		}
 	                	}
 	                }else break;
@@ -187,7 +211,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		                
 		       
 		                if(buffer != -1 && (datos > buffer*0.01 && datos < buffer*100)) {
-		                	vista.actualiceChartData(index/*(index-1)/modelo.getSamplingRate()*/, datos*(1/(Math.pow(2,modelo.getCantBits()))));
+		                	vista.actualiceChartData(index/modelo.getSamplingRate(), datos*(1/(Math.pow(2,modelo.getCantBits()))));
 		                    
 		                }else if(buffer!=0){
 		                	errores+=1;
@@ -696,7 +720,7 @@ class barOptions implements Runnable{
 	// Sale del programa
 	private void exitProgram() {
 		serial_comm.closePort();
-		//System.exit(0);
+		System.exit(0);
 	}
 	
 	// Lista en consola los puertos conectados
