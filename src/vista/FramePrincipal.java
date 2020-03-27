@@ -91,11 +91,17 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	// Items de Config
 		
 	private JMenu menuItem_config_graph;
-	
+	private JMenu menuItem_config_serial;
+			
 			// Config graph
 			private JMenuItem menuItem_config_graph_all;
 			private JMenuItem menuItem_config_setRangeTime;
 			private JMenuItem menuItem_config_setFs;
+			
+			// Config serial
+			private JMenuItem menuItem_config_serial_baudRate;
+//			private JComboBox<String> menuItem_config_serial_CommPort;
+			
 			
 			
 	//Items de help
@@ -217,6 +223,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 				
 			// Items de Config
 				this.menuItem_config_graph = new JMenu("Graph");
+				this.menuItem_config_serial = new JMenu("Serial Comm");
 				
 					// Config graph
 					this.menuItem_config_setRangeTime = new JMenuItem("Set time range");
@@ -225,8 +232,13 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 					this.menuItem_config_setFs.setToolTipText("Setea la frecuencia de muestreo, necesaria para graficar la señal");
 					this.menuItem_config_graph_all = new JMenuItem("Set all features");
 					this.menuItem_config_graph_all.setToolTipText("Setea todas las caracteristicas de la gráfica");
-				
-				
+
+
+					// Config Serial
+					this.menuItem_config_serial_baudRate = new JMenuItem("Set baud rate");
+					this.menuItem_config_serial_baudRate.setToolTipText("Setea los baudios para la transmisión serial");
+					
+					
 			//Items de help
 		menuItem_help_helpContent = new JMenuItem("Help Contents");
 		menuItem_help_about       = new JMenuItem("About Signal Plotter");
@@ -275,16 +287,23 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			
 			// Config.
 		menu_config.add(this.menuItem_config_graph);
-					
+		menu_config.addSeparator();
+		menu_config.add(this.menuItem_config_serial);	
 		
 					// Config Graph
-	
 				
 					this.menuItem_config_graph.add(this.menuItem_config_setRangeTime);
 					//menuItem_config_graph.addSeparator();
 					this.menuItem_config_graph.add(this.menuItem_config_setFs);
 					menuItem_config_graph.addSeparator();
 					this.menuItem_config_graph.add(this.menuItem_config_graph_all);
+					
+					// Config Serial
+					this.menuItem_config_serial.add(this.menuItem_config_serial_baudRate);
+					this.menuItem_config_serial.addSeparator();
+					
+				
+					
 			//help
 		menu_help.add(menuItem_help_helpContent);
 		menu_help.addSeparator();
@@ -319,9 +338,13 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		this.menuItem_math_fft_graph_angle.setActionCommand(InterfaceVista.GraphFFTangle);
 
 		// CONFIG
-		this.menuItem_config_graph_all.setActionCommand(InterfaceVista.ConfigGraph);
-		this.menuItem_config_setRangeTime.setActionCommand(InterfaceVista.ConfigTimeRange);
-		this.menuItem_config_setFs.setActionCommand(InterfaceVista.ConfigSamplingRate);
+			// GRAPH
+			this.menuItem_config_graph_all.setActionCommand(InterfaceVista.ConfigGraph);
+			this.menuItem_config_setRangeTime.setActionCommand(InterfaceVista.ConfigTimeRange);
+			this.menuItem_config_setFs.setActionCommand(InterfaceVista.ConfigSamplingRate);
+			
+			// SERIAL
+			this.menuItem_config_serial_baudRate.setActionCommand(InterfaceVista.ConfigSetBaudRate);
 	}
 	
 	
@@ -671,10 +694,16 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		this.menuItem_math_fft_graph_module.addActionListener(c);
 		this.menuItem_math_fft_graph_angle.addActionListener(c);
 		// Config section
-		this.menuItem_config_setFs.addActionListener(c);
-		this.menuItem_config_setRangeTime.addActionListener(c);
-		this.menuItem_config_graph_all.addActionListener(c);
-		
+			
+			//CONFIG GRAPH
+			this.menuItem_config_setFs.addActionListener(c);
+			this.menuItem_config_setRangeTime.addActionListener(c);
+			this.menuItem_config_graph_all.addActionListener(c);
+			
+			//CONFIG SERIAL
+			this.menuItem_config_serial_baudRate.addActionListener(c);
+			
+			
 		// file section
 		menuItem_file_exit.addActionListener(c);
 		
@@ -839,12 +868,42 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		case "connect":
 			this.button_connect.setVisible(true);
 			this.button_disconnect.setVisible(false);
+			
+
 			break;
 		case"disconnect":
 			this.button_connect.setVisible(false);
 			this.button_disconnect.setVisible(true);
+			this.button_start.setVisible(true);
 			break;
+		
+		case "start_pushed":	
+			this.button_start.setVisible(false);
 			
+			
+		}
+	}
+	
+	// retorna -1 si el dato ingresado no es un entero valido
+	@Override 
+	public int getBaudRate() {
+		String cad = null; 
+		cad = JOptionPane.showInputDialog("Baud Rate [bauds]");
+		if (cad == null) { // significa que presiono cancelar
+			return -2;
+		}else if(isNumeric(cad) && Integer.parseInt(cad)>0) {
+			return(Integer.parseInt(cad));
+		}else {
+			return -1;
+		}
+	}
+	
+	private boolean isNumeric(String cadena) {
+		try {	
+			Integer.parseInt(cadena);
+        	return true;
+    	} catch (NumberFormatException excepcion) {
+        	return false;
 		}
 	}
 }

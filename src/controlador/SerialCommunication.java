@@ -15,7 +15,7 @@ import gnu.io.SerialPortEventListener;
 public class SerialCommunication{
 	 
     private static final int TIME_OUT = 2000;
-    private static final int DATA_RATE = 250000 ;
+    private int DATA_RATE;
     private SerialPort serialPort;
     private CommPortIdentifier portId;
     private OutputStream Output;
@@ -32,6 +32,7 @@ public class SerialCommunication{
     	mensaje = "";
     	dato_entrada = 0;
     	connected = false;
+    	this.DATA_RATE = 115200;
     }
 
     public byte portConnect(Controlador c,String portName) {
@@ -147,12 +148,20 @@ public class SerialCommunication{
     	this.dato_entrada = dato;
     }
     
+    public void setBaudRate(int baudrate) {
+    	this.DATA_RATE = baudrate;
+    }
+    
     public int getDatoEntrada() {
     	return this.dato_entrada;
     }
     
     public boolean getState() {
     	return connected;
+    }
+    
+    public int getBaudRate() {
+    	return this.DATA_RATE;
     }
 
 }

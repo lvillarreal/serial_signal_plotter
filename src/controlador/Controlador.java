@@ -28,10 +28,16 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	private int count;	// variable auxiliar para contar los bytes recibidos
 	private int cant_bytes;	// cantidad de bytes del dato medido
 	private boolean disconnect_flag; // indica cuando se desconecta el puerto serial
+	private boolean start_flag;
+	private int datos;	// dato recibido por puerto serie
+	private int i;	// variable auxiliar para saber que byte se esta recibiendo
+	
+	private boolean flag;	// RECORDAR BORRAR. FLAG PARA DEBUG
 	
 	// status indica el estado en que se encuentra la comunicacion
 	// -1: no hay comunicacion
 	//  0: se estan recibiendo los datos de la medicion
+	//  1: se envia STX
 	//  2: espera ack
 	//  3: se recibe tasa de muestreo
 	private byte status;	
@@ -47,6 +53,11 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		fs = 0;
 		count = 0;
 		disconnect_flag = false;
+		start_flag = false;
+		datos = 0;
+		i = 0;
+		
+		flag = false;
 
 	}
 	
@@ -79,6 +90,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 							buffer = -1;
 							vista.buttonSetVisible("disconnect"); 	// se activa el boton desconectar
 							disconnect_flag = false;
+							start_flag = false; 
 						}
 					}
 				}.start();
@@ -90,8 +102,9 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 						if (buttonDisconnect() == 0) {
 							vista.buttonSetVisible("connect"); 	// se activa el boton conectar
 							vista.writeConsole("COM Port disconnected");
-							disconnect_flag = true;
-						}
+							disconnect_flag = true;	
+							start_flag = false;
+						}else vista.writeConsole("BUTTON DISCONNECTED != 0");
 					}
 				}.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ListSerialPorts)){
@@ -121,14 +134,19 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				new Thread(){
 					@Override
 					public void run() {
-						status = 1;
-						serial_comm.sendData((char)2);
-						//actualiceChart();
+						if (start_flag == false) {
+							status = 1;
+							start_flag = true;
+							serial_comm.sendData((char)2);
+							//vista.buttonSetVisible("start_pushed");
+						}
 					}
 				}.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.CalculateFFT)){
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.GraphFFTmodule)){
+				t_barOptions.start();
+			}else if(e.getActionCommand().equals(InterfaceVista.ConfigSetBaudRate)){
 				t_barOptions.start();
 				
 			}
@@ -142,33 +160,27 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			
 		    while ((oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) && (serial_comm.getState() == true)) {
 		    	
-	            try {
-	                int datos = 0;
-	                int i=0;
+	            //try {
+	                //int datos = 0;
+	                //int i=0;
 	                // serial_comm.getState retorna la variable state que se usa para saber si esta o no conectado
-	                if(serial_comm.getState() == true) {
+	               // if(serial_comm.getState() == true) {
 	                	
 	                	if(status == 0) { // se recibe el dato del AD
 	                		
-	                		while(disconnect_flag == false && i<cant_bytes) {
-	                			
+	                		if(disconnect_flag == false && i<cant_bytes) {
+	                				
 		                			datos = datos << 8;
 		                			datos = datos + serial_comm.readData(); //Se lee los datos en el puerto serie	
-		                			i+=1;
-		                			System.out.println("info: "+datos);
+		                			
+	                				i+=1;
 	                		}
 	                		index = index+1;
-	                		
-	                		/*
-	                		datos = serial_comm.readData(); //Se lee los datos en el puerto serie
-	                		
-	                		datos = datos << 8;
-	                		datos = datos + serial_comm.readData();
-	                		index = index+1;
-	                		*/
+
 	                	}else if(status == 1) {	//Espera confirmacion (ACK)
 	           
 	                		datos = serial_comm.readData();
+	                		System.out.println("RECIBIDO: "+datos);
 	                		if(datos == 6) {
 	                			status = 3;
 	                			fs = 0;
@@ -201,31 +213,41 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	                			else if(datos >8 && datos <= 16) cant_bytes = 2;
 	                			else if(datos >16 && datos <= 24) cant_bytes = 3;
 	                			System.out.println("cant bits: "+datos);
+	                			datos = 0;
 	                		}
 	                	}
-	                }else break;
-	                if ((datos > 0) && (status == 0)) { //Si el valor leido es mayor a 0...
-	                	
+	                //}//else{// break;
+	                if ((datos > 0) && (status == 0) && i == 2) { //Si el valor leido es mayor a 0...
+	                	if (flag == false){
+	                		flag = true;
+	                		buffer = datos;
+	                	}else if ((datos - buffer) > 1 || (datos - buffer < -1)) {
+	                		vista.writeConsole("DATA ERROR");
+	                	}
+	                	buffer = datos;
+	                   // vista.actualiceChartData(index, datos);
+            			System.out.println("info: "+datos);
+	                    i = 0;
 	                    //serial_comm.setMensaje(serial_comm.getMensaje()+(char)datos); //Se acumula el mensaje
 		                //System.out.println(datos);
 		                
 		       
-		                if(buffer != -1 && (datos > buffer*0.01 && datos < buffer*100)) {
-		                	vista.actualiceChartData(index/modelo.getSamplingRate(), datos*(1/(Math.pow(2,modelo.getCantBits()))));
-		                    
+		               /* if(buffer != -1 && (datos > buffer*0.01 && datos < buffer*100)) {
+		                	//vista.actualiceChartData(index/modelo.getSamplingRate(), datos*(1/(Math.pow(2,modelo.getCantBits()))));
+		                    vista.actualiceChartData(index, datos);
 		                }else if(buffer!=0){
 		                	errores+=1;
 		                	//System.out.println("Errores: "+errores+" index: "+index);
 		                }
 		                buffer = datos;	// guarda el dato para compararlo con el proximo dato, para saber si hubo error
-		                //index = index+1;
-
+		                //index = index+1; */
+		                datos = 0;
 	                    
-	                }else break;                 
-
-	            } catch (Exception e) {
-	                System.err.println(e.toString());
-	            }
+	                }else break;             
+	                
+	            //} catch (Exception e) {
+	             //   System.err.println(e.toString());
+	           // }
 	           
 		    }
 			
@@ -310,6 +332,8 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		}
 		
 		private byte buttonDisconnect() {
+			serial_comm.sendData((char)4);
+			this.status = -1;
 			return serial_comm.closePort();
 		}
 
@@ -513,6 +537,15 @@ class barOptions implements Runnable{
 				actualiceChartFFT(InterfaceModelo.fileFFTmodule);
 				break;
 				
+			case InterfaceVista.ConfigSetBaudRate:
+				int baud = vista.getBaudRate();
+				if (baud > -1) {
+					this.serial_comm.setBaudRate(baud);
+					vista.writeConsole("New baud rate is "+serial_comm.getBaudRate()+" bauds");
+				}else if(baud == -1){
+					vista.writeConsole("ERROR! Input valid baud rate (integer number)");
+				}
+				
 
 		}
 	}
@@ -639,7 +672,7 @@ class barOptions implements Runnable{
 					fs = Double.parseDouble(dataIn);
 					modelo.setFs(fs);
 					modelo.setSampleRateUnits("Hz");
-					vista.writeConsole("New sample rate set successfully");
+					vista.writeConsole("New sample rate is "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
 				}
 			}
 			break;
@@ -650,7 +683,7 @@ class barOptions implements Runnable{
 				if(isDouble(dataIn)) {
 					modelo.setFs(Double.parseDouble(dataIn));
 					modelo.setSampleRateUnits(vista.getSampleRateUnits());
-					vista.writeConsole("New sample rate set successfully");
+					vista.writeConsole("New sample rate is "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
 				}else {
 					vista.writeConsole("ERROR! Sample rate not saved");
 				}
@@ -696,7 +729,7 @@ class barOptions implements Runnable{
 	
 	}
 	
-	/*
+	
 	// valida si el dato es entero
 	private static boolean isNumeric(String cadena){
 		try {
@@ -706,7 +739,7 @@ class barOptions implements Runnable{
 			return false;
 		}
 	}
-	*/
+	
 	// valida si el dato es un double
 	private static boolean isDouble(String cadena) {
 		try {
@@ -735,9 +768,10 @@ class barOptions implements Runnable{
 	 		vista.writeConsole("No serial ports connected");
 	 	}
         while(ports.hasMoreElements())  {
-            vista.writeConsole(((CommPortIdentifier)ports.nextElement()).getName().toString() );
+            vista.writeConsole(((CommPortIdentifier)ports.nextElement()).getName().toString() + " is available" );
         }
 	 }
+
 	
 }
 

@@ -37,7 +37,7 @@ public interface InterfaceVista {
 	String getNewSignalName();
 	String getPortName();
 	
-	
+	int getBaudRate();
 	
 	// ActionCommands para los eventos
 	static final String ButtonConnectPushed = "ButtonConnectedPushed";	// Para ActionCommand del boton connect
@@ -61,6 +61,8 @@ public interface InterfaceVista {
 	static final String ConfigGraphAddSignalName = "ConfigGraphAddSignalName";
 	static final String ConfigGraphClose = "ConfigGraphClose";	// cierra la ventana de configuracion de grafico
 
+	static final String ConfigSetBaudRate = "ConfigSetBaudRate";	// Setea baud rate
+	
 	static final String GetSamplingRate = "GetSamplingRate";	// muestra la frecuencia de muestreo actual
 	static final String GetTimeRange = "GetTimeRange";			// muestra el rango de tiempo de la grafica
 
