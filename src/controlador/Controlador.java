@@ -225,7 +225,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	                		vista.writeConsole("DATA ERROR");
 	                	}
 	                	buffer = datos;
-	                   // vista.actualiceChartData(index, datos);
+	                    vista.actualiceChartData(index, datos);
             			System.out.println("info: "+datos);
 	                    i = 0;
 	                    //serial_comm.setMensaje(serial_comm.getMensaje()+(char)datos); //Se acumula el mensaje
