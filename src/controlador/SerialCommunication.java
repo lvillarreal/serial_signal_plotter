@@ -19,12 +19,13 @@ public class SerialCommunication{
     private SerialPort serialPort;
     private CommPortIdentifier portId;
     private OutputStream Output;
-    private InputStream Input;
+    private static InputStream Input;
     private boolean connected;
+    private static int aux;
     
     private String mensaje;
     private int dato_entrada;
-    
+        
     public SerialCommunication() {
     	portId = null;
     	Output = null;
@@ -32,7 +33,7 @@ public class SerialCommunication{
     	mensaje = "";
     	dato_entrada = 0;
     	connected = false;
-    	this.DATA_RATE = 115200;
+    	this.DATA_RATE = 256000;
     }
 
     public byte portConnect(Controlador c,String portName) {
@@ -71,6 +72,9 @@ public class SerialCommunication{
             serialPort.notifyOnDataAvailable(true);
             System.out.println("Se Conecto al puerto "+portName);
             connected = true;
+            
+            
+            
             return 0;
         } catch (Exception e) {
         	connected = false;
@@ -79,16 +83,127 @@ public class SerialCommunication{
         
     }
     
+    public byte readByte() {
+    	byte[] data = new byte[1];
+        byte output = -1;
+    	try {
+			Input.read(data);
+			output = data[0];
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return output;
+     } 
+    
+    
+    public int read2Bytes() {
+    	byte[] buff = new byte[2];
+    	int status = -1;
+    	try {
+    		
+    		status = Input.read();
+    		status = (status <<8)+Input.read();
+    		//status = ((buff[0]&0xFF)<<8)+(buff[1]&0xFF);	
+    		System.out.println(status);
+    	}catch(Exception e){
+           e.printStackTrace();
+     	   System.out.println("ERROR READING");
+        }
+    	return status;
+    }
+
+    public byte setEnableInterrupt(Controlador c,boolean status) {
+    	byte stat = -1;
+    	try {
+	    	if (status) {
+	    		serialPort.removeEventListener();
+	       	}else {
+	       		serialPort.addEventListener(c);
+	       	}
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    	return stat;
+    }
+    
+  /*  public int read2Bytes() {
+       int available =0;
+       int bytesRead;
+       try {
+           available = Input.available();
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+       byte[] buffer = new byte[2];
+      
+       try {
+           while ( (bytesRead = Input.read(buffer)) > 0 ) {
+        	  // System.out.println("BYTES READ"+(int)((char)buffer[0])+" "+(int)((char)buffer[1]));
+                byte[] newData = new byte[buffer.length + bytesRead];
+            // copy data previously read
+            System.arraycopy(buffer, 0, newData, 0, buffer.length);
+           // append data newly read
+            System.arraycopy(buffer, 0, newData, buffer.length, bytesRead);
+            // discard the old array in favour of the new one
+      	   System.out.println("BYTES READ "+bytesRead);
+
+           }
+       }catch(Exception e){
+           e.printStackTrace();
+    	   System.out.println("ERROR READING");
+       }
+       return available;
+    }
+    */
+    public void initSerialReader() {
+    	(new Thread(new SerialReader(Input))).start();
+    }
+    
+    /** */
+    public static class SerialReader implements Runnable 
+    {
+        InputStream in;
+        
+        public SerialReader ( InputStream in )
+        {
+            this.in = in;
+        }
+        
+        public void run ()
+        {
+            byte[] buffer = new byte[2];
+            int len = -1;
+            int i = 0;
+            try
+            {
+                while ( ( len = this.in.read(buffer)) > -1 )
+                {
+                    System.out.println("CANTIDAD "+len);
+                }
+                
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();
+            }            
+        }
+    }
+    
+
+   
     public int readData() {
     	int output = -1;
+    	
     	try {
-			output = (Input.read());
+			output = (Input.read());	
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	return output;
-    }
+    } 
     
     public byte sendData(char data) {
 
@@ -165,3 +280,5 @@ public class SerialCommunication{
     }
 
 }
+
+

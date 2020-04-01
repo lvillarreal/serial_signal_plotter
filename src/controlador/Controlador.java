@@ -31,15 +31,29 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	private boolean start_flag;
 	private int datos;	// dato recibido por puerto serie
 	private int i;	// variable auxiliar para saber que byte se esta recibiendo
+	private int index_buff;
+	private int index_plot;
+	private boolean disconnect_flag2;
 	
-	private boolean flag;	// RECORDAR BORRAR. FLAG PARA DEBUG
+	private long timeExec;
 	
-	// status indica el estado en que se encuentra la comunicacion
-	// -1: no hay comunicacion
-	//  0: se estan recibiendo los datos de la medicion
-	//  1: se envia STX
-	//  2: espera ack
-	//  3: se recibe tasa de muestreo
+	private boolean flag;	
+	
+	//private int buffer_serial[];	// guarda el dato recibido por uart
+	
+	private int buff_MSB[];
+	private int buff_LSB[];
+	/****************************************************************
+	*					Valores de STATUS							*
+	* status indica el estado en que se encuentra la comunicacion	*
+	* -1: no hay comunicacion										*
+	*  0: se estan recibiendo los datos de la medicion				*
+	*  1: se envia STX												*	
+	*  2: espera ack												*
+	*  3: se recibe tasa de muestreo y se envia 5 para init comm	*
+	*  4: Se espera	ACK												*
+	* 																*
+	*****************************************************************/
 	private byte status;	
 	
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
@@ -57,6 +71,22 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		datos = 0;
 		i = 0;
 		
+		timeExec = 0;
+		
+		//buffer_serial = new int[4800000];
+		buff_MSB = new int[24000000];
+		buff_LSB = new int[24000000];
+		
+		disconnect_flag2 = false;
+		
+		for (int j=0;j<4800000; j++) {
+			//buffer_serial[j] = 0;
+			buff_MSB[j] = 0;
+			buff_LSB[j] = 0;
+		}
+		
+		index_buff = 0;
+		index_plot = 0;
 		flag = false;
 
 	}
@@ -72,6 +102,9 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 
 		@Override 
 		public void actionPerformed(ActionEvent e)  {
+			
+			//Runnable r_proccDat = new processData();
+			//Thread t_proccDat = new Thread(r_proccDat);
 			
 			Runnable r_barOptions = new barOptions(vista,modelo,serial_comm,e.getActionCommand());
 			Thread t_barOptions = new Thread(r_barOptions);
@@ -99,12 +132,27 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				new Thread(){
 					@Override
 					public void run() {
+						disconnect_flag = true;
+						status = -1;
+						
+						timeExec = System.currentTimeMillis() - timeExec;
+						serial_comm.sendData((char)4);
+						if(start_flag)vista.writeConsole("Recording time: "+String.valueOf(timeExec/1000.0)+" seconds");
+
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						if (buttonDisconnect() == 0) {
 							vista.buttonSetVisible("connect"); 	// se activa el boton conectar
 							vista.writeConsole("COM Port disconnected");
 							disconnect_flag = true;	
+							if(start_flag)processData();
 							start_flag = false;
-						}else vista.writeConsole("BUTTON DISCONNECTED != 0");
+							
+						}else vista.writeConsole("ERROR! CANNOT DISCONNECT. PLEASE CLOSE PROGRAM");
 					}
 				}.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ListSerialPorts)){
@@ -130,14 +178,21 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigGraphAddSignalName)){
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ButtonStartPushed)){
-				//t_serialComm.start();
 				new Thread(){
 					@Override
 					public void run() {
 						if (start_flag == false) {
 							status = 1;
 							start_flag = true;
+							for(int j=0;j<4800000;j++) {
+								buff_MSB[j]=0;
+								buff_LSB[j] = 0;
+							}
+							index_buff = 0;
 							serial_comm.sendData((char)2);
+							index = 0;
+
+							timeExec = System.currentTimeMillis();
 							//vista.buttonSetVisible("start_pushed");
 						}
 					}
@@ -155,107 +210,151 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 
 		/*LOS DATOS DEL AD SE ENVIAN EN DOS BYTES (8 BITS) CONSECUTIVOS, POR LO QUE SE DEBEN CONCATENAR PARA FORMAR EL DATO ORIGINAL*/
 		@Override
-		public void serialEvent(SerialPortEvent oEvent) {
+		public synchronized void serialEvent(SerialPortEvent oEvent) {
 			
+			int MSB=-1;
+			int LSB=-1;
+			//serial_comm.setEnableInterrupt(this, false);
 			
-		    while ((oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) && (serial_comm.getState() == true)) {
-		    	
-	            //try {
-	                //int datos = 0;
-	                //int i=0;
-	                // serial_comm.getState retorna la variable state que se usa para saber si esta o no conectado
-	               // if(serial_comm.getState() == true) {
+			while(oEvent.DATA_AVAILABLE>0 && this.status != -1) {
+		    //while ((oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) && this.status != -1) {//(serial_comm.getState() == true)) {
+		    	disconnect_flag2 = true;
+	            try {	                
+	                if(status == 0){
 	                	
-	                	if(status == 0) { // se recibe el dato del AD
-	                		
-	                		if(disconnect_flag == false && i<cant_bytes) {
-	                				
-		                			datos = datos << 8;
-		                			datos = datos + serial_comm.readData(); //Se lee los datos en el puerto serie	
-		                			
-	                				i+=1;
-	                		}
-	                		index = index+1;
-
-	                	}else if(status == 1) {	//Espera confirmacion (ACK)
-	           
-	                		datos = serial_comm.readData();
-	                		System.out.println("RECIBIDO: "+datos);
-	                		if(datos == 6) {
-	                			status = 3;
-	                			fs = 0;
-	                			count = 0;
-	                		}
-	                	}else if(status == 3) {
-	                		datos = serial_comm.readData();
-	                		System.out.println("DATO RECIBIDO: "+datos);
-	                		count +=1;
-	                		if (datos == 10 && count == 4) {	// Si recibe 10 (new line) es porque envio correctamente la tasa de muestreo
-	                			
-	                   			modelo.setFs(fs);
-	                			modelo.setSampleRateUnits("Hz");
-	                			serial_comm.sendData((char)5);	// se envia 5 para comenzar a recibir la info
-	                			count = 0;
-	                			status = 4;
-	                		}else {	   
-	                			fs = fs << 8;
-		                		fs = fs+datos;
-		                		
-	                		}
-	                		
-	                  	}else if(status == 4) {
-	                  		
-	                		datos = serial_comm.readData();
-	                		if(serial_comm.readData() == 4)	{
-	                			status = 0;
-	                			modelo.setCantBits(datos);
-	                			if(datos<=8) cant_bytes = 1;
-	                			else if(datos >8 && datos <= 16) cant_bytes = 2;
-	                			else if(datos >16 && datos <= 24) cant_bytes = 3;
-	                			System.out.println("cant bits: "+datos);
-	                			datos = 0;
-	                		}
+	                	//serial_comm.readData();	                	   
+	                	
+	                	if((MSB = serial_comm.readData()) > -1 && (LSB = serial_comm.readData()) > -1  ) {
+	                		buff_MSB[index_buff] = MSB;
+	                		buff_LSB[index_buff] = LSB;
+	                		index_buff+=1;
+	                		//vista.actualiceChartData(index_buff, MSB*256+LSB);
 	                	}
-	                //}//else{// break;
-	                if ((datos > 0) && (status == 0) && i == 2) { //Si el valor leido es mayor a 0...
-	                	if (flag == false){
-	                		flag = true;
-	                		buffer = datos;
-	                	}else if ((datos - buffer) > 1 || (datos - buffer < -1)) {
-	                		vista.writeConsole("DATA ERROR");
-	                	}
-	                	buffer = datos;
-	                    vista.actualiceChartData(index, datos);
-            			System.out.println("info: "+datos);
-	                    i = 0;
-	                    //serial_comm.setMensaje(serial_comm.getMensaje()+(char)datos); //Se acumula el mensaje
-		                //System.out.println(datos);
-		                
-		       
-		               /* if(buffer != -1 && (datos > buffer*0.01 && datos < buffer*100)) {
-		                	//vista.actualiceChartData(index/modelo.getSamplingRate(), datos*(1/(Math.pow(2,modelo.getCantBits()))));
-		                    vista.actualiceChartData(index, datos);
-		                }else if(buffer!=0){
-		                	errores+=1;
-		                	//System.out.println("Errores: "+errores+" index: "+index);
-		                }
-		                buffer = datos;	// guarda el dato para compararlo con el proximo dato, para saber si hubo error
-		                //index = index+1; */
-		                datos = 0;
-	                    
-	                }else break;             
+	                	
+	                		//buffer_serial[index_buff] = buffer_serial[index_buff] << 8;
+	                		//buffer_serial[index_buff] = buffer_serial[index_buff] + serial_comm.readData();
+	                	
+	                		//index_buff+=1; 
+	                		
+	                	
+	                }else if(status != -1) {
+	                	commHandler();
+	                }
+      
 	                
-	            //} catch (Exception e) {
-	             //   System.err.println(e.toString());
-	           // }
-	           
+	            } catch (Exception e) {
+	                System.err.println(e.toString());
+	            }
+	         
 		    }
-			
-		   
+		    disconnect_flag2 = false;
+			//serial_comm.setEnableInterrupt(this,true);
+			//	}
+			//}.start();
 			
 		}
 
-
+/*		private class processData implements Runnable {
+			
+			
+			public void run() {
+				while(flag == true) {
+					if (index_plot < index_buff) {
+						System.out.println(buffer_serial[index_plot]);
+						//vista.actualiceChartData(index_plot, buffer_serial[index_plot]);
+						//index+=1;
+						index_plot+=1;
+					}
+				}
+			}
+			
+		}*/
+		
+		private void processData() {
+			
+			int dat = (buff_MSB[0]*256)+buff_LSB[0];
+			vista.actualiceChartData(0, (buff_MSB[0]*256)+buff_LSB[0]);
+			for(int j=1;j<index_buff-1;j++) {
+				if(((buff_MSB[j]*256)+buff_LSB[j])- dat != 1){
+					System.out.println((buff_MSB[j]*256)+buff_LSB[j] + " "+ dat);
+				}
+				dat = (buff_MSB[j]*256)+buff_LSB[j];
+				vista.actualiceChartData(j,dat );
+				//System.out.println(buff_MSB[index_plot]*256+buff_LSB[index_plot]);
+			}
+			
+			
+			
+			
+			/*if ((datos > 0) && (datos < 252143) && (status == 0)) {// && i == 2) { //Si el valor leido es mayor a 0...
+            					
+                vista.actualiceChartData(index, datos);
+    			System.out.println("info: "+datos);
+                i = 0;
+               
+                index = index+1; 
+                datos = 0;
+			}*/
+		}
+		
+		// se encarga de la manejar la comunicacion serial
+		private void commHandler() {
+			/*if(status == 0) { // se recibe el dato del AD
+        		i = 0;
+        		while(disconnect_flag == false && i<cant_bytes) {
+        				
+        			//datos = serial_comm.read2Bytes();
+            			//datos = serial_comm.readData();
+        			    datos = datos << 8;
+            			datos = datos + serial_comm.readData(); //Se lee los datos en el puerto serie	
+            			
+        				i+=1;
+        		}
+        		//index = index+1;
+        		System.out.println("DATA: "+datos);
+        	}else*/ if(status == 1) {	//Espera confirmacion (ACK)
+   
+        		datos = serial_comm.readData();
+        		System.out.println("RECIBIDO: "+datos);
+        		if(datos == 6) {
+        			status = 3;
+        			fs = 0;
+        			count = 0;
+        		}
+        	}else if(status == 3) {
+        		datos = serial_comm.readData();
+        		System.out.println("DATO RECIBIDO: "+datos);
+        		count +=1;
+        		if (datos == 10 && count == 4) {	// Si recibe 10 (new line) es porque envio correctamente la tasa de muestreo
+        			
+           			modelo.setFs(fs);
+        			modelo.setSampleRateUnits("Hz"); 
+        			serial_comm.sendData((char)5);	// se envia 5 para comenzar a recibir la info
+        			count = 0;
+        			status = 4;
+        			
+        		}else {	   
+        			fs = fs << 8;
+            		fs = fs+datos;
+            		
+        		}
+        		
+          	}else if(status == 4) {
+          		
+        		datos = serial_comm.readData();
+        		if(serial_comm.readData() == 4)	{
+        			status = 0;
+        			modelo.setCantBits(datos);
+        			if(datos<=8) cant_bytes = 1;
+        			else if(datos >8 && datos <= 16) cant_bytes = 2;
+        			else if(datos >16 && datos <= 24) cant_bytes = 3;
+        			System.out.println("cant bits: "+datos);
+        			datos = 0;
+        		}
+        	}
+		}
+		
+		
 		// metodos para la comunicacion serial
 		 private void actualiceChart() {
 				
@@ -323,8 +422,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			if(serial_comm.portConnect(this, modelo.getPortName()) == -1) {
 				vista.writeConsole("Cannot connect to port "+vista.getPortName());
 				return -1;
-			}
-			else {
+			}else {
 				vista.writeConsole(vista.getPortName()+" connection successfully");
 				return 0;
 			}
@@ -332,13 +430,14 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		}
 		
 		private byte buttonDisconnect() {
-			serial_comm.sendData((char)4);
-			this.status = -1;
+			//serial_comm.sendData((char)4);
+			//this.status = -1;
+			//while(disconnect_flag2);
 			return serial_comm.closePort();
+			
 		}
 
 
-		
 
 }
 
@@ -752,7 +851,7 @@ class barOptions implements Runnable{
 	
 	// Sale del programa
 	private void exitProgram() {
-		serial_comm.closePort();
+		if(serial_comm.getState()) serial_comm.closePort();
 		System.exit(0);
 	}
 	
