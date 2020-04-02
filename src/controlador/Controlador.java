@@ -218,7 +218,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 //	                		buff_LSB[index_buff] = (short)LSB;
 	                		modelo.setData((byte)MSB,(byte)LSB,index_buff);
 	                			
-	                   		index_buff+=1;
+	                   		index_buff+=2;
 	                	}
 	                		
 	                		//vista.actualiceChartData(index_buff, MSB*256+LSB);
@@ -228,7 +228,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 //	                		buff_LSB[index_buff] = (short)LSB;
 	                		modelo.setData((byte)MSB,(byte)LSB,index_buff);
 	                			
-	                   		index_buff+=1;
+	                   		index_buff+=2;
 	                	}            	
 	                	
 	                }else if(status != -1) {
@@ -288,7 +288,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		private void graphData() {
 			double dat = 0;
-			for(int j=0;j<index_buff-1;j++) {
+			for(int j=0;j<index_buff-1;j=j+2) {
 //				dat = ((((int)buff_MSB[j])*256)+(int)buff_LSB[j]);
 				dat = modelo.getData(j);
 				vista.actualiceChartData(j, dat);
@@ -301,7 +301,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			double dat1 = 0;
 			double dat = modelo.getData(0);
 			vista.actualiceChartData(0, dat);
-			for(int j=1;j<index_buff-1;j++) {
+			for(int j=2;j<index_buff-1;j=j+2) {
 				dat1 = modelo.getData(j);
 				if(dat1-dat != 1.0){
 					System.out.println(dat1 + " "+ dat+" "+j);
