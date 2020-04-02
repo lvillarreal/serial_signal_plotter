@@ -16,6 +16,8 @@ public class DataBase implements InterfaceModelo {
 	private String signal_name;	// nombre de la señal
 	private int cant_bits;
 	private double input_range;
+	private byte[] data;
+
 	
 	// Seccion comunicacion serial
 	private String port_name;
@@ -41,8 +43,10 @@ public class DataBase implements InterfaceModelo {
 		this.port_name = null;
 		this.portId = null;
 		this.cant_bits = 18;
-		this.input_range = 2.56;	// es +-2.56
+		this.input_range = 0;	// es +-2.56
 		
+		this.data = new byte[9600000];
+		resetData();
 		FILE_NAME = "files/DataBase.txt";
 		fftModule_FILE_NAME = "files/signal_fft_module_noshifted.txt";
 		fftModule_FILE_NAME_shifted= "files/signal_fft_module.txt";
@@ -139,7 +143,16 @@ public class DataBase implements InterfaceModelo {
 		return this.input_range;
 	}
 	
-	
+	@Override
+	public double getData(int index) {
+		double output = -1;
+		try {
+			output = (this.data[index]&0xFF)*256+(this.data[index+1]&0xFF);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return output;
+	}
 	
 	
 	@Override
@@ -184,6 +197,20 @@ public class DataBase implements InterfaceModelo {
 	@Override
 	public void setInputRange(double input_range) {
 		this.input_range = input_range;
+	}
+	
+	@Override
+	public void setData(byte MSB, byte LSB, int i) {
+		this.data[i] = MSB;
+		this.data[i+1] = LSB;
+		
+	}
+	
+	@Override
+	public void resetData() {
+		for(int j=0;j<this.data.length;j++) {
+			this.data[j] = 0;
+		}
 	}
 	
 	@Override
