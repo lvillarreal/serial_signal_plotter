@@ -13,7 +13,8 @@ public interface InterfaceModelo {
 	 void setPortName(String port_name);
 	 void setCantBits(int bits);
 	 void setInputRange(double input_range);
-	 void setData(byte MSB,byte LSB, int i);
+	 void setData(byte MSB,byte LSB, int i) throws Exception;
+	 void setCantMuestras(int cant);
 	 
 	 void resetData();
 	 byte calculateFFT();

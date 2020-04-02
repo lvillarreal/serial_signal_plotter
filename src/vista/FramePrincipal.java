@@ -3,10 +3,10 @@ package vista;
 
 import javax.swing.*;
 import controlador.Controlador;
-//import controlador.File;
-//import controlador.FileWriter;
-//import controlador.IOException;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -678,7 +678,9 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 	
 	
 	public void writeConsole(String line) {
-		console.setText(console.getText()+">> "+line+"\r\n");
+		DateFormat hourFormat = new SimpleDateFormat("HH:mm:ss");
+		Date date = new Date();
+		console.setText(console.getText()+"["+hourFormat.format(date)+"] >> "+line+"\r\n");
 	}
 	
 	

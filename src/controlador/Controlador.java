@@ -36,12 +36,9 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 //	private int i;	// variable auxiliar para saber que byte se esta recibiendo
 	private int index_buff;
 	
+	private boolean flag_full_buffer;	// indica que se ha llenado el array donde se almacena el dato entrante
+	
 	private long timeExec;
-
-	
-	//private int buffer_serial[];	// guarda el dato recibido por uart
-	
-
 	
 	/****************************************************************
 	*					Valores de STATUS							*
@@ -58,6 +55,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
 
+		
 		
 		this.modelo = modelo;
 		this.vista = vista;
@@ -77,13 +75,14 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 
 	}
 	
-	/*
+	/******************************************************************************************************************
 	 * PROTOCOLO DE COMUNICACION
 	 * Cuando se presiona el boton start se envia el codigo ascii 2 (STX,start of text) al dispositivo
 	 * El dispositivo responde con ACK (codigo ascii 6), luego la tasa de muestreo respresentada en 3 bytes (24 bits),
-	 * luego el codigo ascii 10 (new line) seguido de la cantidad de bits del AD (maximo 24)seguido del rango del AD.
-	 * Al final envia el codigo ascii 4 (EOT, end of text)
+	 * luego el codigo ascii 10 (new line), la cantidad de bits del AD (maximo 24) seguido del rango dee entrada del AD (en 2 bytes).
+	 * Al final se recibe el codigo ascii 4 (EOT, end of text)
 	 * Luego se envia el codigo ascii 5 (ENQ) para comenzar la transmision de la informacion*/
+	/******************************************************************************************************************/
 	
 
 		@Override 
@@ -115,31 +114,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				new Thread(){
 					@Override
 					public void run() {
-//						disconnect_flag = true;
-						status = -1;
-						
-						timeExec = System.currentTimeMillis() - timeExec;
-						serial_comm.sendData((char)4);
-						if(start_flag)vista.writeConsole("Recording time: "+String.valueOf(timeExec/1000.0)+" seconds");
-
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						if (buttonDisconnect() == 0) {
-							vista.buttonSetVisible("connect"); 	// se activa el boton conectar
-							vista.writeConsole("COM Port disconnected");
-//							disconnect_flag = true;	
-					
-							//if(start_flag) saveCurrentData();
-							
-							//if(start_flag)graphData();
-							if(start_flag)graphDataWEC();
-							start_flag = false;
-							
-						}else vista.writeConsole("ERROR! CANNOT DISCONNECT. PLEASE CLOSE PROGRAM");
+						buttonDisconnect();
 					}
 				}.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ListSerialPorts)){
@@ -169,15 +144,12 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 					@Override
 					public void run() {
 						if (start_flag == false) {
+							flag_full_buffer = false;
 							status = 1;
 							start_flag = true;
 
 							modelo.resetData();
 
-//							for(int j=0;j<4800000;j++) {
-//								buff_MSB[j]=0;
-//								buff_LSB[j] = 0;
-//							}
 							index_buff = 0;
 							serial_comm.sendData((char)2);
 //							index = 0;
@@ -206,56 +178,55 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			
 			int MSB=-1;
 			int LSB=-1;
-			//serial_comm.setEnableInterrupt(this, false);
 			
 			while(oEvent.DATA_AVAILABLE>0 && this.status != -1) {
-		    //while ((oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) && this.status != -1) {//(serial_comm.getState() == true)) {
 	            try {	                
-	                if(status == 0){
-	                	
-	                	//serial_comm.readData();	                	   
-	                	
+	                if(status == 0){	                		                	
 	                	if((MSB = serial_comm.readData()) > -1 && (LSB = serial_comm.readData()) > -1) {
-
-//	                		buff_MSB[index_buff] = (short)MSB;
-//	                		buff_LSB[index_buff] = (short)LSB;
-	                		modelo.setData((byte)MSB,(byte)LSB,index_buff);
-	                			
+	                		modelo.setData((byte)MSB,(byte)LSB,index_buff);	                
 	                   		index_buff+=2;
-	                	}
-	                		
-	                		//vista.actualiceChartData(index_buff, MSB*256+LSB);
-	                	
+	                	}	                			                	
 	                	if((MSB = serial_comm.readData()) > -1 && (LSB = serial_comm.readData()) > -1) {
-
-	                		modelo.setData((byte)MSB,(byte)LSB,index_buff);
-	                			
+	                		modelo.setData((byte)MSB,(byte)LSB,index_buff);	                			
 	                   		index_buff+=2;
-	                	}            	
-	                	
+	                	}            		                	
 	                }else if(status != -1) {
 	                	commHandler();
 	                }
-      
-	                
+	            } catch(ArrayIndexOutOfBoundsException e) {
+	            	e.printStackTrace();
+	            	errorFullBuffer();
+	     
 	            } catch (Exception e) {
 	                System.err.println(e.toString());
-	            }
-	         
-		    }
-	
+	                
+	            }	         
+		    }	
 		}
 
 		
 		private void saveCurrentData() {
-	        FileOutputStream fos = null;
+	        
+			try {
+				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("data_base.dat"));
+				oos.writeObject(modelo);
+				oos.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			/*FileOutputStream fos = null;
 	        DataOutputStream salida = null;
 	        try {
 	            fos = new FileOutputStream("/ficheros/datos.dat");
 	            salida = new DataOutputStream(fos);
 	        }catch(IOException e) {
 	        	
-	        }
+	        }*/
 			
 			
 			
@@ -304,15 +275,18 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 
 			double dat1 = 0;
 			double dat = modelo.getData(0);
-			vista.actualiceChartData(0, dat);
-			for(int j=2;j<index_buff-1;j=j+2) {
+			int j = 0;
+			vista.actualiceChartData(j, dat);
+			for(j=2;j<index_buff;j=j+2) {
 				dat1 = modelo.getData(j);
 				if(dat1-dat != 1.0){
 					System.out.println(dat1 + " "+ dat+" "+j);
 				}
 				dat = dat1;
-				vista.actualiceChartData(j,dat);
+				vista.actualiceChartData(j/2,dat);
 			}
+			vista.writeConsole("index: "+index_buff);
+			vista.writeConsole("CANTIDAD DE MUESTRAS: "+(j-1)/2);
 		}
 		
 		// se encarga de la manejar la comunicacion serial
@@ -364,9 +338,10 @@ public class Controlador implements ActionListener, SerialPortEventListener{
         			vista.writeConsole("ADC bit count: "+modelo.getCantBits()+" bits");
         			vista.writeConsole("ADC input range: +-"+modelo.getInputRange()+" [V]");
         			vista.writeConsole("*****************************************************");
+        			vista.writeConsole("         MEASURING . . .");
         			
         		}else {
-        			vista.writeConsole("ERROR EN RECEPCION DE DATOS DE CONFIGURACION");
+        			vista.writeConsole("ERROR! WRONG CONFIGURATION DATA. PLEASE RESET MODULE");
         		}
         	}
 		}
@@ -446,11 +421,46 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			
 		}
 		
-		private byte buttonDisconnect() {
+		private void buttonDisconnect() {
 			
-			return serial_comm.closePort();
+			status = -1;
 			
+			if(!flag_full_buffer)
+				timeExec = System.currentTimeMillis() - timeExec;
+			
+			serial_comm.sendData((char)4);
+			if(start_flag)vista.writeConsole("Recording time: "+String.valueOf(timeExec/1000.0)+" seconds");
+
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (serial_comm.closePort() == 0) {
+				vista.buttonSetVisible("connect"); 	// se activa el boton conectar
+				vista.writeConsole("COM Port disconnected");
+		
+				//if(start_flag) saveCurrentData();
+				
+				//if(start_flag)graphData();
+				if(start_flag)graphDataWEC();
+				start_flag = false;
+				
+			}else vista.writeConsole("ERROR! CANNOT DISCONNECT. PLEASE CLOSE PROGRAM");
 		}
+			
+		private void errorFullBuffer() {
+	    	if(!flag_full_buffer) { 
+	    		timeExec = System.currentTimeMillis() - timeExec;
+	    		status = -1;
+        		serial_comm.sendData((char)4); // Envia 4 para que el sistema deje de enviar info
+        		flag_full_buffer = true;
+        		vista.writeConsole("FULL BUFFER ERROR! Measuring aborted. Please click on DISCONNECT");
+        	}
+		}
+			
+		
 
 
 }

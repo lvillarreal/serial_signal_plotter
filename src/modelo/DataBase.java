@@ -17,7 +17,7 @@ public class DataBase implements InterfaceModelo {
 	private int cant_bits;
 	private double input_range;
 	private byte[] data;
-
+    private int cant_muestras;	//cantidad de muestras en data
 	
 	// Seccion comunicacion serial
 	private String port_name;
@@ -30,8 +30,8 @@ public class DataBase implements InterfaceModelo {
 	private static String fftModule_FILE_NAME_shifted;
 	
 	public DataBase() {
-		this.fft = new FFT();
-		this.file_handler = new FileHandler();
+		//this.fft = new FFT();
+		//this.file_handler = new FileHandler();
 		
 		// valores por defecto
 		this.signal_name = "Signal name";
@@ -46,6 +46,7 @@ public class DataBase implements InterfaceModelo {
 		this.input_range = 0;	// es +-2.56
 		
 		this.data = new byte[9600000];
+		
 		resetData();
 		FILE_NAME = "files/DataBase.txt";
 		fftModule_FILE_NAME = "files/signal_fft_module_noshifted.txt";
@@ -113,6 +114,8 @@ public class DataBase implements InterfaceModelo {
 		return file_handler.readLine();
 	}
 	
+	/* METODOS GETTER */
+	
 	@Override
 	public String getPortName() {
 		return this.port_name;
@@ -154,6 +157,13 @@ public class DataBase implements InterfaceModelo {
 		return output;
 	}
 	
+	
+	/* METODOS SETTER */
+	
+	@Override
+	public void setCantMuestras(int cant) {
+		this.cant_muestras = cant;
+	}
 	
 	@Override
 	public void setCantBits(int bits) {
@@ -200,7 +210,7 @@ public class DataBase implements InterfaceModelo {
 	}
 	
 	@Override
-	public void setData(byte MSB, byte LSB, int i) {
+	public void setData(byte MSB, byte LSB, int i) throws Exception{
 		this.data[i] = MSB;
 		this.data[i+1] = LSB;
 		
