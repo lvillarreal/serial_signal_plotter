@@ -3,6 +3,11 @@ package vista;
 
 import javax.swing.*;
 import controlador.Controlador;
+//import controlador.File;
+//import controlador.FileWriter;
+//import controlador.IOException;
+
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -12,7 +17,6 @@ import org.jfree.chart.ChartPanel;
 // MARCO o FRAME
 public class FramePrincipal extends JFrame implements InterfaceVista{
 	
-
 
 	/*CONFIGURACION DE GRAFICA*/
 	private JFrame frame_conf_graph;
@@ -62,9 +66,12 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	private JMenuItem menuItem_file_save;
 	private JMenuItem menuItem_file_saveAs;
 	private JMenuItem menuItem_file_import;
-	private JMenuItem menuItem_file_export;
+	private JMenu menuItem_file_export;
 	private JMenuItem menuItem_file_exit;
 	
+		// EXPORT
+		private JMenuItem menuItem_file_export_txt;
+		private JMenuItem menuItem_file_export_matlab;
 	
 	//Items de view
 	private JMenu menuItem_view_graph;
@@ -74,7 +81,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		// Graph
 		private JMenuItem menuItem_view_graph_getRangeTime;
 		private JMenuItem menuItem_view_graph_Fs;	// frecuencia de muestreo
-		
+		private JMenuItem menuItem_view_graph_graphData;	// graficar datos obtenidos
 		
 	// Items de Math
 		private JMenu menuItem_math_fft;
@@ -133,7 +140,6 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	
 	// CONSTRUCTOR
 	public FramePrincipal() {
-		
 
 	}
 
@@ -190,8 +196,15 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		menuItem_file_save   = new JMenuItem("Save");
 		menuItem_file_saveAs = new JMenuItem("Save As...");
 		menuItem_file_import = new JMenuItem("Import...");
-		menuItem_file_export = new JMenuItem("Export...");
+		menuItem_file_export = new JMenu("Export...");
 		menuItem_file_exit   = new JMenuItem("Exit");
+		
+		
+			// Export
+			this.menuItem_file_export_txt = new JMenuItem("Text file (.txt)");
+			this.menuItem_file_export_txt.setToolTipText("Exporta los datos a un archivo de texto.");
+			this.menuItem_file_export_matlab = new JMenuItem("Matlab file (.m)");
+			this.menuItem_file_export_matlab.setToolTipText("Exporta los datos a un archivo .m que realiza la gráfica en Matlab.");
 		
 			//Items de view
 		menuItem_view_graph = new JMenu("Graph");
@@ -202,8 +215,9 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 				menuItem_view_graph_getRangeTime = new JMenuItem("Show time range");
 				this.menuItem_view_graph_getRangeTime.setToolTipText("Muestra en consola la duración actual de la medición. Valor por defecto: 1 ms.");
 				menuItem_view_graph_Fs = new JMenuItem("Show sample rate");
-				this.menuItem_view_graph_Fs.setToolTipText("Muestra en consola la frecuencia de muestreo actual. Valor por defecto: 1 kHz");
-			
+				this.menuItem_view_graph_Fs.setToolTipText("Muestra en consola la frecuencia de muestreo actual. Valor por defecto: 1 kHz.");
+			    this.menuItem_view_graph_graphData = new JMenuItem("Graph data");
+			    this.menuItem_view_graph_graphData.setToolTipText("Graficar los datos capturados.");
 			
 			// Items de Math
 				menuItem_math_fft = new JMenu("FFT");
@@ -252,18 +266,20 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		// Se agregan los items a las opciones
 
 			// file
-		menu_file.add(menuItem_file_save);
+//		menu_file.add(menuItem_file_save);
 //		menu_file.addSeparator();
-		menu_file.add(menuItem_file_saveAs);
-		menu_file.addSeparator();
-		menu_file.add(menuItem_file_import);
+//		menu_file.add(menuItem_file_saveAs);
+//		menu_file.addSeparator();
+//		menu_file.add(menuItem_file_import);
 //		menu_file.addSeparator();
 		menu_file.add(menuItem_file_export);
 		menu_file.addSeparator();
 		menu_file.add(menuItem_file_exit);
 		menu_file.addSeparator();
-
-				
+			
+			// Export
+				this.menuItem_file_export.add(this.menuItem_file_export_txt);
+				this.menuItem_file_export.add(this.menuItem_file_export_matlab);
 			//view
 		menu_view.add(menuItem_view_graph);
 		menu_view.addSeparator();
@@ -274,6 +290,9 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 					// graph
 					menuItem_view_graph.add(menuItem_view_graph_getRangeTime);
 					menuItem_view_graph.add(menuItem_view_graph_Fs);	
+					menuItem_view_graph.add(this.menuItem_view_graph_graphData);	
+
+					
 			
 			// Math
 			menu_math.add(menuItem_math_fft);
@@ -331,7 +350,10 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		menuItem_view_SerialPorts.setActionCommand(InterfaceVista.ListSerialPorts);
 		this.menuItem_view_graph_Fs.setActionCommand(InterfaceVista.GetSamplingRate);
 		this.menuItem_view_graph_getRangeTime.setActionCommand(InterfaceVista.GetTimeRange);
-		
+		this.menuItem_view_graph_graphData.setActionCommand(InterfaceVista.ViewGraphData);
+			//EXPORT
+			this.menuItem_file_export_matlab.setActionCommand(InterfaceVista.FileExportMatlab);
+			this.menuItem_file_export_txt.setActionCommand(InterfaceVista.FileExportText);
 		// MATH
 		this.menuItem_math_fft_calculate.setActionCommand(InterfaceVista.CalculateFFT);
 		this.menuItem_math_fft_graph_module.setActionCommand(InterfaceVista.GraphFFTmodule);
@@ -342,7 +364,6 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			this.menuItem_config_graph_all.setActionCommand(InterfaceVista.ConfigGraph);
 			this.menuItem_config_setRangeTime.setActionCommand(InterfaceVista.ConfigTimeRange);
 			this.menuItem_config_setFs.setActionCommand(InterfaceVista.ConfigSamplingRate);
-			
 			// SERIAL
 			this.menuItem_config_serial_baudRate.setActionCommand(InterfaceVista.ConfigSetBaudRate);
 	}
@@ -688,7 +709,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		menuItem_view_SerialPorts.addActionListener(c);
 		this.menuItem_view_graph_Fs.addActionListener(c);
 		this.menuItem_view_graph_getRangeTime.addActionListener(c);
-		
+		this.menuItem_view_graph_graphData.addActionListener(c);
 		// Math section
 		this.menuItem_math_fft_calculate.addActionListener(c);
 		this.menuItem_math_fft_graph_module.addActionListener(c);
@@ -785,6 +806,21 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		
 		
 		//return graph_frame;
+	}
+	
+	// seleccionar donde guardar archivo
+	@Override
+	public String saveFileWindow() {
+		 String status = null;
+		 try {
+			 JFileChooser file=new JFileChooser();
+			 file.showSaveDialog(this);
+			 status = file.getSelectedFile().toString();
+		 }catch(Exception e) {
+			 e.printStackTrace();
+			 status = null;
+		 }
+		 return status;
 	}
 	
 	

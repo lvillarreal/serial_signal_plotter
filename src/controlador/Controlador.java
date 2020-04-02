@@ -4,7 +4,10 @@ import java.awt.event.*;
 import java.util.Enumeration;
 import java.util.Map;
 
+import java.io.*;
+
 import javax.swing.JOptionPane;
+import javax.swing.*;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPortEvent;
@@ -35,7 +38,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	private int index_plot;
 	
 	private long timeExec;
-	
+	private boolean file_flag;	// flag usado en saveCurrentData()
 	
 	//private int buffer_serial[];	// guarda el dato recibido por uart
 	
@@ -95,17 +98,14 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	 * PROTOCOLO DE COMUNICACION
 	 * Cuando se presiona el boton start se envia el codigo ascii 2 (STX,start of text) al dispositivo
 	 * El dispositivo responde con ACK (codigo ascii 6), luego la tasa de muestreo respresentada en 3 bytes (24 bits),
-	 * luego el codigo ascii 10 (new line) seguido de la cantidad de bits del AD (maximo 24). Al final envia
-	 * el codigo ascii 4 (EOT, end of text)
+	 * luego el codigo ascii 10 (new line) seguido de la cantidad de bits del AD (maximo 24)seguido del rango del AD.
+	 * Al final envia el codigo ascii 4 (EOT, end of text)
 	 * Luego se envia el codigo ascii 5 (ENQ) para comenzar la transmision de la informacion*/
 	
 
 		@Override 
 		public void actionPerformed(ActionEvent e)  {
-			
-			Runnable r_printData = new printData();
-			Thread t_printData = new Thread(r_printData);
-			
+
 			Runnable r_barOptions = new barOptions(vista,modelo,serial_comm,e.getActionCommand());
 			Thread t_barOptions = new Thread(r_barOptions);
 			
@@ -149,7 +149,11 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 							vista.buttonSetVisible("connect"); 	// se activa el boton conectar
 							vista.writeConsole("COM Port disconnected");
 							disconnect_flag = true;	
-							if(start_flag)processData();
+					
+							//if(start_flag) saveCurrentData();
+							
+							//if(start_flag)graphData();
+							if(start_flag)graphDataWEC();
 							start_flag = false;
 							
 						}else vista.writeConsole("ERROR! CANNOT DISCONNECT. PLEASE CLOSE PROGRAM");
@@ -256,35 +260,61 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	
 		}
 
-		class printData implements Runnable {
+		
+		private void saveCurrentData() {
+	        FileOutputStream fos = null;
+	        DataOutputStream salida = null;
+	        try {
+	            fos = new FileOutputStream("/ficheros/datos.dat");
+	            salida = new DataOutputStream(fos);
+	        }catch(IOException e) {
+	        	
+	        }
 			
 			
-			public void run() {
-				int j=0;
-				System.out.println("ENTRA "+ status);
-				while(status != -1) {
-					System.out.println("Entra al while j:"+j+" ib: "+index_buff);
-					if (j < index_buff) {
-						//vista.actualiceChartData(j, (((int)buff_MSB[j])*256)+(int)buff_LSB[j]);
-						System.out.println(j + "  "+  (((int)buff_MSB[j])*256)+(int)buff_LSB[j]);
-						
-						j+=1;
-					}
+			
+			// se abre el archivo
+			/* File archivo = new File("DataBase.txt");
+		     BufferedWriter bw;
+		
+		     int j=0;
+		     
+			try {
+				bw = new BufferedWriter(new FileWriter(archivo));
+				vista.writeConsole("SAVING DATA. PLEASE WAIT ...");
+				bw.write("Sample rate: "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
+				bw.newLine();
+				bw.write("ADC bits: "+modelo.getCantBits());
+				bw.newLine();
+				bw.write("ADC input range: +-"+modelo.getInputRange()+" V");
+				bw.newLine();
+				
+				while(status == -1 && j < index_buff-1) {
+					bw.write(String.valueOf(((((int)buff_MSB[j])*256)+(int)buff_LSB[j])));
 				}
+				
+				bw.close();
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			
+			*/
 		}
 		
-		private void processData() {
+		private void graphData() {
 			int dat = 0;
 			for(int j=0;j<index_buff-1;j++) {
 				dat = ((((int)buff_MSB[j])*256)+(int)buff_LSB[j]);
-				vista.actualiceChartData(j, (((int)buff_MSB[j])*256)+(int)buff_LSB[j]);
-			}
-			
+				vista.actualiceChartData(j, dat);
+			}	
+		}
+		
+		// graph data With Error Control
+		private void graphDataWEC() {
 			//Bloque para corroborar que no haya errores
 
-			/*int dat = ((((int)buff_MSB[0])*256)+buff_LSB[0]);
+			int dat = ((((int)buff_MSB[0])*256)+buff_LSB[0]);
 			vista.actualiceChartData(0, dat);
 			for(int j=1;j<index_buff-1;j++) {
 				if(((((int)buff_MSB[j])*256)+(int)buff_LSB[j])- dat != 1){
@@ -292,28 +322,12 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				}
 				dat = ((((int)buff_MSB[j])*256)+(int)buff_LSB[j]);
 				vista.actualiceChartData(j,dat );
-				//System.out.println(buff_MSB[index_plot]*256+buff_LSB[index_plot]);
-			}*/
-			
-		
+			}
 		}
 		
 		// se encarga de la manejar la comunicacion serial
 		private void commHandler() {
-			/*if(status == 0) { // se recibe el dato del AD
-        		i = 0;
-        		while(disconnect_flag == false && i<cant_bytes) {
-        				
-        			//datos = serial_comm.read2Bytes();
-            			//datos = serial_comm.readData();
-        			    datos = datos << 8;
-            			datos = datos + serial_comm.readData(); //Se lee los datos en el puerto serie	
-            			
-        				i+=1;
-        		}
-        		//index = index+1;
-        		System.out.println("DATA: "+datos);
-        	}else*/ if(status == 1) {	//Espera confirmacion (ACK)
+			if(status == 1) {	//Espera confirmacion (ACK)
    
         		datos = serial_comm.readData();
         		System.out.println("RECIBE ACK: "+datos);
@@ -354,15 +368,13 @@ public class Controlador implements ActionListener, SerialPortEventListener{
           		if(serial_comm.readData() == 4)	{
         			status = 0;
         			datos = 0;
-        			vista.writeConsole(" ");
         			vista.writeConsole("*****************************************************");
         			vista.writeConsole("CONFIGURATION DATA RECEIVED CORRECTLY");
         			vista.writeConsole("Sample rate: "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
         			vista.writeConsole("ADC bit count: "+modelo.getCantBits()+" bits");
         			vista.writeConsole("ADC input range: +-"+modelo.getInputRange()+" [V]");
         			vista.writeConsole("*****************************************************");
-        			vista.writeConsole(" ");
-
+        			
         		}else {
         			vista.writeConsole("ERROR EN RECEPCION DE DATOS DE CONFIGURACION");
         		}
@@ -370,10 +382,10 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		}
 		
 		
-		// metodos para la comunicacion serial
-		 private void actualiceChart() {
+		// metodo para graficar desde un archivo de texto
+		 private void actualiceChartFromFile() {
 				
-				int status;
+				byte status;
 				String line = null;
 				int index = 0;
 
@@ -445,136 +457,16 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		}
 		
 		private byte buttonDisconnect() {
-			//serial_comm.sendData((char)4);
-			//this.status = -1;
-			//while(disconnect_flag2);
+			
 			return serial_comm.closePort();
 			
 		}
 
-
-
 }
 
-		
-// Implementa las acciones que se realizan en la comunicacion serial. Lectura/escritura del puerto
-/*class SerialComm implements Runnable{
-	
-	private InterfaceVista vista;
-	private InterfaceModelo modelo;
-	private String option;
-	private SerialCommunication serial_comm;
-	private Controlador c;
-	
-	public SerialComm(InterfaceVista vista,InterfaceModelo modelo,SerialCommunication serial_comm,Controlador c,String option) {
-		this.vista = vista;
-		this.modelo = modelo;
-		this.option = option;
-		this.serial_comm = serial_comm;
-		this.c = c;
-	}
-	
-	 public void run() {	// metodo de interface runnable
-		switch(option) {
-		case InterfaceVista.ButtonConnectPushed:
-			if (buttonConnect() == 0) {
-				vista.buttonSetVisible("disconnect"); 	// se activa el boton desconectar
-			}
-			break;
-			
-		case InterfaceVista.ButtonStartPushed:	
-			actualiceChart();
-			break;
-			
-		case InterfaceVista.ButtonDisconnectPushed:
-			//System.out.println(buttonDisconnect());
-			buttonDisconnect();
-		}
-	}
-	
-
-	 private void actualiceChart() {
-		
-			int status;
-			String line = null;
-			int index = 0;
-
-			
-			double fs = modelo.getSamplingRate();
-
-			// Se abre el archivo
-			status = modelo.openFile(InterfaceModelo.fileData);
-			
-			if (status == InterfaceModelo.OpenFileSuccessfully) {	// si se abre satisfactoriamente
-				vista.writeConsole("File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" opened successfully");
-				
-				// inhabilita el boton de start
-			    vista.setButtonEnable(InterfaceVista.ButtonStartEnable, false);
-			    
-				// Se lee la frecuencia de muestreo que el sistema esta utilizando
-				fs = Double.parseDouble(modelo.readLine());
-				vista.writeConsole("Sample rate: "+fs + " [Hz]");
-				
-				modelo.setFs(fs); // Se guarda la frecuencia de muestreo
-				modelo.setSampleRateUnits("Hz");
-				
-				// Se borran los datos actuales del grafico
-				vista.deleteChartData();
-				
-				// Se leen los datos  del archivo
-				
-				line = modelo.readLine();
-				//vista.writeConsole(line);
-		
-				while (line != null) {
-					vista.actualiceChartData(((double )index)/fs, Double.parseDouble(line));
-					index =index + 1;
-					line = modelo.readLine();
-					//vista.writeConsole(String.valueOf(((double )index)/fs)+" ; "+line );
-				}
-				
-				// Se cierra el archivo
-				status = modelo.closeFile();
-				
-				if(status == InterfaceModelo.closeFileSuccessfully) {	// si el archivo se cierra correctamente
-					vista.writeConsole("File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" closed successfully" );
-					
-					// se habilita el boton start
-					vista.setButtonEnable(InterfaceVista.ButtonStartEnable, true);
-				}else if(status == InterfaceModelo.CloseFileError) {	
-					vista.writeConsole("ERROR. File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be closed" );
-				}
-			}else {	// el archivo no se abrio correctamente
-				vista.writeConsole("ERROR. File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be opened" );
-				
-			}
-			
-	}
-			
-	
-	
-	private byte buttonConnect() {
-		vista.deleteChartData();
-		modelo.setPortName(vista.getPortName());	//Se guarda el puerto ingresado  por el usuario
-		if(serial_comm.portConnect(c, modelo.getPortName()) == -1) {
-			vista.writeConsole("Cannot connect to port "+vista.getPortName());
-			return -1;
-		}
-		else {
-			vista.writeConsole(vista.getPortName()+" connection successfully");
-			return 0;
-		}
-		
-	}
-	
-	private void buttonDisconnect() {
-		 serial_comm.closePort();
-	}
 
 
-}
 
-*/
 
 // Implementa lo relacionado a la barra de menu
 class barOptions implements Runnable{

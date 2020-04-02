@@ -186,5 +186,8 @@ public class DataBase implements InterfaceModelo {
 		this.input_range = input_range;
 	}
 	
-	
+	@Override
+	public byte writeLineFile(String line) {
+		return file_handler.printLine(line);
+	}
 }

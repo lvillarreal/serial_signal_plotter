@@ -36,6 +36,7 @@ public interface InterfaceVista {
 	String getTimeRangeUnits();
 	String getNewSignalName();
 	String getPortName();
+	String saveFileWindow();
 	
 	int getBaudRate();
 	
@@ -65,9 +66,13 @@ public interface InterfaceVista {
 	
 	static final String GetSamplingRate = "GetSamplingRate";	// muestra la frecuencia de muestreo actual
 	static final String GetTimeRange = "GetTimeRange";			// muestra el rango de tiempo de la grafica
-
+	static final String ViewGraphData  = "ViewGraphData";
+	
 	static final String ButtonStartEnable = "ButtonStartEnable";	// permite habilitar y deshabilitar el boton start
 	static final String ButtonConnectEnable = "ButtonConnectEnable";	// permite habilitar y deshabilitar el boton connect
 
+	static final String FileExportMatlab = "FileExportMatlab";	// exporta el archivo a un .m que grafica los datos
+	static final String FileExportText = "FileExportText";	// exporta el archivo a un .txt
+	
 	
 }

@@ -11,6 +11,7 @@ public class FileHandler {
 	private FileWriter fw;
 	private PrintWriter pw;
     private BufferedReader br;
+    private BufferedWriter bw;
     private String linea;
 
     
@@ -22,6 +23,7 @@ public class FileHandler {
 		br = null;
 		linea = null;
 	}
+	
 	
 	public byte openFile(String FILE_NAME) {
 		try {

@@ -14,11 +14,14 @@ public interface InterfaceModelo {
 	 void setCantBits(int bits);
 	 void setInputRange(double input_range);
 	 
+	 
+	 
 	 byte calculateFFT();
 	 byte openFile(byte option);
 	 byte closeFile();
 	 String readLine();
 	 String getFileName(byte option);
+	 byte writeLineFile(String line);
 	 
 	 int getCantBits();
 	 String getSignalName();
@@ -47,5 +50,6 @@ public interface InterfaceModelo {
 		final static byte fftCalculateOk = 2;	// indica que la fft se calculo correctamente
 		final static byte fftShiftedOk = 3;		// indica que realizo bien el shift
 		final static byte fileFFTshiftedModule = 4;
+		
 		
 }
