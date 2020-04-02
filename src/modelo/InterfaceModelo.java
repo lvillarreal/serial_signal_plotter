@@ -12,6 +12,7 @@ public interface InterfaceModelo {
 	 void setTimeUnits(String units);
 	 void setPortName(String port_name);
 	 void setCantBits(int bits);
+	 void setInputRange(double input_range);
 	 
 	 byte calculateFFT();
 	 byte openFile(byte option);
@@ -26,7 +27,7 @@ public interface InterfaceModelo {
 	 double getSamplingRate();
 	 String getSampleRateUnits();
 	 String getPortName();
-
+	 double getInputRange();
 		
 		final static byte OpenFileSuccessfully = 0;
 		final static byte closeFileSuccessfully = 0;
