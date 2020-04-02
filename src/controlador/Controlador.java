@@ -24,22 +24,24 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	private InterfaceVista vista;
 	
 	private SerialCommunication serial_comm;
-	private int index;
-	private int buffer;
-	private int errores;
+//	private int index;
+//	private int buffer;
+//	private int errores;
 	private int fs;
 	private int count;	// variable auxiliar para contar los bytes recibidos
 	private int cant_bytes;	// cantidad de bytes del dato medido
-	private boolean disconnect_flag; // indica cuando se desconecta el puerto serial
+//	private boolean disconnect_flag; // indica cuando se desconecta el puerto serial
 	private boolean start_flag;
 	private int datos;	// dato recibido por puerto serie
-	private int i;	// variable auxiliar para saber que byte se esta recibiendo
+//	private int i;	// variable auxiliar para saber que byte se esta recibiendo
 	private int index_buff;
 	
 	private long timeExec;
-		
-	// arrays para guardar el MSB y LSB del dato recibido por serial port
-	private byte[] buffer_serial;	
+
+	
+	//private int buffer_serial[];	// guarda el dato recibido por uart
+	
+
 	
 	/****************************************************************
 	*					Valores de STATUS							*
@@ -56,25 +58,20 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
 
+		
 		this.modelo = modelo;
 		this.vista = vista;
 		serial_comm = new SerialCommunication();	// instanciacion de serialCommunication
-		index = 0;
-		buffer = -1;
-		errores = 0;
 		status = -1;
 		fs = 0;
 		count = 0;
-		disconnect_flag = false;
 		start_flag = false;
 		datos = 0;
-		i = 0;
+
 		
 		timeExec = 0;
-		
-		buffer_serial = new byte[9600000];
-		
-		resetBuffer();
+
+
 		
 		index_buff = 0;
 
@@ -104,11 +101,11 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 					@Override
 					public void run() {
 						if (buttonConnect() == 0) {
-							index = 0;
-							errores = 0;
-							buffer = -1;
+//							index = 0;
+//							errores = 0;
+//							buffer = -1;
 							vista.buttonSetVisible("disconnect"); 	// se activa el boton desconectar
-							disconnect_flag = false;
+//							disconnect_flag = false;
 							start_flag = false; 
 						}
 					}
@@ -118,7 +115,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				new Thread(){
 					@Override
 					public void run() {
-						disconnect_flag = true;
+//						disconnect_flag = true;
 						status = -1;
 						
 						timeExec = System.currentTimeMillis() - timeExec;
@@ -134,7 +131,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 						if (buttonDisconnect() == 0) {
 							vista.buttonSetVisible("connect"); 	// se activa el boton conectar
 							vista.writeConsole("COM Port disconnected");
-							disconnect_flag = true;	
+//							disconnect_flag = true;	
 					
 							//if(start_flag) saveCurrentData();
 							
@@ -174,10 +171,16 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 						if (start_flag == false) {
 							status = 1;
 							start_flag = true;
-							resetBuffer();
+
+							modelo.resetData();
+
+//							for(int j=0;j<4800000;j++) {
+//								buff_MSB[j]=0;
+//								buff_LSB[j] = 0;
+//							}
 							index_buff = 0;
 							serial_comm.sendData((char)2);
-							index = 0;
+//							index = 0;
 
 							timeExec = System.currentTimeMillis();
 							//vista.buttonSetVisible("start_pushed");
@@ -203,7 +206,6 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			
 			int MSB=-1;
 			int LSB=-1;
-
 			//serial_comm.setEnableInterrupt(this, false);
 			
 			while(oEvent.DATA_AVAILABLE>0 && this.status != -1) {
@@ -214,15 +216,22 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	                	//serial_comm.readData();	                	   
 	                	
 	                	if((MSB = serial_comm.readData()) > -1 && (LSB = serial_comm.readData()) > -1) {
-	                		buffer_serial[index_buff]   = (byte)MSB;
-	                		buffer_serial[index_buff+1] = (byte)LSB;
+
+//	                		buff_MSB[index_buff] = (short)MSB;
+//	                		buff_LSB[index_buff] = (short)LSB;
+	                		modelo.setData((byte)MSB,(byte)LSB,index_buff);
+	                			
 	                   		index_buff+=2;
 	                	}
+	                		
+	                		//vista.actualiceChartData(index_buff, MSB*256+LSB);
+	                	
 	                	if((MSB = serial_comm.readData()) > -1 && (LSB = serial_comm.readData()) > -1) {
-	                		buffer_serial[index_buff]   = (byte)MSB;
-	                		buffer_serial[index_buff+1] = (byte)LSB;
+
+	                		modelo.setData((byte)MSB,(byte)LSB,index_buff);
+	                			
 	                   		index_buff+=2;
-	                	}	                	
+	                	}            	
 	                	
 	                }else if(status != -1) {
 	                	commHandler();
@@ -280,9 +289,11 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		}
 		
 		private void graphData() {
-			int dat = 0;
+
+			double dat = 0;
 			for(int j=0;j<index_buff-1;j=j+2) {
-				dat =((int)(buffer_serial[j]&0xFF))*256+(int)(buffer_serial[j+1]&0xFF);
+//				dat = ((((int)buff_MSB[j])*256)+(int)buff_LSB[j]);
+				dat = modelo.getData(j);
 				vista.actualiceChartData(j, dat);
 			}	
 		}
@@ -290,15 +301,17 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		// graph data With Error Control
 		private void graphDataWEC() {
 			//Bloque para corroborar que no haya errores
-			int dat1 = 0;
-			int dat = ((int)(buffer_serial[0]&0xFF))*256+(int)(buffer_serial[1]&0xFF);
+
+			double dat1 = 0;
+			double dat = modelo.getData(0);
 			vista.actualiceChartData(0, dat);
 			for(int j=2;j<index_buff-1;j=j+2) {
-				if((dat1 = ((int)(buffer_serial[j]&0xFF))*256+(int)(buffer_serial[j+1]&0xFF)) - dat != 1){
-					System.out.println(dat1+ " "+ dat+" "+j);
+				dat1 = modelo.getData(j);
+				if(dat1-dat != 1.0){
+					System.out.println(dat1 + " "+ dat+" "+j);
 				}
-				dat = ((int)(buffer_serial[j]&0xFF))*256+(int)(buffer_serial[j+1]&0xFF);
-				vista.actualiceChartData(j,dat );
+				dat = dat1;
+				vista.actualiceChartData(j,dat);
 			}
 		}
 		
@@ -438,13 +451,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			return serial_comm.closePort();
 			
 		}
-		
-		private void resetBuffer() {
 
-			for (int j=0;j<this.buffer_serial.length; j++) {
-				buffer_serial[j] = 0;
-			}
-		}
 
 }
 
