@@ -2,12 +2,12 @@ package controlador;
 
 import java.awt.event.*;
 import java.util.Enumeration;
-import java.util.Map;
+//import java.util.Map;
 
 import java.io.*;
 
 import javax.swing.JOptionPane;
-import javax.swing.*;
+//import javax.swing.*;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPortEvent;
@@ -35,17 +35,11 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	private int datos;	// dato recibido por puerto serie
 	private int i;	// variable auxiliar para saber que byte se esta recibiendo
 	private int index_buff;
-	private int index_plot;
 	
 	private long timeExec;
-	private boolean file_flag;	// flag usado en saveCurrentData()
-	
-	//private int buffer_serial[];	// guarda el dato recibido por uart
-	
+		
 	// arrays para guardar el MSB y LSB del dato recibido por serial port
-	private short buff_MSB[];
-	private short buff_LSB[];
-	
+	private byte[] buffer_serial;	
 	
 	/****************************************************************
 	*					Valores de STATUS							*
@@ -78,19 +72,11 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		timeExec = 0;
 		
-		//buffer_serial = new int[4800000];
-		buff_MSB = new short[24000000];
-		buff_LSB = new short[24000000];
+		buffer_serial = new byte[9600000];
 		
-		
-		for (int j=0;j<4800000; j++) {
-			//buffer_serial[j] = 0;
-			buff_MSB[j] = 0;
-			buff_LSB[j] = 0;
-		}
+		resetBuffer();
 		
 		index_buff = 0;
-		index_plot = 0;
 
 	}
 	
@@ -188,10 +174,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 						if (start_flag == false) {
 							status = 1;
 							start_flag = true;
-							for(int j=0;j<4800000;j++) {
-								buff_MSB[j]=0;
-								buff_LSB[j] = 0;
-							}
+							resetBuffer();
 							index_buff = 0;
 							serial_comm.sendData((char)2);
 							index = 0;
@@ -231,20 +214,14 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	                	//serial_comm.readData();	                	   
 	                	
 	                	if((MSB = serial_comm.readData()) > -1 && (LSB = serial_comm.readData()) > -1) {
-	                		buff_MSB[index_buff] = (short)MSB;
-	                		buff_LSB[index_buff] = (short)LSB;
-	                   		index_buff+=1;
-
-	                		
-	                		//vista.actualiceChartData(index_buff, MSB*256+LSB);
+	                		buffer_serial[index_buff]   = (byte)MSB;
+	                		buffer_serial[index_buff+1] = (byte)LSB;
+	                   		index_buff+=2;
 	                	}
 	                	if((MSB = serial_comm.readData()) > -1 && (LSB = serial_comm.readData()) > -1) {
-	                		buff_MSB[index_buff] = (short)MSB;
-	                		buff_LSB[index_buff] = (short)LSB;
-	                   		index_buff+=1;
-
-	                		
-	                		//vista.actualiceChartData(index_buff, MSB*256+LSB);
+	                		buffer_serial[index_buff]   = (byte)MSB;
+	                		buffer_serial[index_buff+1] = (byte)LSB;
+	                   		index_buff+=2;
 	                	}	                	
 	                	
 	                }else if(status != -1) {
@@ -304,8 +281,8 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		private void graphData() {
 			int dat = 0;
-			for(int j=0;j<index_buff-1;j++) {
-				dat = ((((int)buff_MSB[j])*256)+(int)buff_LSB[j]);
+			for(int j=0;j<index_buff-1;j=j+2) {
+				dat =((int)(buffer_serial[j]&0xFF))*256+(int)(buffer_serial[j+1]&0xFF);
 				vista.actualiceChartData(j, dat);
 			}	
 		}
@@ -313,14 +290,14 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		// graph data With Error Control
 		private void graphDataWEC() {
 			//Bloque para corroborar que no haya errores
-
-			int dat = ((((int)buff_MSB[0])*256)+buff_LSB[0]);
+			int dat1 = 0;
+			int dat = ((int)(buffer_serial[0]&0xFF))*256+(int)(buffer_serial[1]&0xFF);
 			vista.actualiceChartData(0, dat);
-			for(int j=1;j<index_buff-1;j++) {
-				if(((((int)buff_MSB[j])*256)+(int)buff_LSB[j])- dat != 1){
-					System.out.println(((((int)buff_MSB[j])*256)+(int)buff_LSB[j]) + " "+ dat+" "+j);
+			for(int j=2;j<index_buff-1;j=j+2) {
+				if((dat1 = ((int)(buffer_serial[j]&0xFF))*256+(int)(buffer_serial[j+1]&0xFF)) - dat != 1){
+					System.out.println(dat1+ " "+ dat+" "+j);
 				}
-				dat = ((((int)buff_MSB[j])*256)+(int)buff_LSB[j]);
+				dat = ((int)(buffer_serial[j]&0xFF))*256+(int)(buffer_serial[j+1]&0xFF);
 				vista.actualiceChartData(j,dat );
 			}
 		}
@@ -460,6 +437,13 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			
 			return serial_comm.closePort();
 			
+		}
+		
+		private void resetBuffer() {
+
+			for (int j=0;j<this.buffer_serial.length; j++) {
+				buffer_serial[j] = 0;
+			}
 		}
 
 }
