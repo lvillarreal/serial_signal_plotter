@@ -33,7 +33,7 @@ public interface InterfaceModelo {
 	 String getSampleRateUnits();
 	 String getPortName();
 	 double getInputRange();
-	 double getData(int index);
+	 double[][] getData();
 	 int getCantMuestras();
      String getDate();
      String obtainDate();

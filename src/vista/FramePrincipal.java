@@ -892,8 +892,8 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 	}
 
 	@Override
-	public void actualiceChartData(double x, double y) {
-		grafica.actualiceDataset(x, y);
+	public void actualiceChartData(String signal_name,double[][] data) {
+		grafica.actualiceDataset(signal_name,data);
 	}
 
 	@Override 

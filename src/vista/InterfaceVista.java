@@ -20,7 +20,7 @@ public interface InterfaceVista {
     void closeConfigGraph();
 	
     void setSignalName(String name);
-    void actualiceChartData(double x,double y);
+    void actualiceChartData(String signal_name,double[][] data);
     void deleteChartData();
     
     void setButtonEnable(String button,boolean option);	// permite cambiar el texto de los botones

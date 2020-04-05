@@ -16,6 +16,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.DefaultXYDataset;
 
 public class XYchart {
 	
@@ -23,8 +24,8 @@ public class XYchart {
 	private ChartPanel chartPanel;
 	private XYPlot plot;
 	private XYSeries medicion;
-	private XYSeriesCollection dataset;
-	
+	//private XYSeriesCollection dataset;
+	private DefaultXYDataset dataset;
 	public XYchart() {
 		
 	}
@@ -32,6 +33,7 @@ public class XYchart {
 	
 	public void startChart(String chartTitle) {
 		
+		dataset = new DefaultXYDataset();
 		
 		xylineChart = ChartFactory.createXYLineChart(chartTitle, "time", "Signal", dataset,
 				PlotOrientation.VERTICAL, true, true, false);
@@ -54,7 +56,8 @@ public class XYchart {
 	}
 
 	public void createDataset() {
-		medicion = new XYSeries("Medicion");
+		//medicion = new XYSeries("Medicion");
+		
 		//medicion.add(1.0, 1.0);
 		//medicion.add(2.0, 4.0);
 		//medicion.add(3.0, 3.0);
@@ -66,15 +69,17 @@ public class XYchart {
 		iexplorer.add(3.0, 4.0);
 		iexplorer.add(4.0, 5.0);
 		iexplorer.add(5.0, 4.0);*/
-		dataset = new XYSeriesCollection();
-		dataset.addSeries(medicion);
+//		dataset = new XYSeriesCollection();
+//		dataset.addSeries(medicion);
+		
 //		dataset.addSeries(chrome);
 //		dataset.addSeries(iexplorer);
 		//return dataset;
 	}
 	
-	public void actualiceDataset(double x,double y) {
-		medicion.add(x,y);
+	public void actualiceDataset(String signal_name, double[][]data) {
+	//	medicion.add(x,y);
+		dataset.addSeries(signal_name, data);
 		
 		
 	}
@@ -84,7 +89,9 @@ public class XYchart {
 	}
 	
 	public void deleteDataset() {
-		medicion.clear();
+		//medicion.clear();
+		dataset.removeSeries("Signal name");
+		
 		
 	}
 

@@ -154,12 +154,20 @@ public class DataBase implements InterfaceModelo, Serializable {
 	}
 	
 	@Override
-	public double getData(int index) {
-		double output = -1;
+	public double[][] getData() {
+		double[][] output = new double[2][this.cant_muestras];
+		//double[][] output = new double[2][10];
 		try {
-			output = (this.data[index]&0xFF)*256+(this.data[index+1]&0xFF);
+			
+			
+			for(int i=0;i<cant_muestras*2;i=i+2) {
+				output[0][i/2] = i/2;
+				output[1][i/2] = (this.data[i]&0xFF)*256+(this.data[i+1]&0xFF);
+				//j+=1;	
+			}
+			
 		}catch(Exception e) {
-			e.printStackTrace();
+			e.printStackTrace();	
 		}
 		return output;
 	}

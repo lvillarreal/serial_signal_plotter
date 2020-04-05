@@ -308,12 +308,13 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		// grafica los datos 
 		private void graphData() {
 			long time = System.currentTimeMillis();
-			int index_buff = (modelo.getCantMuestras()+1)*2;
-			double dat = 0;
+			vista.actualiceChartData(modelo.getSignalName(), modelo.getData());
+			//int index_buff = (modelo.getCantMuestras()+1)*2;
+		/*	double dat = 0;
 			for(int j=0;j<index_buff-1;j=j+2) {
 				dat = modelo.getData(j);
 				vista.actualiceChartData(j/2, dat);
-			}	
+			}*/	
 			vista.writeConsole(""+(System.currentTimeMillis()-time));
 		}
 		
@@ -321,7 +322,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		// graph data With Error Control
 		// Usado para debug
-		private void graphDataWEC() {
+	/*	private void graphDataWEC() {
 			//Bloque para corroborar que no haya errores
 
 			double dat1 = 0;
@@ -338,7 +339,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			}
 			vista.writeConsole("index: "+index_buff);
 			vista.writeConsole("CANTIDAD DE MUESTRAS: "+(j-1)/2);
-		}
+		}*/
 		
 		// se encarga de la manejar la comunicacion serial
 		private void commHandler() {
@@ -434,7 +435,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 					//vista.writeConsole(line);
 			
 					while (line != null) {
-						vista.actualiceChartData(((double )index)/fs, Double.parseDouble(line));
+	//					vista.actualiceChartData(((double )index)/fs, Double.parseDouble(line));
 						index =index + 1;
 						line = modelo.readLine();
 						//vista.writeConsole(String.valueOf(((double )index)/fs)+" ; "+line );
@@ -670,7 +671,7 @@ class barOptions implements Runnable{
 			//vista.writeConsole(line);
 	
 			while (line != null) {
-				vista.actualiceChartData(((double )index)*fs, Double.parseDouble(line));
+	//			vista.actualiceChartData(((double )index)*fs, Double.parseDouble(line));
 				index =index + 1;
 				line = modelo.readLine();
 				//vista.writeConsole(String.valueOf(((double )index)/fs)+" ; "+line );
