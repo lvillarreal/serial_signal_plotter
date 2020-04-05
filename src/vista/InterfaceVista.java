@@ -28,17 +28,24 @@ public interface InterfaceVista {
     void viewDataset();
     double getDatasetItem(int index);
     
+    
     void buttonSetVisible(String button);
 	void writeConsole(String list);
+	void deleteConsole();
 	String getConfigSampleRate();
 	String getSampleRateUnits();
 	String getConfigTimeRange();
 	String getTimeRangeUnits();
 	String getNewSignalName();
 	String getPortName();
-	String saveFileWindow();
+	String fileWindow(byte option);
 	
 	int getBaudRate();
+	
+	// Constantes utilizadas
+	static final byte optionSaveFile = (byte)0;
+	static final byte optionOpenFile = (byte)1;
+	static final byte optionSaveCurrentFile = (byte)3;
 	
 	// ActionCommands para los eventos
 	static final String ButtonConnectPushed = "ButtonConnectedPushed";	// Para ActionCommand del boton connect
@@ -73,6 +80,6 @@ public interface InterfaceVista {
 
 	static final String FileExportMatlab = "FileExportMatlab";	// exporta el archivo a un .m que grafica los datos
 	static final String FileExportText = "FileExportText";	// exporta el archivo a un .txt
-	
-	
+	static final String MenuButtonOpenFile = "MenuButtonOpenFile";	// se ha presionado la opcion import
+	static final String MenuSaveAs = "MenuSaveAs";	// se ha presionado guardar como
 }

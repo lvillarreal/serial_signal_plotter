@@ -15,6 +15,7 @@ public interface InterfaceModelo {
 	 void setInputRange(double input_range);
 	 void setData(byte MSB,byte LSB, int i) throws Exception;
 	 void setCantMuestras(int cant);
+	 void setDate(String date);
 	 
 	 void resetData();
 	 byte calculateFFT();
@@ -33,7 +34,11 @@ public interface InterfaceModelo {
 	 String getPortName();
 	 double getInputRange();
 	 double getData(int index);
-	 
+	 int getCantMuestras();
+     String getDate();
+     String obtainDate();
+     
+     
 		final static byte OpenFileSuccessfully = 0;
 		final static byte closeFileSuccessfully = 0;
 		final static byte OpenFileError = -1;

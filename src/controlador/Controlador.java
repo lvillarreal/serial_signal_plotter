@@ -1,10 +1,13 @@
 package controlador;
 
 import java.awt.event.*;
+import java.util.Date;
 import java.util.Enumeration;
 //import java.util.Map;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import javax.swing.JOptionPane;
 //import javax.swing.*;
@@ -56,7 +59,6 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
 
 		
-		
 		this.modelo = modelo;
 		this.vista = vista;
 		serial_comm = new SerialCommunication();	// instanciacion de serialCommunication
@@ -66,13 +68,15 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		start_flag = false;
 		datos = 0;
 
-		
 		timeExec = 0;
-
-
 		
 		index_buff = 0;
+		
 
+	}
+	// Constructor vacio
+	public Controlador() {
+		
 	}
 	
 	/******************************************************************************************************************
@@ -143,21 +147,8 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				new Thread(){
 					@Override
 					public void run() {
-						if (start_flag == false) {
-							flag_full_buffer = false;
-							status = 1;
-							start_flag = true;
-
-							modelo.resetData();
-
-							index_buff = 0;
-							serial_comm.sendData((char)2);
-//							index = 0;
-
-							timeExec = System.currentTimeMillis();
-							//vista.buttonSetVisible("start_pushed");
-							
-						}
+						startPushed();
+				
 					}
 				}.start();
 				//t_printData.start();
@@ -167,11 +158,32 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigSetBaudRate)){
 				t_barOptions.start();
+			}else if(e.getActionCommand().equals(InterfaceVista.MenuButtonOpenFile)){
+				new Thread() {
+					public void run() {
+						openFilePushed();
+					}
+				}.start();
+			}else if(e.getActionCommand().equals(InterfaceVista.ViewGraphData)){
+				new Thread() {
+					public void run() {
+						graphData();
+					}
+				}.start();
+				
+			}else if(e.getActionCommand().equals(InterfaceVista.MenuSaveAs)){
+				new Thread() {
+					public void run() {
+						saveAsPushed();
+					}
+				}.start();
 				
 			}
 			
 		}
 
+		
+		
 		/*LOS DATOS DEL AD SE ENVIAN EN DOS BYTES (8 BITS) CONSECUTIVOS, POR LO QUE SE DEBEN CONCATENAR PARA FORMAR EL DATO ORIGINAL*/
 		@Override
 		public void serialEvent(SerialPortEvent oEvent) {
@@ -204,13 +216,85 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		    }	
 		}
 
+		private void startPushed() {
+			if (start_flag == false) {
+				flag_full_buffer = false;
+				status = 1;
+				start_flag = true;
+
+				modelo.resetData();
+
+				index_buff = 0;
+				serial_comm.sendData((char)2);
+//				index = 0;
+
+				timeExec = System.currentTimeMillis();
+				modelo.setDate(modelo.obtainDate());
+				//vista.buttonSetVisible("start_pushed");
+				
+			}
+		}
 		
-		private void saveCurrentData() {
-	        
+		private void saveAsPushed() {
+			String file_name = vista.fileWindow(InterfaceVista.optionSaveFile);
+			if(file_name != "_CANCEL_") {
+				String[] aux = file_name.split("\\.");
+				file_name = aux[0]+".dat";
+				saveData(file_name);
+				vista.writeConsole("File "+file_name+" saved successfully");
+			}
+
+			
+		}
+		
+		private void openFilePushed() {
+			byte stat = openSavedData(vista.fileWindow(InterfaceVista.optionOpenFile));
+			if(stat > -1) {
+				vista.deleteConsole();
+    			vista.writeConsole("*****************************************************");
+    			vista.writeConsole("FILE OPENED SUCCESSFULLY");
+    			vista.writeConsole("Sample rate: "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
+    			vista.writeConsole("ADC bit count: "+modelo.getCantBits()+" bits");
+    			vista.writeConsole("ADC input range: +-"+modelo.getInputRange()+" [V]");
+    			vista.writeConsole("Date: "+modelo.getDate());
+    			vista.writeConsole("*****************************************************");
+				
+    			vista.setSignalName(modelo.getSignalName());
+    			
+			}else if(stat == -1){
+				vista.writeConsole("File has not been opened");
+			}
+		}
+		
+		private byte openSavedData(String fichero){
+			byte status = -1;
+	        try{
+	        	if(fichero != "_CANCEL_") {	
+		            // Se crea un ObjectInputStream
+
+	        		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fichero));
+	            
+	        		this.modelo =(InterfaceModelo) ois.readObject();
+	            
+	           
+	        		ois.close();
+	        		status = 0;
+	        	}else {
+	        		status = -2;
+	        	}
+	        }
+	        catch (Exception e2){
+	            e2.printStackTrace();
+	        }
+	        return status;
+	    }
+		
+		private void saveData(String fichero) {
 			try {
-				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("data_base.dat"));
-				oos.writeObject(modelo);
-				oos.close();
+					ObjectOutputStream oos1 = new ObjectOutputStream(new FileOutputStream(fichero));
+					oos1.writeObject(modelo);
+					oos1.close();
+				
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -218,58 +302,25 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			/*FileOutputStream fos = null;
-	        DataOutputStream salida = null;
-	        try {
-	            fos = new FileOutputStream("/ficheros/datos.dat");
-	            salida = new DataOutputStream(fos);
-	        }catch(IOException e) {
-	        	
-	        }*/
-			
-			
-			
-			// se abre el archivo
-			/* File archivo = new File("DataBase.txt");
-		     BufferedWriter bw;
-		
-		     int j=0;
-		     
-			try {
-				bw = new BufferedWriter(new FileWriter(archivo));
-				vista.writeConsole("SAVING DATA. PLEASE WAIT ...");
-				bw.write("Sample rate: "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
-				bw.newLine();
-				bw.write("ADC bits: "+modelo.getCantBits());
-				bw.newLine();
-				bw.write("ADC input range: +-"+modelo.getInputRange()+" V");
-				bw.newLine();
-				
-				while(status == -1 && j < index_buff-1) {
-					bw.write(String.valueOf(((((int)buff_MSB[j])*256)+(int)buff_LSB[j])));
-				}
-				
-				bw.close();
-
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			*/
 		}
 		
+		
+		// grafica los datos 
 		private void graphData() {
-
+			long time = System.currentTimeMillis();
+			int index_buff = (modelo.getCantMuestras()+1)*2;
 			double dat = 0;
 			for(int j=0;j<index_buff-1;j=j+2) {
-//				dat = ((((int)buff_MSB[j])*256)+(int)buff_LSB[j]);
 				dat = modelo.getData(j);
-				vista.actualiceChartData(j, dat);
+				vista.actualiceChartData(j/2, dat);
 			}	
+			vista.writeConsole(""+(System.currentTimeMillis()-time));
 		}
 		
+		
+		
 		// graph data With Error Control
+		// Usado para debug
 		private void graphDataWEC() {
 			//Bloque para corroborar que no haya errores
 
@@ -337,6 +388,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
         			vista.writeConsole("Sample rate: "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
         			vista.writeConsole("ADC bit count: "+modelo.getCantBits()+" bits");
         			vista.writeConsole("ADC input range: +-"+modelo.getInputRange()+" [V]");
+        			vista.writeConsole("Date: "+modelo.getDate());
         			vista.writeConsole("*****************************************************");
         			vista.writeConsole("         MEASURING . . .");
         			
@@ -410,6 +462,8 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		private byte buttonConnect() {
 			vista.deleteChartData();
+			vista.deleteConsole();
+
 			modelo.setPortName(vista.getPortName());	//Se guarda el puerto ingresado  por el usuario
 			if(serial_comm.portConnect(this, modelo.getPortName()) == -1) {
 				vista.writeConsole("Cannot connect to port "+vista.getPortName());
@@ -420,12 +474,13 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			}
 			
 		}
-		
+		 
 		private void buttonDisconnect() {
 			
 			status = -1;
 			
-			if(!flag_full_buffer)
+			// Entra al if si no se lleno el buffer de recepcion de datos
+			if(!flag_full_buffer) 
 				timeExec = System.currentTimeMillis() - timeExec;
 			
 			serial_comm.sendData((char)4);
@@ -440,16 +495,15 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			if (serial_comm.closePort() == 0) {
 				vista.buttonSetVisible("connect"); 	// se activa el boton conectar
 				vista.writeConsole("COM Port disconnected");
-		
-				//if(start_flag) saveCurrentData();
-				
-				//if(start_flag)graphData();
-				if(start_flag)graphDataWEC();
+				modelo.setCantMuestras((index_buff/2)-1);
+				if(start_flag) saveData("data_base.dat");	// guarda el objeto modelo, que contiene toda la informacion de la grafica
+			
 				start_flag = false;
 				
 			}else vista.writeConsole("ERROR! CANNOT DISCONNECT. PLEASE CLOSE PROGRAM");
 		}
 			
+		
 		private void errorFullBuffer() {
 	    	if(!flag_full_buffer) { 
 	    		timeExec = System.currentTimeMillis() - timeExec;
@@ -552,6 +606,9 @@ class barOptions implements Runnable{
 				}else if(baud == -1){
 					vista.writeConsole("ERROR! Input valid baud rate (integer number)");
 				}
+				break;
+				
+			
 				
 
 		}

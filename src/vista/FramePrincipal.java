@@ -65,7 +65,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	//Items de file
 	private JMenuItem menuItem_file_save;
 	private JMenuItem menuItem_file_saveAs;
-	private JMenuItem menuItem_file_import;
+	private JMenuItem menuItem_file_openFile;
 	private JMenu menuItem_file_export;
 	private JMenuItem menuItem_file_exit;
 	
@@ -195,8 +195,8 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			//Items de file
 		menuItem_file_save   = new JMenuItem("Save");
 		menuItem_file_saveAs = new JMenuItem("Save As...");
-		menuItem_file_import = new JMenuItem("Import...");
-		menuItem_file_export = new JMenu("Export...");
+		menuItem_file_openFile = new JMenuItem("Open file...");
+		//menuItem_file_export = new JMenu("Export...");
 		menuItem_file_exit   = new JMenuItem("Exit");
 		
 		
@@ -268,18 +268,18 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			// file
 //		menu_file.add(menuItem_file_save);
 //		menu_file.addSeparator();
-//		menu_file.add(menuItem_file_saveAs);
-//		menu_file.addSeparator();
-//		menu_file.add(menuItem_file_import);
-//		menu_file.addSeparator();
-		menu_file.add(menuItem_file_export);
+		menu_file.add(menuItem_file_openFile);
+		menu_file.addSeparator();
+		menu_file.add(menuItem_file_saveAs);
+		menu_file.addSeparator();
+//		menu_file.add(menuItem_file_export);
 		menu_file.addSeparator();
 		menu_file.add(menuItem_file_exit);
-		menu_file.addSeparator();
+//		menu_file.addSeparator();
 			
 			// Export
-				this.menuItem_file_export.add(this.menuItem_file_export_txt);
-				this.menuItem_file_export.add(this.menuItem_file_export_matlab);
+				//this.menuItem_file_export.add(this.menuItem_file_export_txt);
+				//this.menuItem_file_export.add(this.menuItem_file_export_matlab);
 			//view
 		menu_view.add(menuItem_view_graph);
 		menu_view.addSeparator();
@@ -311,10 +311,10 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 					// Config Graph
 				
-					this.menuItem_config_graph.add(this.menuItem_config_setRangeTime);
+					//this.menuItem_config_graph.add(this.menuItem_config_setRangeTime);
 					//menuItem_config_graph.addSeparator();
-					this.menuItem_config_graph.add(this.menuItem_config_setFs);
-					menuItem_config_graph.addSeparator();
+					//this.menuItem_config_graph.add(this.menuItem_config_setFs);
+					//menuItem_config_graph.addSeparator();
 					this.menuItem_config_graph.add(this.menuItem_config_graph_all);
 					
 					// Config Serial
@@ -345,6 +345,8 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		// FILE
 		
 		menuItem_file_exit.setActionCommand(InterfaceVista.MenuButtonExitPushed);
+		menuItem_file_openFile.setActionCommand(InterfaceVista.MenuButtonOpenFile);
+		this.menuItem_file_saveAs.setActionCommand(InterfaceVista.MenuSaveAs);
 		
 		//VIEW
 		menuItem_view_SerialPorts.setActionCommand(InterfaceVista.ListSerialPorts);
@@ -360,6 +362,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		this.menuItem_math_fft_graph_angle.setActionCommand(InterfaceVista.GraphFFTangle);
 
 		// CONFIG
+		    
 			// GRAPH
 			this.menuItem_config_graph_all.setActionCommand(InterfaceVista.ConfigGraph);
 			this.menuItem_config_setRangeTime.setActionCommand(InterfaceVista.ConfigTimeRange);
@@ -676,11 +679,16 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 	
 	// SECCION MANEJO DE CONSOLE
 	
-	
+	@Override
 	public void writeConsole(String line) {
 		DateFormat hourFormat = new SimpleDateFormat("HH:mm:ss");
 		Date date = new Date();
 		console.setText(console.getText()+"["+hourFormat.format(date)+"] >> "+line+"\r\n");
+	}
+	
+	@Override
+	public void deleteConsole() {
+		console.setText(" ");
 	}
 	
 	
@@ -706,6 +714,10 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		button_disconnect.addActionListener(c);
 		button_start.addActionListener(c);
 		text_port.addActionListener(c);
+		
+		// file section
+		this.menuItem_file_openFile.addActionListener(c);
+		this.menuItem_file_saveAs.addActionListener(c);
 		
 		// view section
 		menuItem_view_SerialPorts.addActionListener(c);
@@ -810,14 +822,25 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		//return graph_frame;
 	}
 	
-	// seleccionar donde guardar archivo
+	// option = 0 Guardar archivo
+	// option = 1 Abrir archivo
 	@Override
-	public String saveFileWindow() {
+	public String fileWindow(byte option) {
 		 String status = null;
 		 try {
 			 JFileChooser file=new JFileChooser();
-			 file.showSaveDialog(this);
+			 switch(option) {
+			 	case InterfaceVista.optionSaveFile: 
+			 		 if(file.showSaveDialog(this) == file.CANCEL_OPTION) return "_CANCEL_";
+					 break;
+					 
+			 	case InterfaceVista.optionOpenFile:
+			 		 if(file.showOpenDialog(this) == file.CANCEL_OPTION) return "_CANCEL_";
+			 		 break;
+			 		 
+			 }
 			 status = file.getSelectedFile().toString();
+			 
 		 }catch(Exception e) {
 			 e.printStackTrace();
 			 status = null;

@@ -76,6 +76,7 @@ public class XYchart {
 	public void actualiceDataset(double x,double y) {
 		medicion.add(x,y);
 		
+		
 	}
 	
 	public void actualiceTitle(String title) {

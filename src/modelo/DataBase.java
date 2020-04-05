@@ -1,8 +1,13 @@
 package modelo;
 
-import java.util.ArrayList;
+import java.io.Serializable;
+//import java.util.ArrayList;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-public class DataBase implements InterfaceModelo {
+
+public class DataBase implements InterfaceModelo, Serializable {
 	
 	private FileHandler file_handler;	// clase para el manejo de archivos
 	
@@ -18,7 +23,8 @@ public class DataBase implements InterfaceModelo {
 	private double input_range;
 	private byte[] data;
     private int cant_muestras;	//cantidad de muestras en data
-	
+	private String date;
+    
 	// Seccion comunicacion serial
 	private String port_name;
 	private String portId;	// para verificar si el puerto esta conectado o no
@@ -46,6 +52,7 @@ public class DataBase implements InterfaceModelo {
 		this.input_range = 0;	// es +-2.56
 		
 		this.data = new byte[9600000];
+		this.date = obtainDate();
 		
 		resetData();
 		FILE_NAME = "files/DataBase.txt";
@@ -157,6 +164,11 @@ public class DataBase implements InterfaceModelo {
 		return output;
 	}
 	
+	@Override
+	public int getCantMuestras() {
+		return this.cant_muestras;
+	}
+	
 	
 	/* METODOS SETTER */
 	
@@ -226,5 +238,22 @@ public class DataBase implements InterfaceModelo {
 	@Override
 	public byte writeLineFile(String line) {
 		return file_handler.printLine(line);
+	}
+	
+	@Override
+	public void setDate(String date) {
+		this.date = date;
+	}
+	
+	@Override
+	public String getDate() {
+		return this.date;
+	}
+	
+	@Override
+	public String obtainDate() {
+		Date date = new Date();
+		return( new SimpleDateFormat("dd/MM/yyyy HH:mm").format(date));
+
 	}
 }

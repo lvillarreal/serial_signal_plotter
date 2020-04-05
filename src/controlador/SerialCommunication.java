@@ -127,69 +127,7 @@ public class SerialCommunication{
     	return stat;
     }
     
-  /*  public int read2Bytes() {
-       int available =0;
-       int bytesRead;
-       try {
-           available = Input.available();
-       } catch (IOException e) {
-           e.printStackTrace();
-       }
-       byte[] buffer = new byte[2];
-      
-       try {
-           while ( (bytesRead = Input.read(buffer)) > 0 ) {
-        	  // System.out.println("BYTES READ"+(int)((char)buffer[0])+" "+(int)((char)buffer[1]));
-                byte[] newData = new byte[buffer.length + bytesRead];
-            // copy data previously read
-            System.arraycopy(buffer, 0, newData, 0, buffer.length);
-           // append data newly read
-            System.arraycopy(buffer, 0, newData, buffer.length, bytesRead);
-            // discard the old array in favour of the new one
-      	   System.out.println("BYTES READ "+bytesRead);
-
-           }
-       }catch(Exception e){
-           e.printStackTrace();
-    	   System.out.println("ERROR READING");
-       }
-       return available;
-    }
-    */
-    public void initSerialReader() {
-    	(new Thread(new SerialReader(Input))).start();
-    }
-    
-    /** */
-    public static class SerialReader implements Runnable 
-    {
-        InputStream in;
-        
-        public SerialReader ( InputStream in )
-        {
-            this.in = in;
-        }
-        
-        public void run ()
-        {
-            byte[] buffer = new byte[2];
-            int len = -1;
-            int i = 0;
-            try
-            {
-                while ( ( len = this.in.read(buffer)) > -1 )
-                {
-                    System.out.println("CANTIDAD "+len);
-                }
-                
-            }
-            catch ( IOException e )
-            {
-                e.printStackTrace();
-            }            
-        }
-    }
-    
+  
 
    
     public int readData() {
@@ -226,6 +164,7 @@ public class SerialCommunication{
     		Output.close();
     		
     		Input.close();
+    		portId = null;
     		connected = false;
     		return 0;
     	}catch(Exception e) {
