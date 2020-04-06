@@ -897,8 +897,8 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 	}
 
 	@Override 
-	public void deleteChartData() {
-		grafica.deleteDataset();
+	public void deleteChartData(String name) {
+		grafica.deleteDataset(name);
 	}
 	
 	@Override

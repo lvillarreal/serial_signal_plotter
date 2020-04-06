@@ -427,7 +427,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 					modelo.setSampleRateUnits("Hz");
 					
 					// Se borran los datos actuales del grafico
-					vista.deleteChartData();
+					vista.deleteChartData(modelo.getSignalName());
 					
 					// Se leen los datos  del archivo
 					
@@ -462,7 +462,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		
 		private byte buttonConnect() {
-			vista.deleteChartData();
+			vista.deleteChartData(modelo.getSignalName());
 			vista.deleteConsole();
 
 			modelo.setPortName(vista.getPortName());	//Se guarda el puerto ingresado  por el usuario
@@ -663,7 +663,7 @@ class barOptions implements Runnable{
 			//modelo.setSampleRateUnits("Hz");
 			
 			// Se borran los datos actuales del grafico
-			vista.deleteChartData();
+			vista.deleteChartData(modelo.getSignalName());
 			
 			// Se leen los datos  del archivo
 			
