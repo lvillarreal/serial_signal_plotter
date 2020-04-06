@@ -88,9 +88,9 @@ public class XYchart {
 		xylineChart.setTitle(title);
 	}
 	
-	public void deleteDataset() {
+	public void deleteDataset(String name) {
 		//medicion.clear();
-		dataset.removeSeries("Signal name");
+		dataset.removeSeries(name);
 		
 		
 	}
