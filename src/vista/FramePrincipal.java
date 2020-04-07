@@ -902,7 +902,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 	}
 	
 	@Override
-	public String getNewSignalName() {
+	public String getNewSignalName() { 
 		return this.jtf_set_signal_name.getText();
 				
 	}

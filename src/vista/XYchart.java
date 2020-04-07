@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 import java.awt.BasicStroke;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.ui.ApplicationFrame;
@@ -37,11 +38,11 @@ public class XYchart {
 		
 		xylineChart = ChartFactory.createXYLineChart(chartTitle, "time", "Signal", dataset,
 				PlotOrientation.VERTICAL, true, true, false);
-
+	
 		chartPanel = new ChartPanel(xylineChart);
 		//chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
 		plot = xylineChart.getXYPlot();
-		
+	
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 		
 		renderer.setSeriesShapesVisible(0, false);	// quita los puntos
@@ -51,10 +52,13 @@ public class XYchart {
 		renderer.setSeriesStroke(0, new BasicStroke(1.5f));
 //		renderer.setSeriesStroke(1, new BasicStroke(3.0f));
 //		renderer.setSeriesStroke(2, new BasicStroke(2.0f));
+		
 		plot.setRenderer(renderer);	
+		
 		
 	}
 
+	
 	public void createDataset() {
 		//medicion = new XYSeries("Medicion");
 		

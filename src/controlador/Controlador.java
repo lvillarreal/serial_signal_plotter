@@ -307,7 +307,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		// grafica los datos 
 		private void graphData() {
-			long time = System.currentTimeMillis();
+			//long time = System.currentTimeMillis();
 			vista.actualiceChartData(modelo.getSignalName(), modelo.getData());
 			//int index_buff = (modelo.getCantMuestras()+1)*2;
 		/*	double dat = 0;
@@ -315,7 +315,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				dat = modelo.getData(j);
 				vista.actualiceChartData(j/2, dat);
 			}*/	
-			vista.writeConsole(""+(System.currentTimeMillis()-time));
+			//vista.writeConsole(""+(System.currentTimeMillis()-time));
 		}
 		
 		
