@@ -16,6 +16,7 @@ public interface InterfaceModelo {
 	 void setData(byte MSB,byte LSB, int i) throws Exception;
 	 void setCantMuestras(int cant);
 	 void setDate(String date);
+	 void setUserText(String text);
 	 
 	 void resetData();
 	 byte calculateFFT();
@@ -37,6 +38,7 @@ public interface InterfaceModelo {
 	 int getCantMuestras();
      String getDate();
      String obtainDate();
+     String getUserText();
      
      
 		final static byte OpenFileSuccessfully = 0;

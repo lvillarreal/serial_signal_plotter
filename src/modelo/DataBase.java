@@ -24,7 +24,8 @@ public class DataBase implements InterfaceModelo, Serializable {
 	private byte[] data;
     private int cant_muestras;	//cantidad de muestras en data
 	private String date;
-    
+    private String userText;
+	
 	// Seccion comunicacion serial
 	private String port_name;
 	private String portId;	// para verificar si el puerto esta conectado o no
@@ -52,6 +53,7 @@ public class DataBase implements InterfaceModelo, Serializable {
 		
 		this.data = new byte[9600000];
 		this.date = obtainDate();
+		this.userText = "";
 		
 		resetData();
 		FILE_NAME = "files/DataBase.txt";
@@ -263,5 +265,18 @@ public class DataBase implements InterfaceModelo, Serializable {
 		Date date = new Date();
 		return( new SimpleDateFormat("dd/MM/yyyy HH:mm").format(date));
 
+	}
+
+
+	@Override
+	public void setUserText(String text) {
+		this.userText = text;
+		
+	}
+
+
+	@Override
+	public String getUserText() {
+		return this.userText;
 	}
 }

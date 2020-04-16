@@ -37,6 +37,8 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	
 	private boolean start_flag;
 	private boolean shapes_flag;	// indica si estan habilitados o deshabilitados los shapes en la grafica
+	private boolean user_text_flag;
+	private boolean features_flag;
 	
 	private int datos;	// dato recibido por puerto serie
 //	private int i;	// variable auxiliar para saber que byte se esta recibiendo
@@ -71,6 +73,8 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		start_flag = false;
 		shapes_flag = false;
+		user_text_flag = false;
+		features_flag = false;
 		
 		datos = 0;
 
@@ -187,6 +191,12 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigShapesVisible)){
 				this.shapes_flag = !this.shapes_flag;
 				t_barOptions.start();
+			}else if(e.getActionCommand().equals(InterfaceVista.MenuWindowUserText)){
+				this.user_text_flag = !this.user_text_flag;
+				t_barOptions.start();
+			}else if(e.getActionCommand().equals(InterfaceVista.MenuWindowFeatures)){
+				features_flag = ! features_flag;
+				t_barOptions.start();
 			}
 		}
 
@@ -244,6 +254,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		}
 		
 		private void saveAsPushed() {
+			modelo.setUserText(vista.getUserText());
 			String file_name = vista.fileWindow(InterfaceVista.optionSaveFile);
 			if(file_name != "_CANCEL_") {
 				String[] aux = file_name.split("\\.");
@@ -299,6 +310,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		private void saveData(String fichero) {
 			try {
+					modelo.setUserText(vista.getUserText());
 					ObjectOutputStream oos1 = new ObjectOutputStream(new FileOutputStream(fichero));
 					oos1.writeObject(modelo);
 					oos1.close();
@@ -526,7 +538,22 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		public boolean getShapesFlag() {
 			return this.shapes_flag;
 		}
+		
+		public boolean getUserTextFlag() {
+			return this.user_text_flag;
+		}
+		
+		public boolean getFeaturesFlag() {
+			return this.features_flag;
+		}
+		
+		public void setUserTextFlag(boolean option) {
+			this.user_text_flag = option; 
+		}
 
+		public void setFeaturesFlag(boolean option) {
+			this.features_flag = option; 
+		}
 
 }
 
@@ -623,6 +650,27 @@ class barOptions implements Runnable{
 				
 			case InterfaceVista.ConfigShapesVisible:
 				vista.setShapesVisible(this.controlador.getShapesFlag());
+				break;
+				
+			case InterfaceVista.MenuWindowUserText:
+				if(this.controlador.getUserTextFlag()) {
+					vista.setUserText(modelo.getUserText());
+				}else modelo.setUserText(vista.getUserText());
+				
+				vista.textUserVisible(this.controlador.getUserTextFlag());
+				break;
+				
+			case InterfaceVista.MenuWindowFeatures:
+				if(this.controlador.getUserTextFlag()) {	// si user text esta visible
+					modelo.setUserText(vista.getUserText()); // guardo el texto
+					controlador.setUserTextFlag(false);
+					vista.textUserVisible(false);
+				}else {
+					calculateFeatures();
+					
+				}
+				
+				
 				break;
 				
 			

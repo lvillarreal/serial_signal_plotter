@@ -60,6 +60,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	private JMenu menu_view;
 	private JMenu menu_math;
 	private JMenu menu_config;
+	private JMenu menu_window;
 	private JMenu menu_help;
 	
 	//Items de cada opcion
@@ -78,12 +79,16 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	//Items de view
 	private JMenu menuItem_view_graph;
 	//private JMenuItem menuItem_view_math;
+
 	private JMenuItem menuItem_view_SerialPorts;
 	
 		// Graph
 		private JMenuItem menuItem_view_graph_getRangeTime;
 		private JMenuItem menuItem_view_graph_Fs;	// frecuencia de muestreo
 		private JMenuItem menuItem_view_graph_graphData;	// graficar datos obtenidos
+		
+	
+		
 		
 	// Items de Math
 		private JMenu menuItem_math_fft;
@@ -112,8 +117,12 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			private JMenuItem menuItem_config_serial_baudRate;
 //			private JComboBox<String> menuItem_config_serial_CommPort;
 			
-			
-			
+	//Items de Window
+	private JMenuItem menuItem_window_userText;			
+	private JMenuItem menuItem_window_features;
+		
+	
+	
 	//Items de help
     private JMenuItem menuItem_help_helpContent;
 	private JMenuItem menuItem_help_about;
@@ -129,8 +138,11 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	private JLabel label;			    // CAMBIAR POR LA GRAFICA
 	
 	private JTextArea console;
+	private JTextArea user_text;
+
 	private JInternalFrame frame_console;
 	private JInternalFrame graph_frame;
+	private JInternalFrame frame_text;
 	
 	// PANELES
 	
@@ -193,6 +205,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		menu_view   = new JMenu("View");
 		menu_math   = new JMenu("Math");
 		menu_config = new JMenu("Config.");
+		this.menu_window = new JMenu("Window");
 		menu_help 	= new JMenu("Help");
 		
 		// Inicializacion JMenuItem
@@ -212,6 +225,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 			//Items de view
 		menuItem_view_graph = new JMenu("Graph");
+		
 		//menuItem_view_math  = new JMenuItem("Math");
 		menuItem_view_SerialPorts = new JMenuItem("Serial Ports");
 				 
@@ -257,6 +271,12 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 					this.menuItem_config_serial_baudRate = new JMenuItem("Set baud rate");
 					this.menuItem_config_serial_baudRate.setToolTipText("Setea los baudios para la transmisión serial");
 					
+			// Items de Window
+			this.menuItem_window_userText = new JMenuItem("Notes (OFF)");
+			this.menuItem_window_userText.setToolTipText("Crea una ventana para ingresar anotaciones");
+			this.menuItem_window_features = new JMenuItem("Features (OFF)");
+			this.menuItem_window_features.setToolTipText("Muestra las caracteristicas de la señal medida");
+				
 					
 			//Items de help
 		menuItem_help_helpContent = new JMenuItem("Help Contents");
@@ -326,7 +346,9 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 					this.menuItem_config_serial.add(this.menuItem_config_serial_baudRate);
 					this.menuItem_config_serial.addSeparator();
 					
-				
+			// Window
+		menu_window.add(this.menuItem_window_userText);	
+		menu_window.add(this.menuItem_window_features);
 					
 			//help
 		menu_help.add(menuItem_help_helpContent);
@@ -339,6 +361,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		barra.add(menu_view);
 		barra.add(menu_math);
 		barra.add(menu_config);
+		barra.add(menu_window);
 		barra.add(menu_help);
 		
 		
@@ -376,6 +399,9 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			
 			// SERIAL
 			this.menuItem_config_serial_baudRate.setActionCommand(InterfaceVista.ConfigSetBaudRate);
+			
+		// WINDOW
+			this.menuItem_window_userText.setActionCommand(InterfaceVista.MenuWindowUserText);
 	}
 	
 	
@@ -414,10 +440,10 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 		// Instanciacion del Campo de texto para la conexion serial
 		text_port = new JTextField("COM1");	// se instancia el TextField con el texto COM 1 por defecto
-		text_port.setEnabled(true);				// se habilita el ingreso de texto por parte del usuario		
+		text_port.setEnabled(true);			// se habilita el ingreso de texto por parte del usuario		
 		text_port.setToolTipText("Ingrese el puerto COM al que se ha conectado el dispositivo. Ej, COM1.");
 		text_port.setActionCommand(ButtonConnectPushed);	// Si presiona enter es como si presionara el boton connect
-		c.gridx = 2; 		// El campo de texto empieza en la columna cero.
+		c.gridx = 2; 		// El campo de texto empieza en la columna 2.
 		c.gridy = 0; 		// El campo de texto empieza en la fila cero
 		c.gridwidth = 1; 	// El campo de texto ocupa una columna.
 		c.gridheight = 1;   // El campo de texto ocupa una fila.
@@ -463,7 +489,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		// SECCION DE LA GRAFICA
 		
 		
-		setGraph(c,1,0,1,2,1.0,1.0,10);	// frame_graph es un JInternalFrame
+		setGraph(c,1,0,1,3,1.0,1.0,10);	// frame_graph es un JInternalFrame
 		configChart(graph_frame,this.actualSerie);
 		panel_principal.add(graph_frame,c);
 		
@@ -474,10 +500,25 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 		
 		
+		// SECCION TEXTO DE USUARIO
+		
+		frame_text = new JInternalFrame("Notes");
+		frame_text.setVisible(false);
+		c.gridx = 2; 		// El campo de texto empieza en la columna cero.
+		c.gridy = 2; 		// El campo de texto empieza en la fila cero
+		c.gridwidth = 4; 	// El campo de texto ocupa una columna.
+		c.gridheight = 1;   // El campo de texto ocupa una fila.
+		c.weightx = 0.0;
+		c.weighty = 20.0;
+		c.insets = new Insets(10,10,10,10);	
+		
+		
+		configUserText();
+		panel_principal.add(frame_text, c);
 		
 		// SECCION CONSOLA
 		
-		frame_console = setConsole(c,"Console",0,2,4,1,1.0,0.3,10);
+		frame_console = setConsole(c,"Console",0,3,4,1,1.0,0.3,10);
 		c.ipady = 60;
 		configConsole(frame_console);
 		
@@ -487,6 +528,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 
 	}
 		
+
 
 	
 
@@ -745,6 +787,9 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 			
 			//CONFIG SERIAL
 			this.menuItem_config_serial_baudRate.addActionListener(c);
+		
+		// SECCION WINDOW
+			this.menuItem_window_userText.addActionListener(c);
 			
 			
 		// file section
@@ -759,6 +804,8 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		this.jtf_set_time_range.addActionListener(c);
 		this.jtf_set_sample_rate.addActionListener(c);
 	
+
+		
 	}
 	
 	// Crea el frame interno donde estará la consola
@@ -797,6 +844,24 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		
 	}
 	
+	private void configUserText() {
+		
+		 // set flow layout for the frame  
+      frame_text.getContentPane().setLayout(new BorderLayout());  
+      
+      user_text = new JTextArea(JFrame.MAXIMIZED_HORIZ,JFrame.MAXIMIZED_VERT); 
+      
+      JScrollPane scrollableTextArea = new JScrollPane(user_text);  
+      
+
+      scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);  
+      scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  
+      
+      user_text.setEditable(true);
+      user_text.setBackground(new Color(218,218,218));
+      frame_text.getContentPane().add(scrollableTextArea); 
+		
+	}
 	
 	// Se configura el grafico y se agrega en el layout
 	private void configChart(JInternalFrame frame_graph,String chart_name) {
@@ -978,6 +1043,24 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		}else {
 			return -1;
 		}
+	}
+	
+	@Override 
+	public void textUserVisible(boolean option) {
+		if(option) {
+			this.menuItem_window_userText.setText("Notes (ON)");
+		}else this.menuItem_window_userText.setText("Notes (OFF)");
+		frame_text.setVisible(option);
+	}
+	
+	@Override 
+	public String getUserText() {
+		return this.user_text.getText();
+	}
+	
+	@Override 
+	public void setUserText(String text) {
+		this.user_text.setText(text);
 	}
 	
 	private boolean isNumeric(String cadena) {

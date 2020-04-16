@@ -26,6 +26,10 @@ public interface InterfaceVista {
     
     void setButtonEnable(String button,boolean option);	// permite cambiar el texto de los botones
 
+    void textUserVisible(boolean option);
+    String getUserText();
+    void setUserText(String text);
+    
     void viewDataset();
     double getDatasetItem(int index);
     
@@ -40,6 +44,7 @@ public interface InterfaceVista {
 	String getNewSignalName();
 	String getPortName();
 	String fileWindow(byte option);
+	
 	
 	int getBaudRate();
 	
@@ -84,4 +89,7 @@ public interface InterfaceVista {
 	static final String FileExportText = "FileExportText";	// exporta el archivo a un .txt
 	static final String MenuButtonOpenFile = "MenuButtonOpenFile";	// se ha presionado la opcion import
 	static final String MenuSaveAs = "MenuSaveAs";	// se ha presionado guardar como
+	
+	static final String MenuWindowUserText = "MenuWindowUserText";
+	static final String MenuWindowFeatures = "MenuWindowFeatures";
 }

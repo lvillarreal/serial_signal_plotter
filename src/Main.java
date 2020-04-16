@@ -16,6 +16,7 @@ public class Main {
 		vista.start(modelo.getSignalName());
 		
 		vista.setControlador(controlador);
+		
 		//Map<Thread, StackTraceElement[]> threads = Thread.getAllStackTraces();
 		
 	}
