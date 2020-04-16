@@ -13,12 +13,13 @@ public interface InterfaceVista {
 	static final byte chart_data = 6;
 	
 	void setControlador(Controlador c);
-	void start();
+	void start(String actualSerie);
 	
     //void setConfigGraph();
     void showConfigGraph();
     void closeConfigGraph();
 	
+    void setShapesVisible(boolean option);
     void setSignalName(String name);
     void actualiceChartData(String signal_name,double[][] data);
     void deleteChartData(String name);
@@ -68,7 +69,8 @@ public interface InterfaceVista {
 	static final String ConfigGraphAddSampleRate = "ConfigGraphAddSampleRate";
 	static final String ConfigGraphAddSignalName = "ConfigGraphAddSignalName";
 	static final String ConfigGraphClose = "ConfigGraphClose";	// cierra la ventana de configuracion de grafico
-
+	static final String ConfigShapesVisible = "ConfigShapesVisible";	//hab/deshab los puntos en la grafica
+	
 	static final String ConfigSetBaudRate = "ConfigSetBaudRate";	// Setea baud rate
 	
 	static final String GetSamplingRate = "GetSamplingRate";	// muestra la frecuencia de muestreo actual

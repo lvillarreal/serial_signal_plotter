@@ -34,7 +34,10 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	private int count;	// variable auxiliar para contar los bytes recibidos
 	private int cant_bytes;	// cantidad de bytes del dato medido
 //	private boolean disconnect_flag; // indica cuando se desconecta el puerto serial
+	
 	private boolean start_flag;
+	private boolean shapes_flag;	// indica si estan habilitados o deshabilitados los shapes en la grafica
+	
 	private int datos;	// dato recibido por puerto serie
 //	private int i;	// variable auxiliar para saber que byte se esta recibiendo
 	private int index_buff;
@@ -65,7 +68,10 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		status = -1;
 		fs = 0;
 		count = 0;
+		
 		start_flag = false;
+		shapes_flag = false;
+		
 		datos = 0;
 
 		timeExec = 0;
@@ -92,7 +98,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		@Override 
 		public void actionPerformed(ActionEvent e)  {
 
-			Runnable r_barOptions = new barOptions(vista,modelo,serial_comm,e.getActionCommand());
+			Runnable r_barOptions = new barOptions(vista,modelo,serial_comm,this,e.getActionCommand());
 			Thread t_barOptions = new Thread(r_barOptions);
 			
 		//	Runnable r_serialComm = new SerialComm(vista,modelo,serial_comm,this,e.getActionCommand());
@@ -178,8 +184,10 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 					}
 				}.start();
 				
+			}else if(e.getActionCommand().equals(InterfaceVista.ConfigShapesVisible)){
+				this.shapes_flag = !this.shapes_flag;
+				t_barOptions.start();
 			}
-			
 		}
 
 		
@@ -515,7 +523,9 @@ public class Controlador implements ActionListener, SerialPortEventListener{
         	}
 		}
 			
-		
+		public boolean getShapesFlag() {
+			return this.shapes_flag;
+		}
 
 
 }
@@ -537,12 +547,14 @@ class barOptions implements Runnable{
 	private InterfaceVista vista;
 	private InterfaceModelo modelo;
 	private SerialCommunication serial_comm;
+	private Controlador controlador;
 	
-	public barOptions(InterfaceVista vista,InterfaceModelo modelo,SerialCommunication serial_comm,String option) {
+	public barOptions(InterfaceVista vista,InterfaceModelo modelo,SerialCommunication serial_comm,Controlador controlador,String option) {
 		this.option = option;
 		this.vista = vista;
 		this.modelo = modelo;
 		this.serial_comm = serial_comm;
+		this.controlador = controlador;
 	}
 	
 	public void run() {
@@ -607,6 +619,10 @@ class barOptions implements Runnable{
 				}else if(baud == -1){
 					vista.writeConsole("ERROR! Input valid baud rate (integer number)");
 				}
+				break;
+				
+			case InterfaceVista.ConfigShapesVisible:
+				vista.setShapesVisible(this.controlador.getShapesFlag());
 				break;
 				
 			

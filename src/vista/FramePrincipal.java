@@ -18,6 +18,8 @@ import org.jfree.chart.ChartPanel;
 public class FramePrincipal extends JFrame implements InterfaceVista{
 	
 
+	private String actualSerie;
+	
 	/*CONFIGURACION DE GRAFICA*/
 	private JFrame frame_conf_graph;
 	
@@ -104,6 +106,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			private JMenuItem menuItem_config_graph_all;
 			private JMenuItem menuItem_config_setRangeTime;
 			private JMenuItem menuItem_config_setFs;
+			private JMenuItem menuItem_config_shapes_visible;
 			
 			// Config serial
 			private JMenuItem menuItem_config_serial_baudRate;
@@ -146,8 +149,9 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	
 	// METODOS
 	
-	
-	public void start() {
+	@Override
+	public void start(String actualSerie) {
+		this.actualSerie = actualSerie;
 		startPanelPrincipal();
 		startMenu();
 		setConfigGraph();
@@ -246,7 +250,8 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 					this.menuItem_config_setFs.setToolTipText("Setea la frecuencia de muestreo, necesaria para graficar la señal");
 					this.menuItem_config_graph_all = new JMenuItem("Set all features");
 					this.menuItem_config_graph_all.setToolTipText("Setea todas las caracteristicas de la gráfica");
-
+					this.menuItem_config_shapes_visible = new JMenuItem("Set shapes visible (OFF)");
+					this.menuItem_config_shapes_visible.setToolTipText("Muestra los puntos de medición sobre la gráfica");
 
 					// Config Serial
 					this.menuItem_config_serial_baudRate = new JMenuItem("Set baud rate");
@@ -316,7 +321,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 					//this.menuItem_config_graph.add(this.menuItem_config_setFs);
 					//menuItem_config_graph.addSeparator();
 					this.menuItem_config_graph.add(this.menuItem_config_graph_all);
-					
+					this.menuItem_config_graph.add(this.menuItem_config_shapes_visible);
 					// Config Serial
 					this.menuItem_config_serial.add(this.menuItem_config_serial_baudRate);
 					this.menuItem_config_serial.addSeparator();
@@ -367,6 +372,8 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			this.menuItem_config_graph_all.setActionCommand(InterfaceVista.ConfigGraph);
 			this.menuItem_config_setRangeTime.setActionCommand(InterfaceVista.ConfigTimeRange);
 			this.menuItem_config_setFs.setActionCommand(InterfaceVista.ConfigSamplingRate);
+			this.menuItem_config_shapes_visible.setActionCommand(InterfaceVista.ConfigShapesVisible);
+			
 			// SERIAL
 			this.menuItem_config_serial_baudRate.setActionCommand(InterfaceVista.ConfigSetBaudRate);
 	}
@@ -457,7 +464,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 		
 		setGraph(c,1,0,1,2,1.0,1.0,10);	// frame_graph es un JInternalFrame
-		configChart(graph_frame,"Signal name");
+		configChart(graph_frame,this.actualSerie);
 		panel_principal.add(graph_frame,c);
 		
 
@@ -734,6 +741,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 			this.menuItem_config_setFs.addActionListener(c);
 			this.menuItem_config_setRangeTime.addActionListener(c);
 			this.menuItem_config_graph_all.addActionListener(c);
+			this.menuItem_config_shapes_visible.addActionListener(c);
 			
 			//CONFIG SERIAL
 			this.menuItem_config_serial_baudRate.addActionListener(c);
@@ -795,7 +803,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		
 		frame_graph.getContentPane().setLayout(new BorderLayout());
 		grafica = new XYchart();
-		grafica.createDataset();
+		//grafica.createDataset();
 		grafica.startChart(chart_name);
 
 		frame_graph.getContentPane().add(grafica.getChartPanel());
@@ -849,6 +857,18 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 	}
 	
 	
+	@Override
+	public void setShapesVisible(boolean option) {
+		grafica.setShapesVisible(option);
+		if(option) {
+			this.menuItem_config_shapes_visible.setText("Set shapes visible (ON)");
+			
+		}else {
+			this.menuItem_config_shapes_visible.setText("Set shapes visible (OFF)");			
+		}
+	}
+	
+	
 	/*public void setConfigGraph() {
 		frame_conf_graph = new ConfigGraph();
 		frame_conf_graph.setVisible(false);
@@ -894,6 +914,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 	@Override
 	public void actualiceChartData(String signal_name,double[][] data) {
 		grafica.actualiceDataset(signal_name,data);
+		
 	}
 
 	@Override 

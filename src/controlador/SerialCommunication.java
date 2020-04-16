@@ -33,7 +33,7 @@ public class SerialCommunication{
     	mensaje = "";
     	dato_entrada = 0;
     	connected = false;
-    	this.DATA_RATE = 500000;
+    	this.DATA_RATE = 900000;
     }
 
     public byte portConnect(Controlador c,String portName) {

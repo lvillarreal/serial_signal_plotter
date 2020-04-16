@@ -13,7 +13,7 @@ public class Main {
 		Controlador controlador = new Controlador(modelo,vista);
 		
 		// inicializa ventana principal
-		vista.start();
+		vista.start(modelo.getSignalName());
 		
 		vista.setControlador(controlador);
 		Map<Thread, StackTraceElement[]> threads = Thread.getAllStackTraces();
