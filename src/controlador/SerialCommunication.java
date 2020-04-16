@@ -7,8 +7,8 @@ import java.util.Enumeration;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
+//import gnu.io.SerialPortEvent;
+//import gnu.io.SerialPortEventListener;
 
 /*Implementa la conexion, transmision y recepcion de datos por puerto serie. Los eventos los maneja el controlador.*/
 
@@ -21,7 +21,7 @@ public class SerialCommunication{
     private OutputStream Output;
     private static InputStream Input;
     private boolean connected;
-    private static int aux;
+  //  private static int aux;
     
     private String mensaje;
     private int dato_entrada;
@@ -98,7 +98,7 @@ public class SerialCommunication{
     
     
     public int read2Bytes() {
-    	byte[] buff = new byte[2];
+   // 	byte[] buff = new byte[2];
     	int status = -1;
     	try {
     		

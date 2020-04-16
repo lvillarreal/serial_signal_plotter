@@ -1,5 +1,5 @@
 
-import java.util.Map;
+//import java.util.Map;
 
 import controlador.Controlador;
 import vista.*;
@@ -16,7 +16,7 @@ public class Main {
 		vista.start(modelo.getSignalName());
 		
 		vista.setControlador(controlador);
-		Map<Thread, StackTraceElement[]> threads = Thread.getAllStackTraces();
+		//Map<Thread, StackTraceElement[]> threads = Thread.getAllStackTraces();
 		
 	}
 }

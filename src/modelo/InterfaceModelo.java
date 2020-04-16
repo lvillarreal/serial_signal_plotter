@@ -1,6 +1,6 @@
 package modelo;
 
-import gnu.io.SerialPort;
+//import gnu.io.SerialPort;
 
 public interface InterfaceModelo {
 
