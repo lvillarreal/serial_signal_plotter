@@ -44,6 +44,7 @@ public interface InterfaceModelo {
      double getCCvalue();
      double getMaxValue();
      double getMinValue();
+     double getRMSvalue();
      
 		final static byte OpenFileSuccessfully = 0;
 		final static byte closeFileSuccessfully = 0;

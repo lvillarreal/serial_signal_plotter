@@ -1,13 +1,14 @@
 package controlador;
 
 import java.awt.event.*;
-import java.util.Date;
+//import java.util.Date;
 import java.util.Enumeration;
 //import java.util.Map;
 
+
 import java.io.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+//import java.text.DateFormat;
+//import java.text.SimpleDateFormat;
 
 import javax.swing.JOptionPane;
 //import javax.swing.*;
@@ -694,10 +695,13 @@ class barOptions implements Runnable{
 	
 	
 	private void showAllFeatures() {
+		
 		vista.setFeatures("Signal : "+ modelo.getSignalName()+
+						  "\nSamples: "+ modelo.getCantMuestras()+
 						  "\n\n>> CC value: "+modelo.getCCvalue()+
 						  "\n>> Max value: "+modelo.getMaxValue()+
-						  "\n>> Min value: "+modelo.getMinValue());
+						  "\n>> Min value: "+modelo.getMinValue()+
+						  "\n>> RMS value: "+modelo.getRMSvalue());
 	}
 	
 	private void calculateFFT() {

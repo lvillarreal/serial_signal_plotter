@@ -29,6 +29,7 @@ public class DataBase implements InterfaceModelo, Serializable {
     private double cc_value;	// valor de continua de la señal
     private double max_value;
     private double min_value;
+    private double rms_value;
     
 	// Seccion comunicacion serial
 	private String port_name;
@@ -181,11 +182,20 @@ public class DataBase implements InterfaceModelo, Serializable {
 		}
 	}
 
+	public void calculateRMSvalue() {
+		rms_value = 0;
+		for(int i=0;i<cant_muestras*2;i=i+2) {
+			rms_value += Math.pow(((((double)((this.data[i]&0xFF)*256+(this.data[i+1]&0xFF)))*4)*((2*this.input_range)/(262144.0)))-this.input_range,2);
+		}
+		rms_value = rms_value/cant_muestras;
+		rms_value = Math.sqrt(rms_value);
+	}
 	
 	@Override
 	public void calculateAllFeatures() {
 		calculateMaxMinValue();
 		calculateCCvalue();
+		calculateRMSvalue();
 	}
 	
 	
@@ -226,6 +236,12 @@ public class DataBase implements InterfaceModelo, Serializable {
 	public double getMinValue() {
 		return this.min_value;
 	}
+	
+	@Override
+	public double getRMSvalue() {
+		return this.rms_value;
+	}
+	
 	/* METODOS SETTER */
 	
 	@Override
