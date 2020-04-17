@@ -135,14 +135,16 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	private JButton button_connect;	    // boton para conectar
 	private JButton button_disconnect;
 	private JButton button_start;	    // Comineza a almacenar los datos recibidos por puerto serie
-	private JLabel label;			    // CAMBIAR POR LA GRAFICA
+	//private JLabel label;			    // CAMBIAR POR LA GRAFICA
 	
 	private JTextArea console;
 	private JTextArea user_text;
+	private JTextArea features_text;
 
 	private JInternalFrame frame_console;
 	private JInternalFrame graph_frame;
 	private JInternalFrame frame_text;
+	private JInternalFrame frame_features;
 	
 	// PANELES
 	
@@ -402,6 +404,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			
 		// WINDOW
 			this.menuItem_window_userText.setActionCommand(InterfaceVista.MenuWindowUserText);
+			this.menuItem_window_features.setActionCommand(InterfaceVista.MenuWindowFeatures);
 	}
 	
 	
@@ -512,9 +515,31 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		c.weighty = 20.0;
 		c.insets = new Insets(10,10,10,10);	
 		
-		
 		configUserText();
 		panel_principal.add(frame_text, c);
+		
+		
+		
+		// SECCION FEATURES
+		
+		frame_features = new JInternalFrame("Features");
+		frame_features.setVisible(false);
+		c.gridx = 2; 		// El campo de texto empieza en la columna cero.
+		c.gridy = 2; 		// El campo de texto empieza en la fila cero
+		c.gridwidth = 4; 	// El campo de texto ocupa una columna.
+		c.gridheight = 1;   // El campo de texto ocupa una fila.
+		c.weightx = 0.0;
+		c.weighty = 20.0;
+		c.insets = new Insets(10,10,10,10);	
+		
+		 configShowFeatures();
+		panel_principal.add(frame_features, c);
+		
+		
+		
+		
+		
+		
 		
 		// SECCION CONSOLA
 		
@@ -737,7 +762,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 	
 	@Override
 	public void deleteConsole() {
-		console.setText(" ");
+		console.setText("");
 	}
 	
 	
@@ -790,7 +815,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		
 		// SECCION WINDOW
 			this.menuItem_window_userText.addActionListener(c);
-			
+			this.menuItem_window_features.addActionListener(c);
 			
 		// file section
 		menuItem_file_exit.addActionListener(c);
@@ -842,6 +867,22 @@ private void setConfigGraphObjects(JPanel panel_principal) {
        
        frame_console.getContentPane().add(scrollableTextArea); 
 		
+	}
+	
+	private void configShowFeatures() {
+	      frame_features.getContentPane().setLayout(new BorderLayout());  
+	      
+	      features_text = new JTextArea(JFrame.MAXIMIZED_HORIZ,JFrame.MAXIMIZED_VERT); 
+	      
+	      JScrollPane scrollableTextArea = new JScrollPane(features_text);  
+	      
+
+	      scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);  
+	      scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  
+	      
+	      features_text.setEditable(false);
+	      features_text.setBackground(new Color(218,218,218));
+	      frame_features.getContentPane().add(scrollableTextArea); 
 	}
 	
 	private void configUserText() {
@@ -1062,6 +1103,20 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 	public void setUserText(String text) {
 		this.user_text.setText(text);
 	}
+	
+	@Override
+	public void setFeatures(String features) {
+		this.features_text.setText(features);
+	}
+	
+	@Override
+	public void featuresVisible(boolean option) {
+		if(option) {
+			this.menuItem_window_features.setText("Features (ON)");
+		}else this.menuItem_window_features.setText("Features (OFF)");
+		this.frame_features.setVisible(option);
+	}
+	
 	
 	private boolean isNumeric(String cadena) {
 		try {	

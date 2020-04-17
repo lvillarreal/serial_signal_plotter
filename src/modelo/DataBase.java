@@ -21,11 +21,15 @@ public class DataBase implements InterfaceModelo, Serializable {
 	private String signal_name;	// nombre de la señal
 	private int cant_bits;
 	private double input_range;
-	private byte[] data;
+	private byte[] data;		// bytes que ingresan por puerto serial
     private int cant_muestras;	//cantidad de muestras en data
-	private String date;
-    private String userText;
+	private String date;		// fecha y hora
+    private String userText;	// texto que ingrese el usuario en notas
 	
+    private double cc_value;	// valor de continua de la señal
+    private double max_value;
+    private double min_value;
+    
 	// Seccion comunicacion serial
 	private String port_name;
 	private String portId;	// para verificar si el puerto esta conectado o no
@@ -154,13 +158,42 @@ public class DataBase implements InterfaceModelo, Serializable {
 		return this.input_range;
 	}
 	
+	private void calculateCCvalue() {
+		this.cc_value = 0.0;
+		for(int i=0;i<cant_muestras*2;i=i+2) {
+			cc_value += ((((double)((this.data[i]&0xFF)*256+(this.data[i+1]&0xFF)))*4)*((2*this.input_range)/(262144.0)))-this.input_range;
+		}
+		cc_value = cc_value/this.cant_muestras;
+	}
+	
+	
+	public void calculateMaxMinValue() {
+		double aux = 0;
+		
+		this.max_value = ((((double)((this.data[0]&0xFF)*256+(this.data[1]&0xFF)))*4)*((2*this.input_range)/(262144.0)))-this.input_range;
+		this.min_value = max_value;
+		
+		for(int i=2;i<cant_muestras*2;i=i+2) {
+			aux = ((((double)((this.data[i]&0xFF)*256+(this.data[i+1]&0xFF)))*4)*((2*this.input_range)/(262144.0)))-this.input_range;
+			if(aux > max_value) max_value = aux;
+			if(aux < min_value) min_value = aux;
+			
+		}
+	}
+
+	
+	@Override
+	public void calculateAllFeatures() {
+		calculateMaxMinValue();
+		calculateCCvalue();
+	}
+	
+	
 	@Override
 	public double[][] getData() {
 		double[][] output = new double[2][this.cant_muestras];
 		double escalar = 4.0;
 		try {
-			
-			
 			for(int i=0;i<cant_muestras*2;i=i+2) {
 				output[0][i/2] = (((double)i)*this.Ts)/(2);
 				output[1][i/2] = ((((double)((this.data[i]&0xFF)*256+(this.data[i+1]&0xFF)))*escalar)*((2*this.input_range)/(262144.0)))-this.input_range;
@@ -179,7 +212,20 @@ public class DataBase implements InterfaceModelo, Serializable {
 		return this.cant_muestras;
 	}
 	
+	@Override
+	public double getCCvalue() {
+		return this.cc_value;
+	}
 	
+	@Override
+	public double getMaxValue() {
+		return this.max_value;
+	}
+	
+	@Override
+	public double getMinValue() {
+		return this.min_value;
+	}
 	/* METODOS SETTER */
 	
 	@Override

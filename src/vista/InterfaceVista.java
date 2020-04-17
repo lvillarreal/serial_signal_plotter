@@ -30,6 +30,9 @@ public interface InterfaceVista {
     String getUserText();
     void setUserText(String text);
     
+    void setFeatures(String features);
+    void featuresVisible(boolean option);
+    
     void viewDataset();
     double getDatasetItem(int index);
     

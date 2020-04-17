@@ -249,6 +249,11 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				timeExec = System.currentTimeMillis();
 				modelo.setDate(modelo.obtainDate());
 				//vista.buttonSetVisible("start_pushed");
+				this.features_flag = false;
+				vista.featuresVisible(features_flag);
+				this.user_text_flag = false;
+				vista.textUserVisible(user_text_flag);
+
 				
 			}
 		}
@@ -517,7 +522,10 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				vista.buttonSetVisible("connect"); 	// se activa el boton conectar
 				vista.writeConsole("COM Port disconnected");
 				modelo.setCantMuestras((index_buff/2)-1);
-				if(start_flag) saveData("data_base.dat");	// guarda el objeto modelo, que contiene toda la informacion de la grafica
+				if(start_flag) {
+					saveData("data_base.dat");	// guarda el objeto modelo, que contiene toda la informacion de la grafica
+					modelo.calculateAllFeatures(); // calcula las caracteristicas de la señal
+				}
 			
 				start_flag = false;
 				
@@ -653,6 +661,10 @@ class barOptions implements Runnable{
 				break;
 				
 			case InterfaceVista.MenuWindowUserText:
+				if(this.controlador.getFeaturesFlag()) {
+					vista.featuresVisible(false);
+					this.controlador.setFeaturesFlag(false);
+				}
 				if(this.controlador.getUserTextFlag()) {
 					vista.setUserText(modelo.getUserText());
 				}else modelo.setUserText(vista.getUserText());
@@ -665,10 +677,11 @@ class barOptions implements Runnable{
 					modelo.setUserText(vista.getUserText()); // guardo el texto
 					controlador.setUserTextFlag(false);
 					vista.textUserVisible(false);
-				}else {
-					calculateFeatures();
-					
 				}
+					showAllFeatures();
+					vista.featuresVisible(controlador.getFeaturesFlag());
+					
+				
 				
 				
 				break;
@@ -679,7 +692,14 @@ class barOptions implements Runnable{
 		}
 	}
 	
-
+	
+	private void showAllFeatures() {
+		vista.setFeatures("Signal : "+ modelo.getSignalName()+
+						  "\n\n>> CC value: "+modelo.getCCvalue()+
+						  "\n>> Max value: "+modelo.getMaxValue()+
+						  "\n>> Min value: "+modelo.getMinValue());
+	}
+	
 	private void calculateFFT() {
 		vista.writeConsole("FFT proccessing");
 		byte status = modelo.calculateFFT();

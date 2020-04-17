@@ -17,6 +17,8 @@ public interface InterfaceModelo {
 	 void setCantMuestras(int cant);
 	 void setDate(String date);
 	 void setUserText(String text);
+	 void calculateAllFeatures();
+	 
 	 
 	 void resetData();
 	 byte calculateFFT();
@@ -39,7 +41,9 @@ public interface InterfaceModelo {
      String getDate();
      String obtainDate();
      String getUserText();
-     
+     double getCCvalue();
+     double getMaxValue();
+     double getMinValue();
      
 		final static byte OpenFileSuccessfully = 0;
 		final static byte closeFileSuccessfully = 0;
