@@ -164,9 +164,9 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				}.start();
 				//t_printData.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.CalculateFFT)){
-				t_barOptions.start();
+				//t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.GraphFFTmodule)){
-				t_barOptions.start();
+				//t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigSetBaudRate)){
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.MenuButtonOpenFile)){
@@ -275,6 +275,11 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		private void openFilePushed() {
 			byte stat = openSavedData(vista.fileWindow(InterfaceVista.optionOpenFile));
 			if(stat > -1) {
+				features_flag = false;
+				user_text_flag = false;
+				vista.featuresVisible(this.features_flag);
+				vista.textUserVisible(this.user_text_flag);
+				
 				vista.deleteConsole();
     			vista.writeConsole("*****************************************************");
     			vista.writeConsole("FILE OPENED SUCCESSFULLY");
@@ -524,7 +529,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				vista.writeConsole("COM Port disconnected");
 				modelo.setCantMuestras((index_buff/2)-1);
 				if(start_flag) {
-					saveData("data_base.dat");	// guarda el objeto modelo, que contiene toda la informacion de la grafica
+					saveData("AutoSave.dat");	// guarda el objeto modelo, que contiene toda la informacion de la grafica
 					modelo.calculateAllFeatures(); // calcula las caracteristicas de la señal
 				}
 			
@@ -701,6 +706,7 @@ class barOptions implements Runnable{
 						  "\n\n>> CC value: "+modelo.getCCvalue()+
 						  "\n>> Max value: "+modelo.getMaxValue()+
 						  "\n>> Min value: "+modelo.getMinValue()+
+						  "\n>> Peak-to-peak value: "+(modelo.getMaxValue()-modelo.getMinValue())+
 						  "\n>> RMS value: "+modelo.getRMSvalue());
 	}
 	

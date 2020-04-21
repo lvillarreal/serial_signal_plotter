@@ -203,6 +203,7 @@ public class DataBase implements InterfaceModelo, Serializable {
 	public double[][] getData() {
 		double[][] output = new double[2][this.cant_muestras];
 		double escalar = 4.0;
+		
 		try {
 			for(int i=0;i<cant_muestras*2;i=i+2) {
 				output[0][i/2] = (((double)i)*this.Ts)/(2);
@@ -210,6 +211,7 @@ public class DataBase implements InterfaceModelo, Serializable {
 				//output[0][i/2] = i/2;
 				//output[1][i/2] = ((double)(this.data[i]&0xFF)*256+(this.data[i+1]&0xFF))*escalar;
 			}
+			System.out.println(((this.data[0]&0xFF)*256+(data[1]&0xFF))*4);
 			
 		}catch(Exception e) {
 			e.printStackTrace();	
