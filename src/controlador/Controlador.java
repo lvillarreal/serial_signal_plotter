@@ -7,8 +7,11 @@ import java.util.Enumeration;
 
 
 import java.io.*;
+import java.net.MalformedURLException;
 //import java.text.DateFormat;
 //import java.text.SimpleDateFormat;
+import java.net.URL;
+
 
 import javax.swing.JOptionPane;
 //import javax.swing.*;
@@ -82,6 +85,10 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		timeExec = 0;
 		
 		index_buff = 0;
+		
+
+		
+	
 		
 
 	}

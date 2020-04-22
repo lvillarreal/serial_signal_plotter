@@ -1,6 +1,9 @@
 package vista;
 
 
+import javax.help.HelpBroker;
+import javax.help.HelpSet;
+import javax.help.HelpSetException;
 import javax.swing.*;
 import controlador.Controlador;
 
@@ -9,9 +12,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import java.awt.*;
-import java.awt.event.*;
+//import java.awt.event.*;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
-import org.jfree.chart.ChartPanel;
+//import org.jfree.chart.ChartPanel;
 
 
 // MARCO o FRAME
@@ -152,12 +159,48 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	private JPanel panel_principal;
 	
 	
+	// SECCION HELP
+	private File fichero_help;
+	private URL hsURL;
+	private HelpSet helpset;
+	private HelpBroker hb;
+	
 	
 	
 	
 	// CONSTRUCTOR
 	public FramePrincipal() {
+		// SECCION HELP
+		// Carga el fichero de ayuda
+		//fichero_help = new File("help/index.hs");
 
+		try {
+			//fichero_help = new File(getClass().getResource("index.hs").toURI());
+			//fichero_help = new File("../help/index.hs");
+			//fichero_help = new File("help"+File.separator+"index.hs");
+			//hsURL = fichero_help.toURI().toURL();
+			//hsURL = new URL("jar:file:SignalPlotter.jar"+File.separator+"help"+File.separator+"index.hs");
+			hsURL = new URL("jar:file:SignalPlotter.jar!/help/index.hs");
+
+			helpset = new HelpSet(getClass().getClassLoader(), hsURL);
+			hb = helpset.createHelpBroker();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (HelpSetException e) {
+			e.printStackTrace();
+			
+			try {
+				fichero_help = new File("src/help/index.hs");
+				hsURL = fichero_help.toURI().toURL();
+				helpset = new HelpSet(getClass().getClassLoader(), hsURL);
+				hb = helpset.createHelpBroker();
+			} catch (MalformedURLException | HelpSetException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+		} 
 	}
 
 	
@@ -405,6 +448,10 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		// WINDOW
 			this.menuItem_window_userText.setActionCommand(InterfaceVista.MenuWindowUserText);
 			this.menuItem_window_features.setActionCommand(InterfaceVista.MenuWindowFeatures);
+	
+	
+		//SECCION HELP
+		setHelp();
 	}
 	
 	
@@ -1125,6 +1172,12 @@ private void setConfigGraphObjects(JPanel panel_principal) {
     	} catch (NumberFormatException excepcion) {
         	return false;
 		}
+	}
+	
+	private void setHelp() {
+		hb.enableHelpOnButton(this.menuItem_help_helpContent, "introduccion", helpset);
+		hb.enableHelpKey(this.getContentPane(), "introduccion", helpset);
+		
 	}
 }
 
