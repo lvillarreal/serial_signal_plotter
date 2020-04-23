@@ -1,0 +1,25 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<h1 style="text-align: center;"><span style="color: #800000;"><strong><em>Protocolo de comunicaci&oacute;n</em></strong></span></h1>
+<hr /><hr />
+<p><em><strong>Signal Plotter</strong></em><em>&nbsp;se comunica con </em>el dispositivo externo mediante protocolo&nbsp;<strong><a href="https://es.wikipedia.org/wiki/Universal_Asynchronous_Receiver-Transmitter">UART</a> <em>(Universal Asynchronous Receiver-Transmitter)</em></strong>.</p>
+<p>Al presionar el bot&oacute;n&nbsp;<strong>START&nbsp;</strong>hay una transferencia bidireccional de informaci&oacute;n de inicio y luego el sistema externo comienza la transmisi&oacute;n de los datos medidos.</p>
+<p>La informaci&oacute;n se transmite en bytes (8 bits) por lo que si el dato requiere mas de 8 bits, se env&iacute;a en m&aacute;s de 1 byte. Por ejemplo, un dato de 18 bits se env&iacute;a en 3 bytes.</p>
+<p>Cuando se dise&ntilde;a el dispositivo de medici&oacute;n externo, se debe tener en cuenta cuantos bits se desean analizar en <em><strong>Signal Plotter&nbsp;</strong></em>y cuantos bits se utilizan para representar el dato medido. Por ejemplo, se puede utilizar un ADC de 18 bits, pero enviar s&oacute;lo 16 (se logra una mayor tasa de muestreo ya que se env&iacute;an 2 bytes en lugar de 3).&nbsp;<em><strong>Signal Plotter&nbsp;</strong></em>tiene en cuenta esto para calcular el valor del dato recibido.</p>
+<p>Cabe destacar que el dato que env&iacute;a el sistema externo no es un dato en punto fijo ni punto flotante, es un valor binario sin signo.</p>
+<h2><span style="color: #003300;">Secuencia</span></h2>
+<ol>
+<li><em><strong><span style="color: #000000;">Signal Plotter&nbsp;</span></strong></em><span style="color: #000000;">env&iacute;a c&oacute;digo <a href="https://es.wikipedia.org/wiki/ASCII">ASCII</a>&nbsp;02h (STX, <em>Start Of Text</em>) para iniciar la comunicaci&oacute;n.</span></li>
+<li><span style="color: #000000;">Dispositivo env&iacute;a ACK (ASCII 06h)</span></li>
+<li><span style="color: #000000;">Dispositivo env&iacute;a la tasa de muestreo representada en 3 bytes (comenzando por el MSB)</span></li>
+<li><span style="color: #000000;">Dispositivo env&iacute;a LF (ASCII 10)</span></li>
+<li><span style="color: #000000;">Dispositivo env&iacute;a cantidad de bits del ADC en 1 byte (M&aacute;ximo valor admitido por <em><strong>Signal Plotter&nbsp;</strong></em>24 bits)</span></li>
+<li>Dispositivo env&iacute;a rango del AD (&plusmn;Vref) multiplicado por 1000, en 2 bytes.&nbsp;<em><strong>Signal plotter&nbsp;</strong></em>interpreta el valor recibido como&nbsp;&plusmn;Vref.&nbsp;&nbsp;</li>
+<li>Dispositivo env&iacute;a EOT (ASCII 04h)</li>
+<li><em><strong>Signal Plotter&nbsp;</strong></em>responde ENQ (ASCII 05h)</li>
+<li>Dispositivo comienza la transmisi&oacute;n de datos</li>
+<li>Cuando se presiona&nbsp;<strong>DISCONNECT&nbsp;</strong><em><strong>Signal Plotter</strong></em> env&iacute;a EOT y dispositivo deja de transmitir.</li>
+</ol>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</html>

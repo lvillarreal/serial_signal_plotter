@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<toc version="1.0" categoryclosedimage="FolderClosed" categoryopenimage="FolderOpened"  topicimage="ItemIco">
+	<tocitem text="Introducción"						target="introduccion"/>
+	<tocitem text="¡Quiero medir ya!" 					target="quiero_medir_ya"/> 
+	<tocitem text="Primeros pasos"> 
+		<tocitem text="Conectar con dispositivo externo"	target="conectar_placa"/>
+		<tocitem text="Comenzar medición" 					target="comenzar_medicion"/>
+		<tocitem text="Graficar" 							target="graficar"/>
+		<tocitem text="Abrir" 								target="abrir"/>
+		<tocitem text="Guardar como" 						target="guardar"/>
+	</tocitem>
+	<tocitem text="Información técnica"> 
+		<tocitem text="Protocolo de comunicación" 		target="protocolo"/>
+		<tocitem text="Almacenamiento de la medición"	target="almacenamiento_medicion"/>
+	</tocitem>
+</toc>

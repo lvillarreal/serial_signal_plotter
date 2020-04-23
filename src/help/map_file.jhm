@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<map version="1.0">
+	<!-- Paginas Web -->
+	<mapID target="introduccion"   			url="html/introduccion.htm"/>
+	<mapID target="quiero_medir_ya"   	 	url="html/quiero_medir_ya.htm"/>
+	<mapID target="conectar_placa"  	 	url="html/conectar_placa.htm"/>
+	<mapID target="comenzar_medicion"   	url="html/comenzar_medicion.htm"/>
+	<mapID target="graficar"   	 			url="html/graficar.htm"/>
+	<mapID target="anotaciones"  	 		url="html/anotaciones.htm"/>
+	<mapID target="caracteristicas_senial"  url="html/caracteristicas_senial.htm"/>
+	<mapID target="guardar"   				url="html/guardar.htm"/>
+	<mapID target="abrir"  	 				url="html/abrir.htm"/>
+	<mapID target="conexion"   				url="html/conexion.htm"/>
+	<mapID target="protocolo"   	 		url="html/protocolo.htm"/>
+	<mapID target="almacenamiento_medicion"	url="html/almacenamiento_medicion.htm"/>
+	
+	<!-- Iconos a utilizar en las distintas ventanas del sistema de ayuda -->
+	<mapID target="FolderClosed"	url="images/FolderClosed.gif"/>
+	<mapID target="FolderOpened"	url="images/FolderOpened.gif"/>
+	<mapID target="ItemIco"		 	url="images/book.png"/>
+	<mapID target="ContentIco"	 	url="images/bookBlue.png"/>
+	<mapID target="SearchIco"	 	url="images/view.png"/>
+	<mapID target="PrintIco"	 	url="images/printer.png"/>
+	<mapID target="PrintSetupIco"	url="images/printersetup.png"/>
+	<mapID target="BackwardIco"	 	url="images/Previous.gif"/>
+	<mapID target="ForwardIco"	 	url="images/Next.gif"/>
+
+	<mapID target="introduccion_signal_prueba" url = "images/signal_prueba.jpg"/>
+</map>
+
