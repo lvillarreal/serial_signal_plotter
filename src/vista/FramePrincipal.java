@@ -257,7 +257,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			//Items de file
 		menuItem_file_save   = new JMenuItem("Save");
 		menuItem_file_saveAs = new JMenuItem("Save As...");
-		menuItem_file_openFile = new JMenuItem("Open file...");
+		menuItem_file_openFile = new JMenuItem("Open File...");
 		//menuItem_file_export = new JMenu("Export...");
 		menuItem_file_exit   = new JMenuItem("Exit");
 		
