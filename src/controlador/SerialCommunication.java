@@ -3,6 +3,13 @@ package controlador;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
 
 import gnu.io.CommPortIdentifier;
@@ -14,6 +21,7 @@ import gnu.io.SerialPort;
 
 public class SerialCommunication{
 	 
+	private static final String RXTX_LIB = "rxtxSerial";
     private static final int TIME_OUT = 2000;
     private int DATA_RATE;
     private SerialPort serialPort;
@@ -34,6 +42,21 @@ public class SerialCommunication{
     	dato_entrada = 0;
     	connected = false;
     	this.DATA_RATE = 900000;
+    	
+    	copy(getClass().getResourceAsStream("/"+RXTX_LIB+".dll"),"./"+RXTX_LIB+".dll");
+    	System.loadLibrary(RXTX_LIB);
+    	}
+   
+
+    private static boolean copy(InputStream source , String destination) {
+        boolean succeess = true;
+        try {
+            Files.copy(source, Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+        	ex.printStackTrace();
+            succeess = false;
+        }
+        return succeess;
     }
 
     public byte portConnect(Controlador c,String portName) {
