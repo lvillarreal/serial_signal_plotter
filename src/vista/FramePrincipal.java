@@ -5,6 +5,8 @@ import javax.help.HelpBroker;
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import controlador.Controlador;
 
 import java.text.DateFormat;
@@ -15,7 +17,7 @@ import java.awt.*;
 //import java.awt.event.*;
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+//import java.net.URISyntaxException;
 import java.net.URL;
 
 //import org.jfree.chart.ChartPanel;
@@ -990,8 +992,12 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		 String status = null;
 		 try {
 			 JFileChooser file=new JFileChooser();
+			 file.setAcceptAllFileFilterUsed(false);
+		     FileNameExtensionFilter filter = new FileNameExtensionFilter("SignalPlotter file (.dat)", "dat");
+		     file.addChoosableFileFilter(filter);
 			 switch(option) {
 			 	case InterfaceVista.optionSaveFile: 
+			 		 
 			 		 if(file.showSaveDialog(this) == file.CANCEL_OPTION) return "_CANCEL_";
 					 break;
 					 

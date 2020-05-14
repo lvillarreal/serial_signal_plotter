@@ -3,9 +3,9 @@ package controlador;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
+//import java.io.UnsupportedEncodingException;
+//import java.net.URISyntaxException;
+//import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,13 +42,16 @@ public class SerialCommunication{
     	dato_entrada = 0;
     	connected = false;
     	this.DATA_RATE = 900000;
-    	
-    	copy(getClass().getResourceAsStream("/"+RXTX_LIB+".dll"),"./"+RXTX_LIB+".dll");
-    	System.loadLibrary(RXTX_LIB);
+    	try{
+    		copy(getClass().getResourceAsStream("/"+RXTX_LIB+".dll"),"./"+RXTX_LIB+".dll");
+    		System.loadLibrary(RXTX_LIB);
+    	}catch(Exception e){
+    		e.printStackTrace();
     	}
+    }
    
 
-    private static boolean copy(InputStream source , String destination) {
+    private static boolean copy(InputStream source , String destination) throws Exception {
         boolean succeess = true;
         try {
             Files.copy(source, Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
