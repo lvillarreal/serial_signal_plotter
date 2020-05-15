@@ -45,6 +45,7 @@ public interface InterfaceModelo {
      double getMaxValue();
      double getMinValue();
      double getRMSvalue();
+     //double[] getOnlyData();
      
 		final static byte OpenFileSuccessfully = 0;
 		final static byte closeFileSuccessfully = 0;
@@ -64,6 +65,7 @@ public interface InterfaceModelo {
 		final static byte fftCalculateOk = 2;	// indica que la fft se calculo correctamente
 		final static byte fftShiftedOk = 3;		// indica que realizo bien el shift
 		final static byte fileFFTshiftedModule = 4;
+		
 		
 		
 }

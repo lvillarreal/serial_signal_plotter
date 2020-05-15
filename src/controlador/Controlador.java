@@ -4,8 +4,7 @@ import java.awt.event.*;
 //import java.util.Date;
 import java.util.Enumeration;
 //import java.util.Map;
-
-
+import java.util.regex.Pattern;
 import java.io.*;
 //import java.net.MalformedURLException;
 //import java.text.DateFormat;
@@ -26,6 +25,11 @@ import vista.*;
 
 public class Controlador implements ActionListener, SerialPortEventListener{
 
+	/**
+	 * Definitions
+	 */
+	private static final byte SP_DATA = (byte)0;
+	private static final byte MATLAB_DATA = (byte)1;
 	
 	private InterfaceModelo modelo;
 	private InterfaceVista vista;
@@ -66,7 +70,6 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	private byte status;	
 	
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
-
 		
 		this.modelo = modelo;
 		this.vista = vista;
@@ -195,7 +198,12 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 						saveAsPushed();
 					}
 				}.start();
-				
+			}else if(e.getActionCommand().equals(InterfaceVista.FileExportMatlab)){
+				new Thread() {
+					public void run() {
+						saveForMatlabPushed();
+					}
+				}.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigShapesVisible)){
 				this.shapes_flag = !this.shapes_flag;
 				t_barOptions.start();
@@ -266,6 +274,88 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			}
 		}
 		
+		/*
+		 * Se ha presionado el boton save for matlab.
+		 * Funcion que abre el cuadro de dilogo para guardar archivo*/
+		private void saveForMatlabPushed(){
+			String file_name = vista.fileWindow(InterfaceVista.optionSaveForMatlab);
+			if(file_name != "_CANCEL_") {
+				String[] aux = file_name.split("\\.");
+				file_name = aux[0]+".bin";
+				saveForMatlab(file_name);
+				try{
+					createMatlabScript(aux[0]+".m", file_name);
+				}catch(IOException e){
+					e.printStackTrace();
+				}
+				vista.writeConsole("File "+file_name+" saved successfully");
+			}
+		}
+		
+		/**
+		 * Guarda los datos medidos en formato double, en archivo binario.
+		 * @param fichero:	path+nombre del archivo 
+		 */
+		private void saveForMatlab(String fichero){
+	        FileOutputStream fos = null;
+	        DataOutputStream salida = null;
+        	double[][] data = modelo.getData();
+
+	        try {
+	            fos = new FileOutputStream(fichero);
+	            salida = new DataOutputStream(fos);
+	            for(int i=0;i<data[1].length;i++){
+	            	salida.writeFloat((float)data[1][i]);
+	            }
+	        } catch (FileNotFoundException e) {
+	            System.out.println(e.getMessage());
+	        } catch (IOException e) {
+	            System.out.println(e.getMessage());
+	        } finally {
+	            try {
+	                if (fos != null) {
+	                    fos.close();
+	                }
+	                if (salida != null) {
+	                    salida.close();
+	                }
+	            } catch (IOException e) {
+	                System.out.println(e.getMessage());
+	            }
+	        }        
+		}
+		
+		/**
+		 * Crea un script para abrir el archivo .bin
+		 * @param file_name	:	nombre del archivo .m
+		 * @param file_data_name	:	nombre del archivo .bin
+		 * @throws IOException
+		 */
+		private void createMatlabScript(String file_name, String bin_name) throws IOException{
+			String separator = Pattern.quote("\\");
+			String[] aux = bin_name.split(separator);
+			File file = new File(file_name);
+			if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write("%{\n");
+            bw.write("Measurement date: "+modelo.getDate()+"\n");
+            bw.write("Sample rate: "+modelo.getSamplingRate()+" Hz\n");
+            bw.write("Bits: "+modelo.getCantBits()+"\n");
+            bw.write("Samples: "+modelo.getCantMuestras()+"\n");
+            bw.write("%}\n\n");
+            bw.write("clc, clear all, close all\n\n");
+            bw.write("format long;\n");
+            bw.write("sampleRate = "+modelo.getSamplingRate()+";\n");
+            bw.write("fileID = fopen('"+aux[aux.length-1]+"');\n");
+            bw.write("data = fread(fileID,"+modelo.getCantMuestras()+",'single','b');\n");
+            bw.write("t = (0:"+(modelo.getCantMuestras()-1)+")/sampleRate;\n");
+            bw.write("fclose(fileID);");
+            bw.close();
+		}
+		
 		private void saveAsPushed() {
 			modelo.setUserText(vista.getUserText());
 			String file_name = vista.fileWindow(InterfaceVista.optionSaveFile);
@@ -308,12 +398,8 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	        try{
 	        	if(fichero != "_CANCEL_") {	
 		            // Se crea un ObjectInputStream
-
 	        		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fichero));
-	            
 	        		this.modelo =(InterfaceModelo) ois.readObject();
-	            
-	           
 	        		ois.close();
 	        		status = 0;
 	        	}else {
@@ -326,20 +412,25 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	        return status;
 	    }
 		
+
+		
+		
+		
 		private void saveData(String fichero) {
-			try {
-					modelo.setUserText(vista.getUserText());
-					ObjectOutputStream oos1 = new ObjectOutputStream(new FileOutputStream(fichero));
-					oos1.writeObject(modelo);
-					oos1.close();
-				
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+
+				try {
+						modelo.setUserText(vista.getUserText());
+						ObjectOutputStream oos1 = new ObjectOutputStream(new FileOutputStream(fichero));
+						oos1.writeObject(modelo);
+						oos1.close();
+					
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 		
 		

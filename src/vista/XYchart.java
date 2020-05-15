@@ -102,7 +102,6 @@ public class XYchart{
 		         return stringBuilder.toString();
 		     }
 		 };
-		
 		dataset.addSeries(signal_name, data);
 		this.actualSerie = signal_name;
 		renderer.setBaseToolTipGenerator(xyTooltipGenerator);

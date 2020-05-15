@@ -198,7 +198,23 @@ public class DataBase implements InterfaceModelo, Serializable {
 		calculateRMSvalue();
 	}
 	
-	
+	/*@Override
+	public double[] getOnlyData(){
+		double[] output = new double[this.cant_muestras];
+		double escalar = 4.0;
+		
+		try {
+			for(int i=0;i<cant_muestras*2;i=i+2) {
+				output[i/2] = ((((double)((this.data[i]&0xFF)*256+(this.data[i+1]&0xFF)))*escalar)*((2*this.input_range)/(262144.0)))-this.input_range;
+				//output[0][i/2] = i/2;
+				//output[1][i/2] = ((double)(this.data[i]&0xFF)*256+(this.data[i+1]&0xFF))*escalar;
+			}			
+		}catch(Exception e) {
+			e.printStackTrace();	
+		}
+		return output;
+	}
+	*/
 	@Override
 	public double[][] getData() {
 		double[][] output = new double[2][this.cant_muestras];
@@ -211,7 +227,7 @@ public class DataBase implements InterfaceModelo, Serializable {
 				//output[0][i/2] = i/2;
 				//output[1][i/2] = ((double)(this.data[i]&0xFF)*256+(this.data[i+1]&0xFF))*escalar;
 			}
-			System.out.println(((this.data[0]&0xFF)*256+(data[1]&0xFF))*4);
+		
 			
 		}catch(Exception e) {
 			e.printStackTrace();	

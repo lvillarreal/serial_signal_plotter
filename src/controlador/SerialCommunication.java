@@ -43,7 +43,7 @@ public class SerialCommunication{
     	connected = false;
     	this.DATA_RATE = 900000;
     	try{
-    		copy(getClass().getResourceAsStream("/"+RXTX_LIB+".dll"),"./"+RXTX_LIB+".dll");
+    		copy(getClass().getResourceAsStream("/lib/"+RXTX_LIB+".dll"),"./"+RXTX_LIB+".dll");
     		System.loadLibrary(RXTX_LIB);
     	}catch(Exception e){
     		e.printStackTrace();

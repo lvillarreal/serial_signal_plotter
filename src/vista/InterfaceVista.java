@@ -55,6 +55,7 @@ public interface InterfaceVista {
 	static final byte optionSaveFile = (byte)0;
 	static final byte optionOpenFile = (byte)1;
 	static final byte optionSaveCurrentFile = (byte)3;
+	static final byte optionSaveForMatlab = (byte)4;
 	
 	// ActionCommands para los eventos
 	static final String ButtonConnectPushed = "ButtonConnectedPushed";	// Para ActionCommand del boton connect

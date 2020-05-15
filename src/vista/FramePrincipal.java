@@ -260,15 +260,15 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		menuItem_file_save   = new JMenuItem("Save");
 		menuItem_file_saveAs = new JMenuItem("Save As...");
 		menuItem_file_openFile = new JMenuItem("Open File...");
-		//menuItem_file_export = new JMenu("Export...");
+		menuItem_file_export = new JMenu("Export...");
 		menuItem_file_exit   = new JMenuItem("Exit");
 		
 		
 			// Export
-			this.menuItem_file_export_txt = new JMenuItem("Text file (.txt)");
-			this.menuItem_file_export_txt.setToolTipText("Exporta los datos a un archivo de texto.");
-			this.menuItem_file_export_matlab = new JMenuItem("Matlab file (.m)");
-			this.menuItem_file_export_matlab.setToolTipText("Exporta los datos a un archivo .m que realiza la gráfica en Matlab.");
+			//this.menuItem_file_export_txt = new JMenuItem("Text file (.txt)");
+			//this.menuItem_file_export_txt.setToolTipText("Exporta los datos a un archivo de texto.");
+			this.menuItem_file_export_matlab = new JMenuItem("Matlab file");
+			this.menuItem_file_export_matlab.setToolTipText("Exporta los datos a un archivo .bin y genera un .m para abrirlo con Matlab");
 		
 			//Items de view
 		menuItem_view_graph = new JMenu("Graph");
@@ -344,14 +344,14 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		menu_file.addSeparator();
 		menu_file.add(menuItem_file_saveAs);
 		menu_file.addSeparator();
-//		menu_file.add(menuItem_file_export);
+		menu_file.add(menuItem_file_export);
 		menu_file.addSeparator();
 		menu_file.add(menuItem_file_exit);
 //		menu_file.addSeparator();
 			
 			// Export
 				//this.menuItem_file_export.add(this.menuItem_file_export_txt);
-				//this.menuItem_file_export.add(this.menuItem_file_export_matlab);
+				this.menuItem_file_export.add(this.menuItem_file_export_matlab);
 			//view
 		menu_view.add(menuItem_view_graph);
 		menu_view.addSeparator();
@@ -430,7 +430,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		this.menuItem_view_graph_graphData.setActionCommand(InterfaceVista.ViewGraphData);
 			//EXPORT
 			this.menuItem_file_export_matlab.setActionCommand(InterfaceVista.FileExportMatlab);
-			this.menuItem_file_export_txt.setActionCommand(InterfaceVista.FileExportText);
+			//this.menuItem_file_export_txt.setActionCommand(InterfaceVista.FileExportText);
 		// MATH
 		this.menuItem_math_fft_calculate.setActionCommand(InterfaceVista.CalculateFFT);
 		this.menuItem_math_fft_graph_module.setActionCommand(InterfaceVista.GraphFFTmodule);
@@ -841,7 +841,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		// file section
 		this.menuItem_file_openFile.addActionListener(c);
 		this.menuItem_file_saveAs.addActionListener(c);
-		
+		this.menuItem_file_export_matlab.addActionListener(c);
 		// view section
 		menuItem_view_SerialPorts.addActionListener(c);
 		this.menuItem_view_graph_Fs.addActionListener(c);
@@ -992,18 +992,27 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		 String status = null;
 		 try {
 			 JFileChooser file=new JFileChooser();
-			 file.setAcceptAllFileFilterUsed(false);
-		     FileNameExtensionFilter filter = new FileNameExtensionFilter("SignalPlotter file (.dat)", "dat");
-		     file.addChoosableFileFilter(filter);
+		     FileNameExtensionFilter filterSP = new FileNameExtensionFilter("SignalPlotter file (.dat)", "dat");
+		     FileNameExtensionFilter filterMatlab = new FileNameExtensionFilter("Binary file (.bin)", "bin");
+
 			 switch(option) {
 			 	case InterfaceVista.optionSaveFile: 
-			 		 
+					 file.setAcceptAllFileFilterUsed(false);
+				     file.addChoosableFileFilter(filterSP);
 			 		 if(file.showSaveDialog(this) == file.CANCEL_OPTION) return "_CANCEL_";
 					 break;
 					 
 			 	case InterfaceVista.optionOpenFile:
+					 file.setAcceptAllFileFilterUsed(false);
+				     file.addChoosableFileFilter(filterSP);
 			 		 if(file.showOpenDialog(this) == file.CANCEL_OPTION) return "_CANCEL_";
 			 		 break;
+			 	
+			 	case InterfaceVista.optionSaveForMatlab:
+					 file.setAcceptAllFileFilterUsed(false);
+				     file.addChoosableFileFilter(filterMatlab);
+			 		 if(file.showSaveDialog(this) == file.CANCEL_OPTION) return "_CANCEL_";
+					 break;
 			 		 
 			 }
 			 status = file.getSelectedFile().toString();
