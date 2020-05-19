@@ -346,12 +346,13 @@ public class Controlador implements ActionListener, SerialPortEventListener{
             bw.write("Bits: "+modelo.getCantBits()+"\n");
             bw.write("Samples: "+modelo.getCantMuestras()+"\n");
             bw.write("%}\n\n");
-            bw.write("clc, clear all, close all\n\n");
-            bw.write("format long;\n");
-            bw.write("sampleRate = "+modelo.getSamplingRate()+";\n");
+            bw.write("clc, clear all, close all\n");
+            bw.write("format long;\n\n");
+            bw.write("Fs = "+modelo.getSamplingRate()+"; %Frecuencia de muestreo\n");
+            bw.write("N = "+modelo.getCantMuestras()+"; %Cantidad de muestras\n\n");
+            bw.write("t = (0:N-1)/Fs; % vector de tiempo\n\n");
             bw.write("fileID = fopen('"+aux[aux.length-1]+"');\n");
             bw.write("data = fread(fileID,"+modelo.getCantMuestras()+",'single','b');\n");
-            bw.write("t = (0:"+(modelo.getCantMuestras()-1)+")/sampleRate;\n");
             bw.write("fclose(fileID);");
             bw.close();
 		}
