@@ -186,25 +186,14 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		// SECCION HELP
 		// Carga el fichero de ayuda
 		//fichero_help = new File("help/index.hs");
-		
 		try {
-			//fichero_help = new File(getClass().getResource("index.hs").toURI());
-			//fichero_help = new File("../help/index.hs");
-			//fichero_help = new File("help"+File.separator+"index.hs");
-			//hsURL = fichero_help.toURI().toURL();
-			//hsURL = new URL("jar:file:SignalPlotter.jar"+File.separator+"help"+File.separator+"index.hs");
-			
-			
-			hsURL = new URL("jar:file:"+getJarName()+"/help/index.hs");
-
+			String jarName = getJarName();
+			hsURL = new URL("jar:file:"+jarName+"/help/index.hs");
 			helpset = new HelpSet(getClass().getClassLoader(), hsURL);
 			hb = helpset.createHelpBroker();
-		} catch (MalformedURLException e) {
+		} catch (Exception e2) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (HelpSetException e) {
-			e.printStackTrace();
-			
+			e2.printStackTrace();
 			try {
 				/*BLOQUE QUE SE USA SOLO CUANDO SE EJECUTA CON ECLIPSE
 				* Se usa este bloque por que cuando se ejecuta con Eclipse cambia la ruta*/
@@ -217,10 +206,8 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 				e1.printStackTrace();
 
 			}
-
-		}catch(Exception e){
-			e.printStackTrace();
 		}
+
 	}
 
 	
@@ -454,8 +441,13 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		barra.add(menu_window);
 		barra.add(menu_help);
 		
-		
-
+		// SHORTCUTS
+			this.menuItem_file_openFile.setAccelerator(KeyStroke.getKeyStroke("control O"));
+			this.menuItem_file_saveAs.setAccelerator(KeyStroke.getKeyStroke("control S"));
+			this.menuItem_view_graph_graphData.setAccelerator(KeyStroke.getKeyStroke("control G"));
+			this.menuItem_window_userText.setAccelerator(KeyStroke.getKeyStroke("control N"));
+			this.menuItem_window_features.setAccelerator(KeyStroke.getKeyStroke("control F"));
+			this.menuItem_view_SerialPorts.setAccelerator(KeyStroke.getKeyStroke("control P"));
 		
 		
 		
