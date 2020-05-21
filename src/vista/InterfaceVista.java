@@ -56,6 +56,7 @@ public interface InterfaceVista {
 	static final byte optionOpenFile = (byte)1;
 	static final byte optionSaveCurrentFile = (byte)3;
 	static final byte optionSaveForMatlab = (byte)4;
+	static final byte optionExportBinary = (byte) 5;
 	
 	// ActionCommands para los eventos
 	static final String ButtonConnectPushed = "ButtonConnectedPushed";	// Para ActionCommand del boton connect
@@ -89,8 +90,11 @@ public interface InterfaceVista {
 	static final String ButtonStartEnable = "ButtonStartEnable";	// permite habilitar y deshabilitar el boton start
 	static final String ButtonConnectEnable = "ButtonConnectEnable";	// permite habilitar y deshabilitar el boton connect
 
-	static final String FileExportMatlab = "FileExportMatlab";	// exporta el archivo a un .m que grafica los datos
+	static final String FileExportBinary = "FileExportBinary";	// exporta los datos a un .bin
 	static final String FileExportText = "FileExportText";	// exporta el archivo a un .txt
+	
+	static final String FileGenerateMatlab = "FileGenerateMatlab"; //genera un .m para abrir el archivo binario
+	
 	static final String MenuButtonOpenFile = "MenuButtonOpenFile";	// se ha presionado la opcion import
 	static final String MenuSaveAs = "MenuSaveAs";	// se ha presionado guardar como
 	

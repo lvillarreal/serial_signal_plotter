@@ -198,10 +198,16 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 						saveAsPushed();
 					}
 				}.start();
-			}else if(e.getActionCommand().equals(InterfaceVista.FileExportMatlab)){
+			}else if(e.getActionCommand().equals(InterfaceVista.FileExportBinary)){
 				new Thread() {
 					public void run() {
-						saveForMatlabPushed();
+						exportBinaryPushed();
+					}
+				}.start();
+			}else if(e.getActionCommand().equals(InterfaceVista.FileGenerateMatlab)){
+				new Thread() {
+					public void run() {
+						generateMatlabPushed();
 					}
 				}.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigShapesVisible)){
@@ -277,26 +283,26 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		/*
 		 * Se ha presionado el boton save for matlab.
 		 * Funcion que abre el cuadro de dilogo para guardar archivo*/
-		private void saveForMatlabPushed(){
-			String file_name = vista.fileWindow(InterfaceVista.optionSaveForMatlab);
+		private void exportBinaryPushed(){
+			String file_name = vista.fileWindow(InterfaceVista.optionExportBinary);
 			if(file_name != "_CANCEL_") {
 				String[] aux = file_name.split("\\.");
 				file_name = aux[0]+".bin";
-				saveForMatlab(file_name);
-				try{
+				saveBinaryFile(file_name);
+				/*try{
 					createMatlabScript(aux[0]+".m", file_name);
 				}catch(IOException e){
 					e.printStackTrace();
-				}
+				}*/
 				vista.writeConsole("File "+file_name+" saved successfully");
 			}
 		}
 		
 		/**
-		 * Guarda los datos medidos en formato double, en archivo binario.
+		 * Guarda los datos medidos en formato single, en un archivo binario.
 		 * @param fichero:	path+nombre del archivo 
 		 */
-		private void saveForMatlab(String fichero){
+		private void saveBinaryFile(String fichero){
 	        FileOutputStream fos = null;
 	        DataOutputStream salida = null;
         	double[][] data = modelo.getData();
@@ -324,6 +330,20 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	            }
 	        }        
 		}
+
+		private void generateMatlabPushed(){
+			String file_name = vista.fileWindow(InterfaceVista.optionSaveForMatlab);
+			if(file_name != "_CANCEL_") {
+				String[] aux = file_name.split("\\.");
+				file_name = aux[0]+".m";
+				try{
+					createMatlabScript(file_name, "Nombre del archivo.bin");
+				}catch(IOException e){
+					e.printStackTrace();
+				}
+				vista.writeConsole("File "+file_name+" saved successfully");
+			}
+		}
 		
 		/**
 		 * Crea un script para abrir el archivo .bin
@@ -344,16 +364,16 @@ public class Controlador implements ActionListener, SerialPortEventListener{
             bw.write("Measurement date: "+modelo.getDate()+"\n");
             bw.write("Sample rate: "+modelo.getSamplingRate()+" Hz\n");
             bw.write("Bits: "+modelo.getCantBits()+"\n");
-            bw.write("Samples: "+modelo.getCantMuestras()+"\n");
+            bw.write("Si no ha generado este archivo junto con el archivo binario\nasegurese que la tasa de muestreo sea correcta\n");
             bw.write("%}\n\n");
-            bw.write("clc, clear all, close all\n");
+            bw.write("clc, close all\n");
             bw.write("format long;\n\n");
-            bw.write("Fs = "+modelo.getSamplingRate()+"; %Frecuencia de muestreo\n");
-            bw.write("N = "+modelo.getCantMuestras()+"; %Cantidad de muestras\n\n");
-            bw.write("t = (0:N-1)/Fs; % vector de tiempo\n\n");
             bw.write("fileID = fopen('"+aux[aux.length-1]+"');\n");
-            bw.write("data = fread(fileID,"+modelo.getCantMuestras()+",'single','b');\n");
-            bw.write("fclose(fileID);");
+            bw.write("data = fread(fileID,'single','b');\n");
+            bw.write("fclose(fileID);\n");
+            bw.write("Fs = "+modelo.getSamplingRate()+"; %Frecuencia de muestreo en Hz\n");
+            bw.write("N = length(data); %Cantidad de muestras\n");
+            bw.write("t = (0:N-1)/Fs;   % vector de tiempo\n\n");
             bw.close();
 		}
 		
