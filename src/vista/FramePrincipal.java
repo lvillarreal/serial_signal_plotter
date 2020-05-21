@@ -26,11 +26,15 @@ import java.net.URL;
 // MARCO o FRAME
 public class FramePrincipal extends JFrame implements InterfaceVista{
 	/*
-	 * Cuando se hace un cambio sustancial se aumenta el decimal de la versión
+	 * Cuando se hace un cambio sustancial en el que se modifica algo interno del funcionamiento aumenta la milesima
+	 * Cuando se hace un cambio sustancial en el que se modifica algo que cambia la forma de recibir y/o enviar datos aumenta la centesima
+	 * Cuando se hace un cambio sustancial en el que se modifica algo del frame aumenta la decima
 	 * Cuando se hace un cambio en DataBase, se aumenta el entero de la versión, ya que no se podrán
 	 * abrir las versiones previas
+	 * 
 	 */
-	private static final String version = "v1.0";	// VERSION DEL PROGRAMA
+	private static final String version = "v1.001";	// VERSION DEL PROGRAMA
+	
 	private String actualSerie;
 	
 	/*CONFIGURACION DE GRAFICA*/
