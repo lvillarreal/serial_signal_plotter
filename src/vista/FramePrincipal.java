@@ -33,7 +33,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	 * abrir las versiones previas
 	 * 
 	 */
-	private static final String version = "v1.001";	// VERSION DEL PROGRAMA
+	private static final String version = "v1.011";	// VERSION DEL PROGRAMA
 	
 	private String actualSerie;
 	
