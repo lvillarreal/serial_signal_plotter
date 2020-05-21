@@ -281,7 +281,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		}
 		
 		/*
-		 * Se ha presionado el boton save for matlab.
+		 * Se ha presionado el boton Export -> Binary file.
 		 * Funcion que abre el cuadro de dilogo para guardar archivo*/
 		private void exportBinaryPushed(){
 			String file_name = vista.fileWindow(InterfaceVista.optionExportBinary);

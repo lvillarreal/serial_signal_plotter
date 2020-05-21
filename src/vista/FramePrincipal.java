@@ -8,14 +8,14 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import controlador.Controlador;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import java.util.regex.Pattern;
 import java.awt.*;
 //import java.awt.event.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 //import java.net.URISyntaxException;
 import java.net.URL;
@@ -25,8 +25,12 @@ import java.net.URL;
 
 // MARCO o FRAME
 public class FramePrincipal extends JFrame implements InterfaceVista{
-	
-
+	/*
+	 * Cuando se hace un cambio sustancial se aumenta el decimal de la versión
+	 * Cuando se hace un cambio en DataBase, se aumenta el entero de la versión, ya que no se podrán
+	 * abrir las versiones previas
+	 */
+	private static final String version = "v1.0";	// VERSION DEL PROGRAMA
 	private String actualSerie;
 	
 	/*CONFIGURACION DE GRAFICA*/
@@ -178,14 +182,16 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		// SECCION HELP
 		// Carga el fichero de ayuda
 		//fichero_help = new File("help/index.hs");
-
+		
 		try {
 			//fichero_help = new File(getClass().getResource("index.hs").toURI());
 			//fichero_help = new File("../help/index.hs");
 			//fichero_help = new File("help"+File.separator+"index.hs");
 			//hsURL = fichero_help.toURI().toURL();
 			//hsURL = new URL("jar:file:SignalPlotter.jar"+File.separator+"help"+File.separator+"index.hs");
-			hsURL = new URL("jar:file:SignalPlotter.jar!/help/index.hs");
+			
+			
+			hsURL = new URL("jar:file:"+getJarName()+"/help/index.hs");
 
 			helpset = new HelpSet(getClass().getClassLoader(), hsURL);
 			hb = helpset.createHelpBroker();
@@ -208,7 +214,9 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 
 			}
 
-		} 
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	
@@ -221,9 +229,25 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		startMenu();
 		setConfigGraph();
 		
-		startFrame("Signal Plotter");
+		startFrame("Signal Plotter "+version);
 		
 	}
+	
+	private String getJarName() throws Exception { 
+		
+		String path = FramePrincipal.class.getResource(FramePrincipal.class.getSimpleName()+".class").getFile();
+		
+		String separator = Pattern.quote("/");
+		String[] aux = path.split(separator);
+		//for (String variable: aux) {
+		//	System.out.println(variable);
+		//}
+		if(path.startsWith("/")) {
+			throw new Exception("This is not a jar file: \n" + path); 
+		} 
+
+		return aux[aux.length-3];
+	} 
 	
 	//	startFrame inicializa el frame (marco) 
 	private void startFrame(String title) {
