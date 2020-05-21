@@ -25,14 +25,13 @@ import vista.*;
 
 public class Controlador implements ActionListener, SerialPortEventListener{
 
-	/**
-	 * Definitions
-	 */
-	private static final byte SP_DATA = (byte)0;
-	private static final byte MATLAB_DATA = (byte)1;
+
+	//private static final byte SP_DATA = (byte)0;
+	//private static final byte MATLAB_DATA = (byte)1;
 	
 	private InterfaceModelo modelo;
 	private InterfaceVista vista;
+	
 	
 	private SerialCommunication serial_comm;
 //	private int index;
@@ -69,6 +68,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	*****************************************************************/
 	private byte status;	
 	
+	// CONSTRUCTOR
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
 		
 		this.modelo = modelo;
@@ -83,14 +83,14 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		user_text_flag = false;
 		features_flag = false;
 		
+		
 		datos = 0;
 
 		timeExec = 0;
 		
 		index_buff = 0;
-		
 
-		
+	
 	
 		
 
@@ -145,7 +145,12 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			}else if(e.getActionCommand().equals(InterfaceVista.ListSerialPorts)){
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.MenuButtonExitPushed)){
-				t_barOptions.start();
+				new Thread(){
+					@Override
+					public void run() {
+						exitProgram();
+					}
+				}.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigTimeRange)){
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigSamplingRate)){
@@ -256,6 +261,12 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		    }	
 		}
 
+		// Sale del programa
+		private void exitProgram() {
+			if(serial_comm.getState()) serial_comm.closePort(); //Cierra el puerto si esta abierto
+			vista.exitProgramWarning();
+		}
+		
 		private void startPushed() {
 			if (start_flag == false) {
 				flag_full_buffer = false;
@@ -275,7 +286,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				vista.featuresVisible(features_flag);
 				this.user_text_flag = false;
 				vista.textUserVisible(user_text_flag);
-
+				vista.setSaveStatus(false);
 				
 			}
 		}
@@ -381,10 +392,23 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			modelo.setUserText(vista.getUserText());
 			String file_name = vista.fileWindow(InterfaceVista.optionSaveFile);
 			if(file_name != "_CANCEL_") {
+				
 				String[] aux = file_name.split("\\.");
 				file_name = aux[0]+".dat";
-				saveData(file_name);
-				vista.writeConsole("File "+file_name+" saved successfully");
+				try {
+					saveData(file_name);
+					vista.writeConsole("File "+file_name+" saved successfully");
+					vista.setSaveStatus(true);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					vista.writeConsole("ERROR\n"+e.getMessage());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					vista.writeConsole("ERROR\n"+e.getMessage());
+				}
+				
 			}
 
 			
@@ -437,9 +461,13 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		
 		
-		private void saveData(String fichero) {
+		private void saveData(String fichero) throws FileNotFoundException, IOException  {
 
-				try {
+			modelo.setUserText(vista.getUserText());
+			ObjectOutputStream oos1 = new ObjectOutputStream(new FileOutputStream(fichero));
+			oos1.writeObject(modelo);
+			oos1.close();
+			/*	try {
 						modelo.setUserText(vista.getUserText());
 						ObjectOutputStream oos1 = new ObjectOutputStream(new FileOutputStream(fichero));
 						oos1.writeObject(modelo);
@@ -451,7 +479,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				}*/
 		}
 		
 		
@@ -524,7 +552,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
           		
         		datos = serial_comm.readData();
         		modelo.setCantBits(datos);
-    			if(datos<=8) cant_bytes = 1;
+    			if(datos<=8) this.cant_bytes = 1;
     			else if(datos >8 && datos <= 16) cant_bytes = 2;
     			else if(datos >16 && datos <= 24) cant_bytes = 3;
     			System.out.println("cant bits: "+datos);
@@ -551,7 +579,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		
 		// metodo para graficar desde un archivo de texto
-		 private void actualiceChartFromFile() {
+/*		 private void actualiceChartFromFile() {
 				
 				byte status;
 				String line = null;
@@ -609,7 +637,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				
 		}
 				
-		
+	*/	
 		
 		private byte buttonConnect() {
 			vista.deleteChartData(modelo.getSignalName());
@@ -648,7 +676,15 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				vista.writeConsole("COM Port disconnected");
 				modelo.setCantMuestras((index_buff/2)-1);
 				if(start_flag) {
-					saveData("AutoSave.dat");	// guarda el objeto modelo, que contiene toda la informacion de la grafica
+					try {
+						saveData("AutoSave.dat");
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	// guarda el objeto modelo, que contiene toda la informacion de la grafica
 					modelo.calculateAllFeatures(); // calcula las caracteristicas de la señal
 				}
 			
@@ -719,9 +755,6 @@ class barOptions implements Runnable{
 	
 	public void run() {
 		switch(option){
-			case InterfaceVista.MenuButtonExitPushed:
-				exitProgram();
-				break;
 				
 			case InterfaceVista.ListSerialPorts:
 				listSerialPorts();
@@ -1028,11 +1061,7 @@ class barOptions implements Runnable{
 		}
 	}
 	
-	// Sale del programa
-	private void exitProgram() {
-		if(serial_comm.getState()) serial_comm.closePort();
-		System.exit(0);
-	}
+
 	
 	// Lista en consola los puertos conectados
     private void listSerialPorts() { 

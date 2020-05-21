@@ -13,9 +13,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 //import java.awt.event.*;
 import java.io.File;
-import java.io.FileNotFoundException;
+//import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 //import java.net.URISyntaxException;
 import java.net.URL;
@@ -34,6 +36,8 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	 * 
 	 */
 	private static final String version = "v1.011";	// VERSION DEL PROGRAMA
+
+	private boolean save_status;	// true si el archivo esta guardado, false si no esta guardado
 	
 	private String actualSerie;
 	
@@ -186,6 +190,8 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		// SECCION HELP
 		// Carga el fichero de ayuda
 		//fichero_help = new File("help/index.hs");
+		save_status = true;
+		
 		try {
 			String jarName = getJarName();
 			hsURL = new URL("jar:file:"+jarName+"/help/index.hs");
@@ -222,6 +228,14 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 		startFrame("Signal Plotter "+version);
 		
+		/*Bloque para determinar si salir del programa o no*/
+		this.addWindowListener(new WindowAdapter() {
+		        @Override
+		        public void windowClosing(WindowEvent e) {
+		        	
+		        	exitProgramWarning();
+		        }
+		 });
 	}
 	
 	private String getJarName() throws Exception { 
@@ -246,7 +260,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 		this.setExtendedState(MAXIMIZED_BOTH);	// el marco se abre con ventana completa
 		this.setTitle(title);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.setMinimumSize(new Dimension(500,500));
 		this.setVisible(true);
 		
@@ -1201,6 +1215,18 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		}
 	}
 	
+	@Override
+	public void exitProgramWarning(){
+		if(!save_status){
+        	if(JOptionPane.showConfirmDialog(null, "¿Desea salir sin guardar?","Salir sin guardar",JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) System.exit(0);
+        }else{
+        	if(JOptionPane.showConfirmDialog(null, "¿Seguro que desea salir?","Salir de Signal Plotter",JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) System.exit(0);
+        }
+
+	}
+	
+	
+	
 	@Override 
 	public void textUserVisible(boolean option) {
 		if(option) {
@@ -1232,6 +1258,15 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		this.frame_features.setVisible(option);
 	}
 	
+	@Override
+	public void setSaveStatus(boolean option){
+		this.save_status = option;
+	}
+	
+	@Override
+	public boolean getSaveStatus(){
+		return save_status;
+	}
 	
 	private boolean isNumeric(String cadena) {
 		try {	

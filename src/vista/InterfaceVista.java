@@ -15,7 +15,11 @@ public interface InterfaceVista {
 	void setControlador(Controlador c);
 	void start(String actualSerie);
 	
-    //void setConfigGraph();
+	void exitProgramWarning();
+    void setSaveStatus(boolean option);
+    boolean getSaveStatus();
+    
+	//void setConfigGraph();
     void showConfigGraph();
     void closeConfigGraph();
 	
@@ -57,6 +61,9 @@ public interface InterfaceVista {
 	static final byte optionSaveCurrentFile = (byte)3;
 	static final byte optionSaveForMatlab = (byte)4;
 	static final byte optionExportBinary = (byte) 5;
+	
+	static final byte optionExitWithoutSave = (byte)6;
+	static final byte optionSureExit = (byte)7;
 	
 	// ActionCommands para los eventos
 	static final String ButtonConnectPushed = "ButtonConnectedPushed";	// Para ActionCommand del boton connect
@@ -100,4 +107,8 @@ public interface InterfaceVista {
 	
 	static final String MenuWindowUserText = "MenuWindowUserText";
 	static final String MenuWindowFeatures = "MenuWindowFeatures";
+
+	
+	
+
 }
