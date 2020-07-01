@@ -70,6 +70,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	
 	// CONSTRUCTOR
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
+
 		
 		this.modelo = modelo;
 		this.vista = vista;
