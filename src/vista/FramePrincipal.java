@@ -35,7 +35,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	 * abrir las versiones previas
 	 * 
 	 */
-	private static final String version = "v1.201";	// VERSION DEL PROGRAMA
+	private static final String version = "v2.201";	// VERSION DEL PROGRAMA
 
 	private boolean save_status;	// true si el archivo esta guardado, false si no esta guardado
 	

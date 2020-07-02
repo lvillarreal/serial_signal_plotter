@@ -21,7 +21,7 @@ public interface InterfaceModelo {
 	 
 	 
 	 void resetData();
-	 byte calculateFFT();
+	 void calculateFFT();
 	 byte openFile(byte option);
 	 byte closeFile();
 	 String readLine();
@@ -53,6 +53,7 @@ public interface InterfaceModelo {
 		final static byte CloseFileError = -1;
 		final static byte CreateFileSuccessfully = 2;
 		final static byte CreateFileError = -2;
+	
 		
 		final static byte printLineSuccessfully = 0;
 		final static byte printLineError = -1;

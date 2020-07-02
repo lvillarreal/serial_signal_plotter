@@ -70,7 +70,9 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	
 	// CONSTRUCTOR
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
-
+		
+		
+		
 		
 		this.modelo = modelo;
 		this.vista = vista;
@@ -180,7 +182,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				}.start();
 				//t_printData.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.CalculateFFT)){
-				//t_barOptions.start();
+				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.GraphFFTmodule)){
 				//t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigSetBaudRate)){
@@ -865,8 +867,9 @@ class barOptions implements Runnable{
 	
 	private void calculateFFT() {
 		vista.writeConsole("FFT proccessing");
-		byte status = modelo.calculateFFT();
-		switch(status) { 
+		modelo.calculateFFT();
+		vista.writeConsole("FFT done");
+	/*	switch(status) { 
 		case InterfaceModelo.OpenFileError:
 			vista.writeConsole("ERROR. \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be opened");
 			break;
@@ -878,7 +881,7 @@ class barOptions implements Runnable{
 		case InterfaceModelo.fftCalculateOk:
 			vista.writeConsole("FFT calculated successfully");
 		}
-
+*/
 	}
 	
 	
