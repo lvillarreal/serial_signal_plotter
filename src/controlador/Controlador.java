@@ -1,8 +1,10 @@
 package controlador;
 
 import java.awt.event.*;
+import java.util.ArrayList;
 //import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
 //import java.util.Map;
 import java.util.regex.Pattern;
 import java.io.*;
@@ -71,8 +73,17 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	// CONSTRUCTOR
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
 		
-		
-		
+//		List<ArrayList<Double>> a = new ArrayList<>();
+//		ArrayList<Double> d= new ArrayList<Double>();
+//		ArrayList<Double> t= new ArrayList<Double>();
+//		
+//		for(int i=0;i<10;i++){
+//			d.add((double)i/2.0);
+//			t.add((double)i);
+//		}
+//		a.add(d);
+//		a.add(t);
+//		System.out.println("List:"+a);
 		
 		this.modelo = modelo;
 		this.vista = vista;
@@ -392,14 +403,16 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		}
 		
 		private void saveAsPushed() {
-			modelo.setUserText(vista.getUserText());
+			modelo.setUserText(vista.getUserText());	// se guarda el texto
+						
 			String file_name = vista.fileWindow(InterfaceVista.optionSaveFile);
 			if(file_name != "_CANCEL_") {
 				
 				String[] aux = file_name.split("\\.");
 				file_name = aux[0]+".dat";
 				try {
-					saveData(file_name);
+					modelo.saveData(file_name);
+					//saveData(file_name);
 					vista.writeConsole("File "+file_name+" saved successfully");
 					vista.setSaveStatus(true);
 				} catch (FileNotFoundException e) {
@@ -418,72 +431,107 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		}
 		
 		private void openFilePushed() {
-			byte stat = openSavedData(vista.fileWindow(InterfaceVista.optionOpenFile));
-			if(stat > -1) {
-				features_flag = false;
-				user_text_flag = false;
-				vista.featuresVisible(this.features_flag);
-				vista.textUserVisible(this.user_text_flag);
-				
-				vista.deleteConsole();
-    			vista.writeConsole("*****************************************************");
-    			vista.writeConsole("FILE OPENED SUCCESSFULLY");
-    			vista.writeConsole("Sample rate: "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
-    			vista.writeConsole("ADC bit count: "+modelo.getCantBits()+" bits");
-    			vista.writeConsole("ADC input range: +-"+modelo.getInputRange()+" [V]");
-    			vista.writeConsole("Date: "+modelo.getDate());
-    			vista.writeConsole("*****************************************************");
-				
-    			vista.setSignalName(modelo.getSignalName());
-    			
-			}else if(stat == -1){
-				vista.writeConsole("File has not been opened");
-			}
-		}
-		
-		private byte openSavedData(String fichero){
-			byte status = -1;
-	        try{
-	        	if(fichero != "_CANCEL_") {	
-		            // Se crea un ObjectInputStream
-	        		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fichero));
-	        		this.modelo =(InterfaceModelo) ois.readObject();
-	        		ois.close();
-	        		status = 0;
-	        	}else {
-	        		status = -2;
-	        	}
-	        }
-	        catch (Exception e2){
-	            e2.printStackTrace();
-	        }
-	        return status;
-	    }
-		
-
-		
-		
-		
-		private void saveData(String fichero) throws FileNotFoundException, IOException  {
-
-			modelo.setUserText(vista.getUserText());
-			ObjectOutputStream oos1 = new ObjectOutputStream(new FileOutputStream(fichero));
-			oos1.writeObject(modelo);
-			oos1.close();
-			/*	try {
-						modelo.setUserText(vista.getUserText());
-						ObjectOutputStream oos1 = new ObjectOutputStream(new FileOutputStream(fichero));
-						oos1.writeObject(modelo);
-						oos1.close();
+			String file = vista.fileWindow(InterfaceVista.optionOpenFile);
+			if(file != "_CANCEL_"){
+				try {
+					modelo.openFile(file);
 					
+					features_flag = false;
+					user_text_flag = false;
+					vista.featuresVisible(this.features_flag);
+					vista.textUserVisible(this.user_text_flag);
+					
+					vista.deleteConsole();
+	    			vista.writeConsole("*****************************************************");
+	    			vista.writeConsole("FILE OPENED SUCCESSFULLY");
+	    			vista.writeConsole("Sample rate: "+modelo.getSamplingRate()+" Hz");
+	    			vista.writeConsole("ADC bit count: "+modelo.getCantBits()+" bits");
+	    			vista.writeConsole("ADC input range: +-"+modelo.getInputRange()+" [V]");
+	    			vista.writeConsole("Date: "+modelo.getDate());
+	    			vista.writeConsole("*****************************************************");
+					
+	    			vista.setSignalName(modelo.getSignalName());
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					vista.writeConsole("File has not been opened");
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					vista.writeConsole("File has not been opened");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}*/
+					vista.writeConsole("File has not been opened");
+				}
+			}
+			
+//			byte stat = openSavedData(vista.fileWindow(InterfaceVista.optionOpenFile));
+//			if(stat > -1) {
+//				features_flag = false;
+//				user_text_flag = false;
+//				vista.featuresVisible(this.features_flag);
+//				vista.textUserVisible(this.user_text_flag);
+//				
+//				vista.deleteConsole();
+//    			vista.writeConsole("*****************************************************");
+//    			vista.writeConsole("FILE OPENED SUCCESSFULLY");
+//    			vista.writeConsole("Sample rate: "+modelo.getSamplingRate()+" Hz");
+//    			vista.writeConsole("ADC bit count: "+modelo.getCantBits()+" bits");
+//    			vista.writeConsole("ADC input range: +-"+modelo.getInputRange()+" [V]");
+//    			vista.writeConsole("Date: "+modelo.getDate());
+//    			vista.writeConsole("*****************************************************");
+//				
+//    			vista.setSignalName(modelo.getSignalName());
+//    			
+//			}else if(stat == -1){
+//				vista.writeConsole("File has not been opened");
+//			}
 		}
+		
+//		private byte openSavedData(String fichero){
+//			byte status = -1;
+//	        try{
+//	        	if(fichero != "_CANCEL_") {	
+//		            // Se crea un ObjectInputStream
+//	        		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fichero));
+//	        		this.modelo =(InterfaceModelo) ois.readObject();
+//	        		ois.close();
+//	        		status = 0;
+//	        	}else {
+//	        		status = -2;
+//	        	}
+//	        }
+//	        catch (Exception e2){
+//	            e2.printStackTrace();
+//	        }
+//	        return status;
+//	    }
+		
+
+		
+		
+		
+//		private void saveData(String fichero) throws FileNotFoundException, IOException  {
+//
+//			modelo.setUserText(vista.getUserText());
+//			ObjectOutputStream oos1 = new ObjectOutputStream(new FileOutputStream(fichero));
+//			oos1.writeObject(modelo);
+//			oos1.close();
+//			/*	try {
+//						modelo.setUserText(vista.getUserText());
+//						ObjectOutputStream oos1 = new ObjectOutputStream(new FileOutputStream(fichero));
+//						oos1.writeObject(modelo);
+//						oos1.close();
+//					
+//				} catch (FileNotFoundException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}*/
+//		}
 		
 		
 		// grafica los datos 
@@ -540,7 +588,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
         		if (datos == 10 && count == 4) {	// Si recibe 10 (new line) es porque envio correctamente la tasa de muestreo
         			
            			modelo.setFs(fs);
-        			modelo.setSampleRateUnits("Hz"); 
+        			
         			serial_comm.sendData((char)5);	// se envia 5 para comenzar a recibir la info
         			count = 0;
         			status = 4;
@@ -567,7 +615,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
         			datos = 0;
         			vista.writeConsole("*****************************************************");
         			vista.writeConsole("CONFIGURATION DATA RECEIVED CORRECTLY");
-        			vista.writeConsole("Sample rate: "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
+        			vista.writeConsole("Sample rate: "+modelo.getSamplingRate()+" Hz");
         			vista.writeConsole("ADC bit count: "+modelo.getCantBits()+" bits");
         			vista.writeConsole("ADC input range: +-"+modelo.getInputRange()+" [V]");
         			vista.writeConsole("Date: "+modelo.getDate());
@@ -680,7 +728,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				modelo.setCantMuestras((index_buff/2)-1);
 				if(start_flag) {
 					try {
-						saveData("AutoSave.dat");
+						modelo.saveData("AutoSave.dat");
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -776,7 +824,7 @@ class barOptions implements Runnable{
 				break;
 				
 			case InterfaceVista.GetTimeRange:
-				getTimeRange();
+				//getTimeRange();
 				break;
 				
 			case InterfaceVista.ConfigGraph:
@@ -804,7 +852,8 @@ class barOptions implements Runnable{
 				break;
 				
 			case InterfaceVista.GraphFFTmodule:
-				actualiceChartFFT(InterfaceModelo.fileFFTmodule);
+				//actualiceChartFFT(InterfaceModelo.fileFFTmodule);
+				
 				break;
 				
 			case InterfaceVista.ConfigSetBaudRate:
@@ -886,7 +935,7 @@ class barOptions implements Runnable{
 	
 	
 	
-	private void actualiceChartFFT(byte file) {
+	/*private void actualiceChartFFT(byte file) {
 		
 		int status;
 		String line = null;
@@ -944,7 +993,7 @@ class barOptions implements Runnable{
 		}
 		
 	}
-	
+	*/
 	
 	private void setSignalName() {
 		//vista.setSignalName(vista.getNewSignalName());
@@ -962,14 +1011,14 @@ class barOptions implements Runnable{
 	
 	// Muestra en consola la frecuencia de muestreo actual
 	private void getSamplingRate() {
-		vista.writeConsole("Sample rate: " + modelo.getSamplingRate() + " "+modelo.getSampleRateUnits());
+		vista.writeConsole("Sample rate: " + modelo.getSamplingRate() + " Hz");
 	}
 	
 	
 	// muestra en consola el rango de tiempo actual
-	private void getTimeRange() {
-		vista.writeConsole("Time range: " + modelo.getTimeRange()+" "+modelo.getTimeUnits());
-	}
+//	private void getTimeRange() {
+//		vista.writeConsole("Time range: " + modelo.getTimeRange()+" "+modelo.getTimeUnits());
+//	}
 	
 	
 	// configurar frecuencia de muestreo
@@ -986,8 +1035,7 @@ class barOptions implements Runnable{
 				if(isDouble(dataIn)) {
 					fs = Double.parseDouble(dataIn);
 					modelo.setFs(fs);
-					modelo.setSampleRateUnits("Hz");
-					vista.writeConsole("New sample rate is "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
+					vista.writeConsole("New sample rate is "+modelo.getSamplingRate()+" Hz");
 				}
 			}
 			break;
@@ -995,10 +1043,22 @@ class barOptions implements Runnable{
 		case InterfaceVista.ConfigGraphAddSampleRate:
 			dataIn = vista.getConfigSampleRate();
 			if (dataIn != null) {
-				if(isDouble(dataIn)) {
-					modelo.setFs(Double.parseDouble(dataIn));
-					modelo.setSampleRateUnits(vista.getSampleRateUnits());
-					vista.writeConsole("New sample rate is "+modelo.getSamplingRate()+" "+modelo.getSampleRateUnits());
+				if(isDouble(dataIn) && Double.parseDouble(dataIn)>0) {
+					switch(vista.getSampleRateUnits()){
+					case "Hz":
+						modelo.setFs(Math.abs(Double.parseDouble(dataIn)));
+						break;
+					case "kHz":
+						modelo.setFs(Math.abs(Double.parseDouble(dataIn)*1000));
+						break;
+					case "MHz":
+						modelo.setFs(Math.abs(Double.parseDouble(dataIn)*1000000));
+						break;
+					case "GHz":
+						modelo.setFs(Math.abs(Double.parseDouble(dataIn)*1000000000));
+						break;
+					}
+					vista.writeConsole("New sample rate is "+modelo.getSamplingRate()+" Hz");
 				}else {
 					vista.writeConsole("ERROR! Sample rate not saved");
 				}
@@ -1013,7 +1073,7 @@ class barOptions implements Runnable{
 		
 		switch (option) {
 		case InterfaceVista.ConfigTimeRange:
-			dataIn = JOptionPane.showInputDialog("Set time range [ms]");
+			//dataIn = JOptionPane.showInputDialog("Set time range [ms]");
 			if (dataIn != null) {
 				while(!isDouble(dataIn) && !(dataIn == null) || (Double.parseDouble(dataIn)<0)) {
 					dataIn = JOptionPane.showInputDialog(null, "Enter time in milliseconds (double value)", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -1022,8 +1082,8 @@ class barOptions implements Runnable{
 				
 				if(isDouble(dataIn)) {
 					timeRange = Double.parseDouble(dataIn);
-					modelo.setTimeRange(timeRange);
-					modelo.setTimeUnits("ms");
+					//modelo.setTimeRange(timeRange);
+					//modelo.setTimeUnits("ms");
 				}
 			}
 			break;
@@ -1032,8 +1092,8 @@ class barOptions implements Runnable{
 			dataIn = vista.getConfigTimeRange();
 			if (dataIn != null) {
 				if(isDouble(dataIn)) {
-					modelo.setTimeRange(Double.parseDouble(dataIn));
-					modelo.setTimeUnits(vista.getTimeRangeUnits());
+					//modelo.setTimeRange(Double.parseDouble(dataIn));
+					//modelo.setTimeUnits(vista.getTimeRangeUnits());
 					vista.writeConsole("New time range set successfully");
 				}else {
 					vista.writeConsole("ERROR! Time range not saved");

@@ -20,7 +20,7 @@ public class InplaceFFT{
         for(int i=0;i<n1;i++){
         	x[i]=x1[i];
         }
-        System.out.println(x.length);
+        //System.out.println(x.length);
         n = x.length;
         		
         /*if(Integer.highestOneBit(n) != n){
@@ -33,10 +33,6 @@ public class InplaceFFT{
         	x = concatV(x,right);
             
         }*/
-        
-        
-        
-        
         
         	//throw new RuntimeException("n is not a power of 2");
             

@@ -8,7 +8,7 @@ import modelo.*;
 public class Main {
 	public static void main(String args[]) {
 		InterfaceVista vista = new FramePrincipal();
-		InterfaceModelo modelo = new DataBase();
+		InterfaceModelo modelo = new DataBaseHandler();
 		
 		Controlador controlador = new Controlador(modelo,vista);
 		
