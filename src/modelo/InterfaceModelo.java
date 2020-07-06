@@ -23,10 +23,10 @@ public interface InterfaceModelo {
 	 
 	 
 	 void resetData();
-	 void calculateFFT();
+	 void calculateFFT()throws IOException, FileNotFoundException;
 	 void saveData(String file) throws FileNotFoundException, IOException;
 	 void openFile(String file) throws FileNotFoundException, IOException, ClassNotFoundException;
-
+	 void removeFFTfiles();
 	 //byte openFile(byte option);
 	 //byte closeFile();
 	 //String readLine();
@@ -45,7 +45,7 @@ public interface InterfaceModelo {
      double getMaxValue();
      double getMinValue();
      double getRMSvalue();
-     List<ArrayList<Double>> getFFT(String file);
+     double[][] getFFT(String option) throws IOException, FileNotFoundException;
      //double[] getOnlyData();
      
      	final static String fft_module_file = "fft_module.bin";

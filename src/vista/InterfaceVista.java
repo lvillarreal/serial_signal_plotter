@@ -25,7 +25,7 @@ public interface InterfaceVista {
 	
     void setShapesVisible(boolean option);
     void setSignalName(String name);
-    void actualiceChartData(String signal_name,double[][] data);
+    void actualiceChartData(String signal_name,double[][] data,byte option);
     void deleteChartData(String name);
     
     void setButtonEnable(String button,boolean option);	// permite cambiar el texto de los botones
@@ -61,6 +61,9 @@ public interface InterfaceVista {
 	static final byte optionSaveCurrentFile = (byte)3;
 	static final byte optionSaveForMatlab = (byte)4;
 	static final byte optionExportBinary = (byte) 5;
+	
+	final static byte 	fftChart	=	(byte)0;
+	final static byte   dataChart	=	(byte)1;
 	
 	static final byte optionExitWithoutSave = (byte)6;
 	static final byte optionSureExit = (byte)7;

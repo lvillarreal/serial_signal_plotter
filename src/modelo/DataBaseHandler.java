@@ -1,8 +1,10 @@
 package modelo;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -95,76 +97,67 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 	
 	
 	@Override
-	public void calculateFFT() {
+	public void calculateFFT() throws IOException, FileNotFoundException{
+		int N = data_base.getCantMuestras();
+		double[] dato = new double[N];
 		
-		double[] dato = new double[data_base.getCantMuestras()];
-		
-		Complex[] x = new Complex[data_base.getCantMuestras()];
-		Complex[] X = new Complex[data_base.getCantMuestras()];
+		Complex[] x = new Complex[N];
+		Complex[] X = new Complex[N];
 		
 		dato = data_base.getData()[1];
-		for (int i = 0; i < data_base.getCantMuestras(); i++) {
-            //x[i] = new Complex(dato[i], 0);
-			x[i] = new Complex(Math.sin(2*Math.PI*200*i/20000.0),0);
+		for (int i = 0; i < N; i++) {
+            x[i] = new Complex(dato[i], 0);
+			//x[i] = new Complex(Math.sin(2*Math.PI*200*i/20000.0),0);
 		}
 		X = InplaceFFT.fft(x);	
 		saveFFT(X);
 		this.fft_flag = true;
 	}
 
-	
-	private void saveFFT(Complex[] X){
+	@Override
+	public void removeFFTfiles(){
+		File fftModFile = new File(InterfaceModelo.fft_module_file);
+		File fftPhFile = new File(InterfaceModelo.fft_phase_file);
 		
-        FileOutputStream fos = null;
-        DataOutputStream salida = null;
-
-        try {
-        	fos = new FileOutputStream(InterfaceModelo.fft_module_file);
-        	salida = new DataOutputStream(fos);
-            for(int i=0;i<X.length;i++){
-            	salida.writeFloat((float)(X[i].abs()));
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            try {
-                if (fos != null) {
-                    fos.close();
-                }
-                if (salida != null) {
-                    salida.close();
-                }
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
-        }        
-        
-        try {
-        	fos = new FileOutputStream(InterfaceModelo.fft_phase_file);
-        	salida = new DataOutputStream(fos);
-            for(int i=0;i<X.length;i++){
-            	salida.writeFloat((float)X[i].phase());
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            try {
-                if (fos != null) {
-                    fos.close();
-                }
-                if (salida != null) {
-                    salida.close();
-                }
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
-        }        
-        
+		fftModFile.delete();
+		fftPhFile.delete();
 	}
+	
+	private void saveFFT(Complex[] X) throws IOException, FileNotFoundException {
+		FileOutputStream fos_mod = new FileOutputStream(InterfaceModelo.fft_module_file);
+        DataOutputStream salida_mod = new DataOutputStream(fos_mod);
+        
+        double fs = data_base.getSamplingRate();
+        double N = (double)X.length;
+        for(int i=0;i<X.length;i++){
+        	salida_mod.writeFloat((float)(X[i].abs()/N));
+        }
+        
+        
+        if (fos_mod != null) {
+            fos_mod.close();
+        }
+        if (salida_mod != null) {
+            salida_mod.close();
+        }
+        
+        FileOutputStream fos_ph = new FileOutputStream(InterfaceModelo.fft_phase_file);
+        DataOutputStream salida_ph = new DataOutputStream(fos_ph);
+        
+        for(int i=0;i<X.length;i++){
+        	salida_ph.writeFloat((float)(X[i].phase()));
+        }
+        
+        
+        if (fos_ph != null) {
+            fos_ph.close();
+        }
+        if (salida_ph!= null) {
+            salida_ph.close();
+        }
+	}
+	
+
 	
 	@Override
 	public void saveData(String file) throws FileNotFoundException, IOException{
@@ -183,7 +176,36 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 	
 	/******************** METODOS GETTER ********************/
 	
-	
+	@Override
+	public double[][] getFFT(String option) throws IOException, FileNotFoundException{
+		FileInputStream fis = new FileInputStream(option);
+		DataInputStream dis = new DataInputStream(fis);
+		
+		ArrayList<Double> data = new ArrayList<Double>();
+		ArrayList<Double> freq = new ArrayList<Double>();
+		int index = 0;
+		double fs = data_base.getSamplingRate();
+		// se lee el archivo
+		while(dis.available()>0){
+			data.add((double)dis.readFloat());
+		}
+		if(fis != null)	fis.close();
+		if(dis != null) dis.close();
+		
+		double N = (double)data.size();	//cantidad de muestras
+		double[][] fft = new double[2][data.size()];
+		
+		// se genera el vector frecuencia
+		for (int i=(int)(-(data.size())*0.5);i<data.size()*0.5;i++){
+			fft[0][index] = (((double)i)*fs)/N;
+			fft[1][index] = data.get(index).doubleValue();
+			index = index+1;
+		}
+
+		return fft;
+		
+		
+	}
 	
 	@Override
 	public double getSamplingRate() {
@@ -377,50 +399,50 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 		return data_base.getUserText();
 	}
 	
-	@Override
-	public List<ArrayList<Double>> getFFT(String file) {
-		List<ArrayList<Double>> resul = new ArrayList<>();
-		ArrayList<Double> fft = new ArrayList<Double>();
-		ArrayList<Double> f = new ArrayList<Double>();
-		
-		FileInputStream fis = null;
-        DataInputStream entrada = null;  
-        double fs = data_base.getSamplingRate();
-        int N=0;
-        try {
-        	fis = new FileInputStream(file);
-            entrada = new DataInputStream(fis);
-            while (true) {
-            	fft.add(entrada.readDouble());
-            }
-           
-            
-        } catch (EOFException e) {
-            System.out.println("Fin de fichero");
-            // vector frecuencia
-            for(int i=-N/2; i<N/2;i++){
-            	f.add(((double)i)*fs/((double)N));
-            }
-            resul.add(fft);
-            resul.add(f);
-        }catch(FileNotFoundException e){
-        	e.printStackTrace();
-		}catch (IOException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            try {
-                if (fis != null) {
-                    fis.close();
-                }
-                if (entrada != null) {
-                    entrada.close();
-                }
-            } catch (IOException e) {
-                System.out.println(e.getMessage());                                                               
-            }
-        }
-        return resul;
-	}
+//	@Override
+//	public List<ArrayList<Double>> getFFT(String file) {
+//		List<ArrayList<Double>> resul = new ArrayList<>();
+//		ArrayList<Double> fft = new ArrayList<Double>();
+//		ArrayList<Double> f = new ArrayList<Double>();
+//		
+//		FileInputStream fis = null;
+//        DataInputStream entrada = null;  
+//        double fs = data_base.getSamplingRate();
+//        int N=0;
+//        try {
+//        	fis = new FileInputStream(file);
+//            entrada = new DataInputStream(fis);
+//            while (true) {
+//            	fft.add(entrada.readDouble());
+//            }
+//           
+//            
+//        } catch (EOFException e) {
+//            System.out.println("Fin de fichero");
+//            // vector frecuencia
+//            for(int i=-N/2; i<N/2;i++){
+//            	f.add(((double)i)*fs/((double)N));
+//            }
+//            resul.add(fft);
+//            resul.add(f);
+//        }catch(FileNotFoundException e){
+//        	e.printStackTrace();
+//		}catch (IOException e) {
+//            System.out.println(e.getMessage());
+//        } finally {
+//            try {
+//                if (fis != null) {
+//                    fis.close();
+//                }
+//                if (entrada != null) {
+//                    entrada.close();
+//                }
+//            } catch (IOException e) {
+//                System.out.println(e.getMessage());                                                               
+//            }
+//        }
+//        return resul;
+//	}
 	
 }
 

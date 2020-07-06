@@ -68,7 +68,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	
 	/*GRAFICA*/
 	private XYchart grafica;
-	
+	private XYchart graficaFFT;
 	
 	
 	
@@ -167,8 +167,11 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 
 	private JInternalFrame frame_console;
 	private JInternalFrame graph_frame;
+	private JInternalFrame graph_frameFFT;
 	private JInternalFrame frame_text;
 	private JInternalFrame frame_features;
+	
+	
 	
 	// PANELES
 	
@@ -602,6 +605,15 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		c.weightx = 0.0;
 		c.weighty = 0.0;
 		
+		// SECCION GRAFICA FFT
+		setGraphFFT(c,1,0,1,3,1.0,1.0,10);	// frame_graph es un JInternalFrame
+		configChartFFT(graph_frameFFT,this.actualSerie);
+		panel_principal.add(graph_frameFFT,c);
+		
+
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		
 		
 		
 		
@@ -1018,13 +1030,15 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		frame_graph.getContentPane().setLayout(new BorderLayout());
 		grafica = new XYchart();
 		//grafica.createDataset();
-		grafica.startChart(chart_name);
+		grafica.startChart(chart_name,"t[s]");
 
 		frame_graph.getContentPane().add(grafica.getChartPanel());
 
 		//frame_graph.setVisible(true);
 		
 	}
+	
+
 
 	
 	// Configura el JInternalFrame que contendrá la grafica 
@@ -1039,8 +1053,37 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		c.weighty = weighty;
 		c.insets = new Insets(gap,gap,gap,gap);	
 		c.fill = GridBagConstraints.BOTH;
+	
+		//return graph_frame;
+	}
+	
+	// Se configura el grafico y se agrega en el layout
+	private void configChartFFT(JInternalFrame frame_graph,String chart_name) {
 		
+		frame_graph.getContentPane().setLayout(new BorderLayout());
+		graficaFFT = new XYchart();
+		//grafica.createDataset();
+		graficaFFT.startChart(chart_name,"f[Hz]");
+
+		frame_graph.getContentPane().add(graficaFFT.getChartPanel());
+
+     	//frame_graph.setVisible(true);
 		
+	}
+
+	// Configura el JInternalFrame que contendrá la grafica 
+	private void setGraphFFT(GridBagConstraints c,int gridx, int gridy,int gridwidth, int gridheight,double weightx,double weighty, int gap) {
+		graph_frameFFT = new JInternalFrame();
+	    graph_frameFFT.setVisible(false);
+		c.gridx = gridx; 		// El campo de texto empieza en la columna cero.
+		c.gridy = gridy; 		// El campo de texto empieza en la fila cero
+		c.gridwidth = gridwidth; 	// El campo de texto ocupa una columna.
+		c.gridheight = gridheight;   // El campo de texto ocupa una fila.
+		c.weightx = weightx;
+		c.weighty = weighty;
+		c.insets = new Insets(gap,gap,gap,gap);	
+		c.fill = GridBagConstraints.BOTH;
+	
 		//return graph_frame;
 	}
 	
@@ -1147,9 +1190,27 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 	}
 
 	@Override
-	public void actualiceChartData(String signal_name,double[][] data) {
-		grafica.actualiceDataset(signal_name,data);
+	public void actualiceChartData(String signal_name,double[][] data,byte option) {
+		//grafica.actualiceLineChart("fft", "f[Hz]", signal_name);
+		//grafica.startChart(signal_name, "f[Hz]");
+		//graph_frame.getContentPane().add(grafica.getChartPanel());
+		switch(option){
+		case InterfaceVista.fftChart:
+			
+			graficaFFT.actualiceDataset(signal_name,data);
+			
+			this.graph_frameFFT.setVisible(true);
+			this.graph_frame.setVisible(false);
+			break;
+			
+		case InterfaceVista.dataChart:		
+			grafica.actualiceDataset(signal_name,data);
+			
+			this.graph_frame.setVisible(true);
+			this.graph_frameFFT.setVisible(false);
+		}
 		
+		//grafica.removeLegend();
 	}
 
 	@Override 

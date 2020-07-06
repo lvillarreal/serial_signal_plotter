@@ -37,16 +37,17 @@ public class XYchart{
 
 	
 	
-	public void startChart(String chartTitle) {
+	public void startChart(String chartTitle,String domain) {
 		
 		dataset = new DefaultXYDataset();
 		
-		xylineChart = ChartFactory.createXYLineChart(chartTitle, "time [s]", "Signal", dataset,
+		xylineChart = ChartFactory.createXYLineChart(chartTitle, domain, "", dataset,
 				PlotOrientation.VERTICAL, true, true, false);
 		chartPanel = new ChartPanel(xylineChart);
+		chartPanel.setAutoscrolls(true);
 		//chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
 		plot = xylineChart.getXYPlot();
-	
+	    
 		renderer = new XYLineAndShapeRenderer();
 		
 		renderer.setSeriesShapesVisible(0, false);	// quita los puntos
@@ -85,9 +86,34 @@ public class XYchart{
 //	}
 	
 	
+	public void actualiceLineChart(String chartTitle,String domain, String signal_name ){
+		//dataset = new DefaultXYDataset();
+		//xylineChart = ChartFactory.createXYLineChart(title, xAxisLabel, yAxisLabel, dataset)
+		
+		xylineChart = ChartFactory.createXYLineChart(chartTitle, domain, signal_name, dataset,
+				PlotOrientation.VERTICAL, true, true, false);
+		chartPanel = new ChartPanel(xylineChart);
+		//chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
+		plot = xylineChart.getXYPlot();
+	
+		renderer = new XYLineAndShapeRenderer();
+		
+		renderer.setSeriesShapesVisible(0, false);	// quita los puntos
+		renderer.setSeriesPaint(0, Color.BLUE);		
+//		renderer.setSeriesPaint(1, Color.GREEN);
+//		renderer.setSeriesPaint(2, Color.YELLOW);
+		renderer.setSeriesStroke(0, new BasicStroke(1.0f));
+//		renderer.setSeriesStroke(1, new BasicStroke(3.0f));
+//		renderer.setSeriesStroke(2, new BasicStroke(2.0f));
+		plot.setRenderer(renderer);	
+		
+	}
+	
 	public void actualiceDataset(String signal_name, double[][]data) {
 	//	medicion.add(x,y);
-		 dataset.removeSeries(this.actualSerie);
+		 //xylineChart = ChartFactory.createXYLineChart(signal_name, "f[Hz]", "", dataset);
+		
+		dataset.removeSeries(this.actualSerie);
 		 XYToolTipGenerator xyTooltipGenerator  = new XYToolTipGenerator()
 		 {
 		     public String generateToolTip(XYDataset dataset, int series, int item)
@@ -102,17 +128,23 @@ public class XYchart{
 		         return stringBuilder.toString();
 		     }
 		 };
-	
+		 
 		dataset.addSeries(signal_name, data);
+		
 		this.actualSerie = signal_name;
 		renderer.setBaseToolTipGenerator(xyTooltipGenerator);
 
 	}
 	
+	public void removeLegend(){
+		xylineChart.removeLegend();
+	}
 
 	
 	public void actualiceTitle(String title) {
 		xylineChart.setTitle(title);
+		
+		
 	}
 	
 	public void deleteDataset(String name) {

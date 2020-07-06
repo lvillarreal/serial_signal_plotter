@@ -80,10 +80,11 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 //		for(int i=0;i<10;i++){
 //			d.add((double)i/2.0);
 //			t.add((double)i);
+//			System.out.println("List:"+t.get(i).doubleValue());
 //		}
 //		a.add(d);
 //		a.add(t);
-//		System.out.println("List:"+a);
+		
 		
 		this.modelo = modelo;
 		this.vista = vista;
@@ -195,7 +196,9 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			}else if(e.getActionCommand().equals(InterfaceVista.CalculateFFT)){
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.GraphFFTmodule)){
-				//t_barOptions.start();
+				t_barOptions.start();
+			}else if(e.getActionCommand().equals(InterfaceVista.GraphFFTangle)){
+				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigSetBaudRate)){
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.MenuButtonOpenFile)){
@@ -278,7 +281,10 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		// Sale del programa
 		private void exitProgram() {
 			if(serial_comm.getState()) serial_comm.closePort(); //Cierra el puerto si esta abierto
+			
 			vista.exitProgramWarning();
+			
+			
 		}
 		
 		private void startPushed() {
@@ -288,7 +294,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				start_flag = true;
 
 				modelo.resetData();
-
+				modelo.removeFFTfiles();
 				index_buff = 0;
 				serial_comm.sendData((char)2);
 //				index = 0;
@@ -537,7 +543,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		// grafica los datos 
 		private void graphData() {
 			//long time = System.currentTimeMillis();
-			vista.actualiceChartData(modelo.getSignalName(), modelo.getData());
+			vista.actualiceChartData(modelo.getSignalName(), modelo.getData(),InterfaceVista.dataChart);
 			//int index_buff = (modelo.getCantMuestras()+1)*2;
 		/*	double dat = 0;
 			for(int j=0;j<index_buff-1;j=j+2) {
@@ -853,7 +859,12 @@ class barOptions implements Runnable{
 				
 			case InterfaceVista.GraphFFTmodule:
 				//actualiceChartFFT(InterfaceModelo.fileFFTmodule);
+				graphFFT(InterfaceModelo.fft_module_file);
+				break;
 				
+			case InterfaceVista.GraphFFTangle:
+				//actualiceChartFFT(InterfaceModelo.fileFFTmodule);
+				graphFFT(InterfaceModelo.fft_phase_file);
 				break;
 				
 			case InterfaceVista.ConfigSetBaudRate:
@@ -915,24 +926,52 @@ class barOptions implements Runnable{
 	}
 	
 	private void calculateFFT() {
-		vista.writeConsole("FFT proccessing");
-		modelo.calculateFFT();
-		vista.writeConsole("FFT done");
-	/*	switch(status) { 
-		case InterfaceModelo.OpenFileError:
-			vista.writeConsole("ERROR. \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be opened");
-			break;
-			
-		case InterfaceModelo.CreateFileError:
-			vista.writeConsole("ERROR. \""+modelo.getFileName(InterfaceModelo.fileFFTmodule)+"\" cannot be opened");
-			break;
-			
-		case InterfaceModelo.fftCalculateOk:
-			vista.writeConsole("FFT calculated successfully");
+		
+		try {
+			vista.writeConsole("FFT proccessing . . .");
+			modelo.calculateFFT();
+			vista.writeConsole("FFT done!");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			vista.writeConsole("ERROR! THE FILE CANNOT BE CREATED. CHECK PERMITS");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-*/
+		
 	}
 	
+	private void graphFFT(String option){
+		String name = null;
+		try {
+			if(option ==  InterfaceModelo.fft_module_file){
+				name = "FFT module [Adim]";
+			}
+			else{
+				name = "FFT phase [Radians]";
+			}
+			vista.actualiceChartData(name, modelo.getFFT(option),InterfaceVista.fftChart);
+			
+			
+		} catch (FileNotFoundException e) {
+			try {
+				this.calculateFFT();
+				vista.actualiceChartData(name, modelo.getFFT(option),InterfaceVista.fftChart);
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 	
 	
 	/*private void actualiceChartFFT(byte file) {
