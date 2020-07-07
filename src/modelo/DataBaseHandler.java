@@ -46,6 +46,7 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
     private double min_value;
     private double rms_value;
     
+    
 	// Seccion comunicacion serial
 	private String port_name;
 	private String portId;	// para verificar si el puerto esta conectado o no
@@ -74,24 +75,7 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 		this.port_name = null;
 		this.portId = null;
 		this.fft_flag = false;
-		//this.signal_name = "Signal name";
-		//this.fs = 1;
-		//this.Ts = 1/fs;
-		//this.time_range = 1;
-		//this.time_units = "ms";
-		//this.sample_rate_units = "kHz";
-		
-		//this.cant_bits = 18;
-		//this.input_range = 0;	// es +-2.56
-		
-		//this.data = new byte[9600000];
-		//this.date = obtainDate();
-		//this.userText = "";
-		
-		//resetData();
-		//FILE_NAME = "files/DataBase.txt";
-		//fftModule_FILE_NAME = "files/signal_fft_module_noshifted.txt";
-		//fftModule_FILE_NAME_shifted= "files/signal_fft_module.txt";
+	
 		
 	}
 	
@@ -148,10 +132,10 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
         	salida_ph.writeFloat((float)(X[i].phase()));
         }
         
-        
         if (fos_ph != null) {
             fos_ph.close();
         }
+        
         if (salida_ph!= null) {
             salida_ph.close();
         }
@@ -172,6 +156,9 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 		this.data_base = (dataBase)ois.readObject();
 		ois.close();
 	}
+	
+
+
 	
 	
 	/******************** METODOS GETTER ********************/
@@ -311,10 +298,30 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 	}
 	
 
+	@Override
+	public String getUserText() {
+		return data_base.getUserText();
+	}
+
 
 	
 	/******************** METODOS SETTER ********************/
 
+	
+	@Override
+	public void setImportData(String file) throws FileNotFoundException, IOException, Exception{
+		FileInputStream fis = new FileInputStream(file);
+		DataInputStream dis = new DataInputStream(fis);
+		
+		data_base.clearImportedData();	
+		while(dis.available()>0){
+			data_base.setImportedData(dis.readFloat());
+		}
+		if(fis != null)	fis.close();
+		if(dis != null) dis.close();
+		
+		data_base.setImportDataFlag(true);
+	}
 	
 	
 	
@@ -332,8 +339,7 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 	@Override
 	public void setFs(double fs) {
 		data_base.setFs(fs);
-		data_base.setTs(1/fs);
-		
+		data_base.setTs(1/fs);		
 	}
 	
 	@Override
@@ -357,8 +363,7 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 	public void setData(byte MSB, byte LSB, int i) throws Exception{
 		this.fft_flag = false;
 		data_base.setData(MSB, LSB, i);
-		//this.data[i] = MSB;
-		//this.data[i+1] = LSB;
+		data_base.setImportDataFlag(false);
 		
 	}
 	
@@ -394,57 +399,6 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 	}
 
 
-	@Override
-	public String getUserText() {
-		return data_base.getUserText();
-	}
 	
-//	@Override
-//	public List<ArrayList<Double>> getFFT(String file) {
-//		List<ArrayList<Double>> resul = new ArrayList<>();
-//		ArrayList<Double> fft = new ArrayList<Double>();
-//		ArrayList<Double> f = new ArrayList<Double>();
-//		
-//		FileInputStream fis = null;
-//        DataInputStream entrada = null;  
-//        double fs = data_base.getSamplingRate();
-//        int N=0;
-//        try {
-//        	fis = new FileInputStream(file);
-//            entrada = new DataInputStream(fis);
-//            while (true) {
-//            	fft.add(entrada.readDouble());
-//            }
-//           
-//            
-//        } catch (EOFException e) {
-//            System.out.println("Fin de fichero");
-//            // vector frecuencia
-//            for(int i=-N/2; i<N/2;i++){
-//            	f.add(((double)i)*fs/((double)N));
-//            }
-//            resul.add(fft);
-//            resul.add(f);
-//        }catch(FileNotFoundException e){
-//        	e.printStackTrace();
-//		}catch (IOException e) {
-//            System.out.println(e.getMessage());
-//        } finally {
-//            try {
-//                if (fis != null) {
-//                    fis.close();
-//                }
-//                if (entrada != null) {
-//                    entrada.close();
-//                }
-//            } catch (IOException e) {
-//                System.out.println(e.getMessage());                                                               
-//            }
-//        }
-//        return resul;
-//	}
-	
+
 }
-
-
-

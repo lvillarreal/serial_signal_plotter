@@ -46,6 +46,7 @@ public interface InterfaceModelo {
      double getMinValue();
      double getRMSvalue();
      double[][] getFFT(String option) throws IOException, FileNotFoundException;
+     void setImportData(String file) throws FileNotFoundException, IOException, Exception;
      //double[] getOnlyData();
      
      	final static String fft_module_file = "fft_module.bin";

@@ -61,6 +61,7 @@ public interface InterfaceVista {
 	static final byte optionSaveCurrentFile = (byte)3;
 	static final byte optionSaveForMatlab = (byte)4;
 	static final byte optionExportBinary = (byte) 5;
+	static final byte optionImportBinary = (byte) 6;
 	
 	final static byte 	fftChart	=	(byte)0;
 	final static byte   dataChart	=	(byte)1;
@@ -100,8 +101,10 @@ public interface InterfaceVista {
 	static final String ButtonStartEnable = "ButtonStartEnable";	// permite habilitar y deshabilitar el boton start
 	static final String ButtonConnectEnable = "ButtonConnectEnable";	// permite habilitar y deshabilitar el boton connect
 
+	static final String fileImportBinary	= "fileImportBinary"; // importa los datos de un .bin almacenados tipo float
+	
 	static final String FileExportBinary = "FileExportBinary";	// exporta los datos a un .bin
-	static final String FileExportText = "FileExportText";	// exporta el archivo a un .txt
+	//static final String FileExportText = "FileExportText";	// exporta el archivo a un .txt
 	
 	static final String FileGenerateMatlab = "FileGenerateMatlab"; //genera un .m para abrir el archivo binario
 	

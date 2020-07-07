@@ -73,18 +73,6 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	// CONSTRUCTOR
 	public Controlador(InterfaceModelo modelo, InterfaceVista vista) {
 		
-//		List<ArrayList<Double>> a = new ArrayList<>();
-//		ArrayList<Double> d= new ArrayList<Double>();
-//		ArrayList<Double> t= new ArrayList<Double>();
-//		
-//		for(int i=0;i<10;i++){
-//			d.add((double)i/2.0);
-//			t.add((double)i);
-//			System.out.println("List:"+t.get(i).doubleValue());
-//		}
-//		a.add(d);
-//		a.add(t);
-		
 		
 		this.modelo = modelo;
 		this.vista = vista;
@@ -220,6 +208,12 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 						saveAsPushed();
 					}
 				}.start();
+			}else if(e.getActionCommand().equals(InterfaceVista.fileImportBinary)){
+					new Thread() {
+						public void run() {
+							importBinaryPushed();
+						}
+					}.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.FileExportBinary)){
 				new Thread() {
 					public void run() {
@@ -283,8 +277,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 			if(serial_comm.getState()) serial_comm.closePort(); //Cierra el puerto si esta abierto
 			
 			vista.exitProgramWarning();
-			
-			
+	
 		}
 		
 		private void startPushed() {
@@ -308,6 +301,36 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				vista.textUserVisible(user_text_flag);
 				vista.setSaveStatus(false);
 				
+			}
+		}
+		
+		/*
+		 * Se ha presionado el boton Import.
+		 * Funcion que abre el cuadro de dilogo para guardar archivo*/
+		private void importBinaryPushed(){
+			String file_name = vista.fileWindow(InterfaceVista.optionImportBinary);
+			if(file_name != "_CANCEL_") {
+				try {
+					modelo.setImportData(file_name);
+					vista.deleteConsole();
+					vista.writeConsole(file_name + " opened successfully");
+					vista.writeConsole("REMEMBER TO SET THE SAMPLING FREQUENCY TO DISPLAY THE TIME AXIS CORRECTLY");
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					vista.writeConsole("ERROR! File not found");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					vista.writeConsole(e.getMessage());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					vista.writeConsole("ERROR! Data must be float type (32-bit floating point)");
+					e.printStackTrace();
+				}
+				
+				//String[] aux = file_name.split("\\.");
+				//file_name = aux[0]+".bin";
+				
+				//vista.writeConsole("File "+file_name+" saved successfully");
 			}
 		}
 		

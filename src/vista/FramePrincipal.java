@@ -90,10 +90,13 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	private JMenuItem menuItem_file_save;
 	private JMenuItem menuItem_file_saveAs;
 	private JMenuItem menuItem_file_openFile;
-	private JMenu menuItem_file_export;
+	private JMenuItem menuItem_file_export;
+//	private JMenu menuItem_file_export;
 	private JMenu menuItem_file_generate;
 	private JMenuItem menuItem_file_exit;
-	
+		
+		// IMPORT
+		private JMenuItem menuItem_file_import;
 		// EXPORT
 		private JMenuItem menuItem_file_export_binario;
 		
@@ -220,7 +223,15 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	}
 
 	
-	// METODOS
+	
+	
+	
+	
+/***********************  METODOS ***********************/	
+	
+	
+	
+	
 	
 	@Override
 	public void start(String actualSerie) {
@@ -298,14 +309,18 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		menuItem_file_save   = new JMenuItem("Save");
 		menuItem_file_saveAs = new JMenuItem("Save As...");
 		menuItem_file_openFile = new JMenuItem("Open File...");
-		menuItem_file_export = new JMenu("Export...");
+		menuItem_file_import = new JMenuItem("Import...");
+		menuItem_file_export = new JMenuItem("Export...");
+		//menuItem_file_export = new JMenu("Export...");
 		menuItem_file_generate = new JMenu("Generate");
 		menuItem_file_exit   = new JMenuItem("Exit");
 		
-		
+			//IMPORT
+			this.menuItem_file_import.setToolTipText("Importa los datos de un archivo binario \".bin\"");
 			// Export
-			this.menuItem_file_export_binario = new JMenuItem("Binary file (.bin)");
-			this.menuItem_file_export_binario.setToolTipText("Exporta las mediciones en formato single (punto flotante 32 bits), en un archivo .bin");
+			
+			//this.menuItem_file_export_binario = new JMenuItem("Binary file (.bin)");
+			//this.menuItem_file_export_binario.setToolTipText("Exporta las mediciones en formato single (punto flotante 32 bits), en un archivo .bin");
 		
 			//GENERATE
 			this.menuItem_file_generate_matlab = new JMenuItem("Matlab file (.m)");
@@ -318,7 +333,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		//menuItem_view_math  = new JMenuItem("Math");
 		menuItem_view_SerialPorts = new JMenuItem("Serial Ports");
 				 
-				//Items de Graph
+				// Items de Graph
 				menuItem_view_graph_getRangeTime = new JMenuItem("Show time range");
 				this.menuItem_view_graph_getRangeTime.setToolTipText("Muestra en consola la duración actual de la medición. Valor por defecto: 1 ms.");
 				menuItem_view_graph_Fs = new JMenuItem("Show sample rate");
@@ -328,10 +343,11 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			
 			// Items de Math
 				menuItem_math_fft = new JMenu("FFT");
-				menuItem_math_fft.setToolTipText("Calcula la fft de la señal muestreada. Guarda el resultado en \"files/signal_fft.txt\". Grafica el resultado. ");
+				
 				
 				// Items de FFT
 				this.menuItem_math_fft_calculate = new JMenuItem("Calculate");
+				this.menuItem_math_fft_calculate.setToolTipText("Calcula la fft de la señal muestreada. Guarda el módulo y fase en \"fft_module.bin\" y \"fft_phase.bin\" respectivamente. En formato float (32 bits).");
 				this.menuItem_math_fft_graph = new JMenu("Graph");
 				
 					// Items de graph
@@ -386,6 +402,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		menu_file.addSeparator();
 		menu_file.add(menuItem_file_saveAs);
 		menu_file.addSeparator();
+		menu_file.add(this.menuItem_file_import);
 		menu_file.add(menuItem_file_export);
 		menu_file.addSeparator();
 		menu_file.add(menuItem_file_generate);
@@ -394,7 +411,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 //		menu_file.addSeparator();
 			
 			// EXPORT
-				menuItem_file_export.add(menuItem_file_export_binario);
+				//menuItem_file_export.add(menuItem_file_export_binario);
 
 			//GENERATE
 				menuItem_file_generate.add(menuItem_file_generate_matlab);
@@ -465,8 +482,8 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			this.menuItem_window_userText.setAccelerator(KeyStroke.getKeyStroke("control N"));
 			this.menuItem_window_features.setAccelerator(KeyStroke.getKeyStroke("control F"));
 			this.menuItem_view_SerialPorts.setAccelerator(KeyStroke.getKeyStroke("control P"));
-		
-		
+			this.menuItem_file_export.setAccelerator(KeyStroke.getKeyStroke("control E"));
+			this.menuItem_file_import.setAccelerator(KeyStroke.getKeyStroke("control I"));
 		
 		// CONFIGURACION DE OPCIONES
 		// FILE
@@ -475,8 +492,11 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		menuItem_file_openFile.setActionCommand(InterfaceVista.MenuButtonOpenFile);
 		this.menuItem_file_saveAs.setActionCommand(InterfaceVista.MenuSaveAs);
 		
+		//IMPORT
+		this.menuItem_file_import.setActionCommand(InterfaceVista.fileImportBinary);
 		//EXPORT
-		this.menuItem_file_export_binario.setActionCommand(InterfaceVista.FileExportBinary);
+		this.menuItem_file_export.setActionCommand(InterfaceVista.FileExportBinary);
+		//this.menuItem_file_export_binario.setActionCommand(InterfaceVista.FileExportBinary);
 		//GENERATE
 		this.menuItem_file_generate_matlab.setActionCommand(InterfaceVista.FileGenerateMatlab);
 		
@@ -892,7 +912,6 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 	
 	
 	
-	// METODOS DE INTERFACE VISTA
 	
 	@Override
 	public void setControlador(Controlador c) {
@@ -908,8 +927,11 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 			this.menuItem_file_openFile.addActionListener(c);
 			//SAVE AS
 			this.menuItem_file_saveAs.addActionListener(c);
+			//IMPORT
+			this.menuItem_file_import.addActionListener(c);
 			//EXPORT
-			this.menuItem_file_export_binario.addActionListener(c);
+			this.menuItem_file_export.addActionListener(c);
+			//this.menuItem_file_export_binario.addActionListener(c);
 			//GENERATE
 			this.menuItem_file_generate_matlab.addActionListener(c);
 			
@@ -1095,8 +1117,9 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		 try {
 			 JFileChooser file=new JFileChooser();
 		     FileNameExtensionFilter filterSP = new FileNameExtensionFilter("SignalPlotter file (.dat)", "dat");
-		     
-		     
+		     FileNameExtensionFilter filterBinary = new FileNameExtensionFilter("Binary file (.bin)", "bin");
+		     FileNameExtensionFilter filterMatlab = new FileNameExtensionFilter("Matlab file (.m)", "m");
+
 			 switch(option) {
 			 	case InterfaceVista.optionSaveFile: 
 					 file.setAcceptAllFileFilterUsed(false);
@@ -1111,18 +1134,22 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 			 		 break;
 			 	
 			 	case InterfaceVista.optionExportBinary:
-				     FileNameExtensionFilter filterBinary = new FileNameExtensionFilter("Binary file (.bin)", "bin");
 					 file.setAcceptAllFileFilterUsed(false);
 				     file.addChoosableFileFilter(filterBinary);
 			 		 if(file.showSaveDialog(this) == file.CANCEL_OPTION) return "_CANCEL_";
 					 break;
 					 
 			 	case InterfaceVista.optionSaveForMatlab:
-				     FileNameExtensionFilter filterMatlab = new FileNameExtensionFilter("Matlab file (.m)", "m");
 					 file.setAcceptAllFileFilterUsed(false);
 				     file.addChoosableFileFilter(filterMatlab);
 			 		 if(file.showSaveDialog(this) == file.CANCEL_OPTION) return "_CANCEL_";
 					 break;
+					 
+			 	case InterfaceVista.optionImportBinary:
+					 file.setAcceptAllFileFilterUsed(false);
+				     file.addChoosableFileFilter(filterBinary);
+			 		 if(file.showOpenDialog(this) == file.CANCEL_OPTION) return "_CANCEL_";
+			 		 break;
 			 		 
 			 }
 			 status = file.getSelectedFile().toString();

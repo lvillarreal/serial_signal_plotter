@@ -114,6 +114,7 @@ public class XYchart{
 		 //xylineChart = ChartFactory.createXYLineChart(signal_name, "f[Hz]", "", dataset);
 		
 		dataset.removeSeries(this.actualSerie);
+		
 		 XYToolTipGenerator xyTooltipGenerator  = new XYToolTipGenerator()
 		 {
 		     public String generateToolTip(XYDataset dataset, int series, int item)
