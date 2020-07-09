@@ -765,7 +765,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}	// guarda el objeto modelo, que contiene toda la informacion de la grafica
-					modelo.calculateAllFeatures(); // calcula las caracteristicas de la señal
+					//modelo.calculateAllFeatures(); // calcula las caracteristicas de la señal
 				}
 			
 				start_flag = false;
@@ -924,7 +924,7 @@ class barOptions implements Runnable{
 				}
 					showAllFeatures();
 					vista.featuresVisible(controlador.getFeaturesFlag());
-					
+					if(controlador.getFeaturesFlag()) System.out.println("TRUE");
 				
 				
 				
@@ -938,16 +938,16 @@ class barOptions implements Runnable{
 	
 	
 	private void showAllFeatures() {
-		
+		modelo.calculateAllFeatures();
 		vista.setFeatures("Signal : "+ modelo.getSignalName()+
 						  "\nSamples: "+ modelo.getCantMuestras()+
 						  "\n\n>> CC value: "+modelo.getCCvalue()+
 						  "\n>> Max value: "+modelo.getMaxValue()+
 						  "\n>> Min value: "+modelo.getMinValue()+
-						  "\n>> Peak-to-peak value: "+(modelo.getMaxValue()-modelo.getMinValue())+
-						  "\n>> RMS value: "+modelo.getRMSvalue());
+						  "\n>> Peak-to-peak value: "+(modelo.getMaxValue()-modelo.getMinValue()));
 	}
-	
+    
+
 	private void calculateFFT() {
 		
 		try {

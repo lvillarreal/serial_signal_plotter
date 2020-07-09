@@ -90,13 +90,13 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	private JMenuItem menuItem_file_save;
 	private JMenuItem menuItem_file_saveAs;
 	private JMenuItem menuItem_file_openFile;
+	private JMenuItem menuItem_file_import;
 	private JMenuItem menuItem_file_export;
 //	private JMenu menuItem_file_export;
 	private JMenu menuItem_file_generate;
 	private JMenuItem menuItem_file_exit;
 		
-		// IMPORT
-		private JMenuItem menuItem_file_import;
+		
 		// EXPORT
 		private JMenuItem menuItem_file_export_binario;
 		
@@ -106,12 +106,12 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	//Items de view
 	private JMenu menuItem_view_graph;
 	//private JMenuItem menuItem_view_math;
-
 	private JMenuItem menuItem_view_SerialPorts;
 	
 		// Graph
-		private JMenuItem menuItem_view_graph_getRangeTime;
+		//private JMenuItem menuItem_view_graph_getRangeTime;
 		private JMenuItem menuItem_view_graph_Fs;	// frecuencia de muestreo
+		//private JMenuItem menuItem_view_SampleQuantity
 		private JMenuItem menuItem_view_graph_graphData;	// graficar datos obtenidos
 		
 	
@@ -334,8 +334,8 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		menuItem_view_SerialPorts = new JMenuItem("Serial Ports");
 				 
 				// Items de Graph
-				menuItem_view_graph_getRangeTime = new JMenuItem("Show time range");
-				this.menuItem_view_graph_getRangeTime.setToolTipText("Muestra en consola la duración actual de la medición. Valor por defecto: 1 ms.");
+				//menuItem_view_graph_getRangeTime = new JMenuItem("Show time range");
+				//this.menuItem_view_graph_getRangeTime.setToolTipText("Muestra en consola la duración actual de la medición. Valor por defecto: 1 ms.");
 				menuItem_view_graph_Fs = new JMenuItem("Show sample rate");
 				this.menuItem_view_graph_Fs.setToolTipText("Muestra en consola la frecuencia de muestreo actual. Valor por defecto: 1 kHz.");
 			    this.menuItem_view_graph_graphData = new JMenuItem("Graph data");
@@ -355,8 +355,6 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 					this.menuItem_math_fft_graph_module = new JMenuItem("Module");
 
 					
-				
-				
 				
 			// Items de Config
 				this.menuItem_config_graph = new JMenu("Graph");
@@ -424,7 +422,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		menu_view.add(menuItem_view_SerialPorts);
 				
 					// graph
-					menuItem_view_graph.add(menuItem_view_graph_getRangeTime);
+					//menuItem_view_graph.add(menuItem_view_graph_getRangeTime);
 					menuItem_view_graph.add(menuItem_view_graph_Fs);	
 					menuItem_view_graph.add(this.menuItem_view_graph_graphData);	
 
@@ -503,7 +501,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		//VIEW
 		menuItem_view_SerialPorts.setActionCommand(InterfaceVista.ListSerialPorts);
 		this.menuItem_view_graph_Fs.setActionCommand(InterfaceVista.GetSamplingRate);
-		this.menuItem_view_graph_getRangeTime.setActionCommand(InterfaceVista.GetTimeRange);
+		//this.menuItem_view_graph_getRangeTime.setActionCommand(InterfaceVista.GetTimeRange);
 		this.menuItem_view_graph_graphData.setActionCommand(InterfaceVista.ViewGraphData);
 			
 			
@@ -938,7 +936,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 			// view section
 		menuItem_view_SerialPorts.addActionListener(c);
 		this.menuItem_view_graph_Fs.addActionListener(c);
-		this.menuItem_view_graph_getRangeTime.addActionListener(c);
+		//this.menuItem_view_graph_getRangeTime.addActionListener(c);
 		this.menuItem_view_graph_graphData.addActionListener(c);
 		// Math section
 		this.menuItem_math_fft_calculate.addActionListener(c);

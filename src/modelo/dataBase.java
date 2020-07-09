@@ -19,6 +19,11 @@ public class dataBase implements Serializable{
 	private String date;		// fecha y hora
     private String userText;	// texto que ingrese el usuario en notas
 
+    private double cc_value;	// valor de continua de la señal
+    private double max_value;
+    private double min_value;
+    private double rms_value;
+    
     private boolean import_flag;	//verdadero si el dato almacenado es un dato importado
     private ArrayList<Float> imported_data; 
     
@@ -28,13 +33,24 @@ public class dataBase implements Serializable{
     	setCantBits(18);
     	setCantMuestras(0);
     	setFs(1);
-    	this.setInputRange(0);    	
+    	this.setInputRange(0);  
+    	this.setCCvalue(0);
+    	this.setMaxvalue(0);
+    	this.setRMSvalue(0);
+    	this.setMinvalue(0);
     }
 	
-	
+
 	/******************** METODOS GETTER ********************/
     
 		
+    public byte getDataStatus(){
+    	if(this.import_flag) return (byte)1;
+    	else return (byte)-1;
+    		
+    	
+    }
+    
 	public double getSamplingRate() {
 		return this.fs;
 	}
@@ -73,14 +89,14 @@ public class dataBase implements Serializable{
 			output = new double[2][this.imported_data.size()];
 			for(int i=0;i<this.imported_data.size();i++){
 				output[0][i] = (((double)i)*this.Ts);
-				output[1][i] = imported_data.get(i).floatValue();
+				output[1][i] = (double)(imported_data.get(i).floatValue());
 			}
 		}else{
 			output = new double[2][this.cant_muestras];
 			for(int i=0;i<cant_muestras*2;i=i+2) {
 				output[0][i/2] = (((double)i)*this.Ts)/(2.0);
 				//output[1][i/2] = ((double)((data[i]*256+data[i+1])*8))*Math.pow(2, -14);
-				output[1][i/2] = ((((double)((this.data[i]&0xFF)*256+(this.data[i+1]&0xFF)))*escalar)*((2*this.input_range)/(262144.0)))-this.input_range;
+				output[1][i/2] = ((((double)((this.data[i]&0xFF)*256+(this.data[i+1]&0xFF)))*escalar)*((2*this.input_range)/(262144.0)))-this.input_range-this.cc_value;
 				//output[1][i/2] = Math.sin(2*Math.PI*200*output[0][i/2]);
 				//output[0][i/2] = i/2;
 				//output[1][i/2] = ((double)(this.data[i]&0xFF)*256+(this.data[i+1]&0xFF))*escalar;
@@ -105,8 +121,21 @@ public class dataBase implements Serializable{
 		return this.userText;
 	}
 	
+	public double getCCvalue(){
+		return this.cc_value;
+	}
 	
+	public double getMaxvalue(){
+		return this.max_value;
+	}
 	
+	public double getMinvalue(){
+		return this.min_value;
+	}
+	
+	public double getRMSvalue(){
+		return this.rms_value;
+	}
 	
 	
 	/******************** METODOS SETTER ********************/
@@ -180,12 +209,27 @@ public class dataBase implements Serializable{
 	
 	public void setDate(String date) {
 		this.date = date;
-	}
-	
-	
+	}	
 	
 	public void setUserText(String text) {
 		this.userText = text;
+	}
+	
+	public void setCCvalue(double data){
+		this.cc_value = data;
+	}
+    
+	public void setMaxvalue(double data){
+		this.max_value = data;
+	}
+	
+	
+	public void setMinvalue(double data){
+		this.min_value = data;
+	}
+	
+	public void setRMSvalue(double data){
+		this.rms_value = data;
 	}
 
 

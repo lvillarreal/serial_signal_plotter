@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -41,10 +42,7 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 //	private String date;		// fecha y hora
 //    private String userText;	// texto que ingrese el usuario en notas
 	
-    private double cc_value;	// valor de continua de la señal
-    private double max_value;
-    private double min_value;
-    private double rms_value;
+
     
     
 	// Seccion comunicacion serial
@@ -222,47 +220,58 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 		return data_base.getInputRange();
 	}
 	
-	private void calculateCCvalue() {
-		double[] data = new double[data_base.getCantMuestras()];
-		data = data_base.getData()[1];
-		this.cc_value = 0.0;
+	private void calculateCCvalue(double[] data) {
+		double cc_value = 0.0;
 		for(int i=0;i<data_base.getCantMuestras();i++) {
 			cc_value += data[i];
 		}
 		cc_value = cc_value/data_base.getCantMuestras();
+		data_base.setCCvalue(cc_value);
 	}
 	
 	
-	public void calculateMaxMinValue() {
-		double[] data = new double[data_base.getCantMuestras()];
-		data = data_base.getData()[1];
+	private void calculateMaxMinValue(double[] data) {
 		
-		this.max_value = data[0];
+		
+		double max_value = data[0];
 		//this.max_value = ((((double)((this.data[0]&0xFF)*256+(this.data[1]&0xFF)))*4)*((2*this.input_range)/(262144.0)))-this.input_range;
-		this.min_value = max_value;
+		double min_value = max_value;
 		
 		for(int i=1;i<data_base.getCantMuestras();i++) {
 			if(data[i] > max_value) max_value = data[i];
 			if(data[i] < min_value) min_value = data[i];
 		}
+		
+		data_base.setMaxvalue(max_value);
+		data_base.setMinvalue(min_value);
 	}
 
-	public void calculateRMSvalue() {
-		this.rms_value = 0;
-//		rms_value = 0;
-//		for(int i=0;i<cant_muestras*2;i=i+2) {
-//			rms_value += Math.pow(((((double)((this.data[i]&0xFF)*256+(this.data[i+1]&0xFF)))*4)*((2*this.input_range)/(262144.0)))-this.input_range,2);
-//		}
-//		rms_value = rms_value/cant_muestras;
-//		rms_value = Math.sqrt(rms_value);
+	private void calculateRMSvalue(double[] data) {
+		double rms_value = 0;
+		for(int i=0;i<data.length;i=i++) {
+			rms_value += Math.pow(data[i],2);
+		}
+		rms_value = rms_value/data.length;
+		rms_value = Math.sqrt(rms_value);
+		data_base.setRMSvalue(rms_value);
 	}
 	
+	
+	/* Calcula CC, Max, Min, RMS
+	 * (non-Javadoc)
+	 * @see modelo.InterfaceModelo#calculateAllFeatures()
+	 */
 	@Override
 	public void calculateAllFeatures() {
-		calculateMaxMinValue();
-		calculateCCvalue();
-		calculateRMSvalue();
+		double[] data = data_base.getData()[1];
+		
+		this.calculateCCvalue(data);
+		this.calculateMaxMinValue(data);
+		//this.calculateRMSvalue(data);
 	}
+		
+	
+	
 	
 	
 	
@@ -277,24 +286,25 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 		return data_base.getCantMuestras();
 	}
 	
+	
 	@Override
 	public double getCCvalue() {
-		return this.cc_value;
+		return data_base.getCCvalue();
 	}
 	
 	@Override
 	public double getMaxValue() {
-		return this.max_value;
+		return data_base.getMaxvalue();
 	}
 	
 	@Override
 	public double getMinValue() {
-		return this.min_value;
+		return data_base.getMinvalue();
 	}
 	
 	@Override
 	public double getRMSvalue() {
-		return this.rms_value;
+		return data_base.getRMSvalue();
 	}
 	
 
@@ -312,15 +322,17 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 	public void setImportData(String file) throws FileNotFoundException, IOException, Exception{
 		FileInputStream fis = new FileInputStream(file);
 		DataInputStream dis = new DataInputStream(fis);
-		
+		int cant = 0;
 		data_base.clearImportedData();	
 		while(dis.available()>0){
 			data_base.setImportedData(dis.readFloat());
+			cant++;
 		}
 		if(fis != null)	fis.close();
 		if(dis != null) dis.close();
 		
 		data_base.setImportDataFlag(true);
+		data_base.setCantMuestras(cant);
 	}
 	
 	
