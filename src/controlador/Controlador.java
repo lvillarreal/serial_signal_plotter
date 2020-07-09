@@ -565,15 +565,8 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		// grafica los datos 
 		private void graphData() {
-			//long time = System.currentTimeMillis();
 			vista.actualiceChartData(modelo.getSignalName(), modelo.getData(),InterfaceVista.dataChart);
-			//int index_buff = (modelo.getCantMuestras()+1)*2;
-		/*	double dat = 0;
-			for(int j=0;j<index_buff-1;j=j+2) {
-				dat = modelo.getData(j);
-				vista.actualiceChartData(j/2, dat);
-			}*/	
-			//vista.writeConsole(""+(System.currentTimeMillis()-time));
+
 		}
 		
 		
@@ -658,66 +651,6 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		}
 		
 		
-		// metodo para graficar desde un archivo de texto
-/*		 private void actualiceChartFromFile() {
-				
-				byte status;
-				String line = null;
-				int index = 0;
-
-				
-				double fs = modelo.getSamplingRate();
-
-				// Se abre el archivo
-				status = modelo.openFile(InterfaceModelo.fileData);
-				
-				if (status == InterfaceModelo.OpenFileSuccessfully) {	// si se abre satisfactoriamente
-					vista.writeConsole("File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" opened successfully");
-					
-					// inhabilita el boton de start
-				    vista.setButtonEnable(InterfaceVista.ButtonStartEnable, false);
-				    
-					// Se lee la frecuencia de muestreo que el sistema esta utilizando
-					fs = Double.parseDouble(modelo.readLine());
-					vista.writeConsole("Sample rate: "+fs + " [Hz]");
-					
-					modelo.setFs(fs); // Se guarda la frecuencia de muestreo
-					modelo.setSampleRateUnits("Hz");
-					
-					// Se borran los datos actuales del grafico
-					vista.deleteChartData(modelo.getSignalName());
-					
-					// Se leen los datos  del archivo
-					
-					line = modelo.readLine();
-					//vista.writeConsole(line);
-			
-					while (line != null) {
-	//					vista.actualiceChartData(((double )index)/fs, Double.parseDouble(line));
-						index =index + 1;
-						line = modelo.readLine();
-						//vista.writeConsole(String.valueOf(((double )index)/fs)+" ; "+line );
-					}
-					
-					// Se cierra el archivo
-					status = modelo.closeFile();
-					
-					if(status == InterfaceModelo.closeFileSuccessfully) {	// si el archivo se cierra correctamente
-						vista.writeConsole("File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" closed successfully" );
-						
-						// se habilita el boton start
-						vista.setButtonEnable(InterfaceVista.ButtonStartEnable, true);
-					}else if(status == InterfaceModelo.CloseFileError) {	
-						vista.writeConsole("ERROR. File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be closed" );
-					}
-				}else {	// el archivo no se abrio correctamente
-					vista.writeConsole("ERROR. File \""+modelo.getFileName(InterfaceModelo.fileData)+"\" cannot be opened" );
-					
-				}
-				
-		}
-				
-	*/	
 		
 		private byte buttonConnect() {
 			vista.deleteChartData(modelo.getSignalName());

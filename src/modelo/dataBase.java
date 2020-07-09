@@ -96,7 +96,7 @@ public class dataBase implements Serializable{
 			for(int i=0;i<cant_muestras*2;i=i+2) {
 				output[0][i/2] = (((double)i)*this.Ts)/(2.0);
 				//output[1][i/2] = ((double)((data[i]*256+data[i+1])*8))*Math.pow(2, -14);
-				output[1][i/2] = ((((double)((this.data[i]&0xFF)*256+(this.data[i+1]&0xFF)))*escalar)*((2*this.input_range)/(262144.0)))-this.input_range-this.cc_value;
+				output[1][i/2] = ((((double)((this.data[i]&0xFF)*256+(this.data[i+1]&0xFF)))*escalar)*((2*this.input_range)/(262144.0)))-this.input_range;
 				//output[1][i/2] = Math.sin(2*Math.PI*200*output[0][i/2]);
 				//output[0][i/2] = i/2;
 				//output[1][i/2] = ((double)(this.data[i]&0xFF)*256+(this.data[i+1]&0xFF))*escalar;
