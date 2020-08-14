@@ -65,6 +65,7 @@ public interface InterfaceVista {
 	
 	final static byte 	fftChart	=	(byte)0;
 	final static byte   dataChart	=	(byte)1;
+	final static byte	firstDiffChart = (byte)2;
 	
 	static final byte optionExitWithoutSave = (byte)6;
 	static final byte optionSureExit = (byte)7;
@@ -84,6 +85,8 @@ public interface InterfaceVista {
 	static final String GraphFFTangle = "GraphFFTangle";
 	static final String CalculateFFT = "CalculateFFT";					// Calcula la FFT
 
+	static final String GraphFirsDiff = "GraphFirsDiff";
+	static final String CalculateFirstDiff = "CalculateFirstDiff";
 	
 	static final String ConfigGraph = "ConfigGraph";					// Configurar Grafico
 	static final String ConfigGraphAddTime = "ConfigGraphAddTime";

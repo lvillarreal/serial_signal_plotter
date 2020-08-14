@@ -24,6 +24,7 @@ public interface InterfaceModelo {
 	 
 	 void resetData();
 	 void calculateFFT()throws IOException, FileNotFoundException;
+	 void calculateFirstDIFF()throws IOException, FileNotFoundException;
 	 void saveData(String file) throws FileNotFoundException, IOException;
 	 void openFile(String file) throws FileNotFoundException, IOException, ClassNotFoundException;
 	 void removeFFTfiles();
@@ -45,12 +46,14 @@ public interface InterfaceModelo {
      double getMaxValue();
      double getMinValue();
      double getRMSvalue();
-     double[][] getFFT(String option) throws IOException, FileNotFoundException;
+     double[][] getMathData(String option) throws IOException, FileNotFoundException;
      void setImportData(String file) throws FileNotFoundException, IOException, Exception;
      //double[] getOnlyData();
      
      	final static String fft_module_file = "fft_module.bin";
      	final static String fft_phase_file = "fft_phase.bin";
+     	final static String firstDiffFile = "first_diff.bin";
+     	
      	final static byte 	fft_module	=	(byte)0;
      	final static byte 	fft_phase	=	(byte)1;
      	

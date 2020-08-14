@@ -66,10 +66,13 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	/*FFT*/
 	private JFrame frameFFT;
 	
+	/*DIFF*/
+	private JFrame frameDIFF;
+	
 	/*GRAFICA*/
 	private XYchart grafica;
 	private XYchart graficaFFT;
-	
+	private XYchart graficaDIFF;
 	
 	
 	/* OBJETOS RELACIONADOS AL MENU */
@@ -119,6 +122,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		
 	// Items de Math
 		private JMenu menuItem_math_fft;
+		private JMenu menu_math_first_diff;
 		
 		// Items de FFT
 			private JMenuItem menuItem_math_fft_calculate;
@@ -128,7 +132,11 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 				private JMenuItem menuItem_math_fft_graph_module;
 				private JMenuItem menuItem_math_fft_graph_angle;
 
-			
+		// Item de First Diff
+			private JMenuItem menuItem_math_fdiff_calculate;
+			private JMenuItem menuItem_math_fdiff_graph;
+				
+				
 	// Items de Config
 		
 	private JMenu menuItem_config_graph;
@@ -346,7 +354,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			
 			// Items de Math
 				menuItem_math_fft = new JMenu("FFT");
-				
+				this.menu_math_first_diff = new JMenu("First Difference");
 				
 				// Items de FFT
 				this.menuItem_math_fft_calculate = new JMenuItem("Calculate");
@@ -356,7 +364,12 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 					// Items de graph
 					this.menuItem_math_fft_graph_angle = new JMenuItem("Angle");
 					this.menuItem_math_fft_graph_module = new JMenuItem("Module");
-
+				
+				// ITEMS DE FIRST DIFFERENCE
+				this.menuItem_math_fdiff_calculate = new JMenuItem("Calculate");	
+				this.menuItem_math_fdiff_calculate.setToolTipText("Calcula la primer diferencia de la señal (análogo discreto a la primer derivada)");
+				this.menuItem_math_fdiff_graph = new JMenuItem("Graph");
+				this.menuItem_math_fdiff_graph.setToolTipText("Grafica la primer diferencia de la señal");
 					
 				
 			// Items de Config
@@ -433,14 +446,21 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			
 			// Math
 			menu_math.add(menuItem_math_fft);
-			menu_math.addSeparator();		
+			menu_math.addSeparator();
+			menu_math.add(this.menu_math_first_diff);
 			
+			// FFT
 				menuItem_math_fft.add(this.menuItem_math_fft_calculate);
 				menuItem_math_fft.add(this.menuItem_math_fft_graph);
 			
 				this.menuItem_math_fft_graph.add(this.menuItem_math_fft_graph_module);
 				this.menuItem_math_fft_graph.add(this.menuItem_math_fft_graph_angle);
 			
+			// FIRST DIFF
+				this.menu_math_first_diff.add(this.menuItem_math_fdiff_calculate);
+				this.menu_math_first_diff.add(this.menuItem_math_fdiff_graph);
+				
+				
 			// Config.
 		menu_config.add(this.menuItem_config_graph);
 		menu_config.addSeparator();
@@ -513,6 +533,9 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		this.menuItem_math_fft_graph_module.setActionCommand(InterfaceVista.GraphFFTmodule);
 		this.menuItem_math_fft_graph_angle.setActionCommand(InterfaceVista.GraphFFTangle);
 
+		this.menuItem_math_fdiff_calculate.setActionCommand(InterfaceVista.CalculateFirstDiff);
+		this.menuItem_math_fdiff_graph.setActionCommand(InterfaceVista.GraphFirsDiff);
+		
 		// CONFIG
 		    
 			// GRAPH
@@ -639,7 +662,15 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		c.weightx = 0.0;
 		c.weighty = 0.0;
 		
+		// SECCION GRAFICA PRIMER DIFERENCIA
+		//setGraphFFT(c,1,0,1,3,1.0,1.0,10);	// frame_graph es un JInternalFrame
+		setGraphDIFF();
+		//configChartFFT(graph_frameFFT,this.actualSerie);
+		//panel_principal.add(graph_frameFFT,c);
 		
+
+		c.weightx = 0.0;
+		c.weighty = 0.0;
 		
 		
 		// SECCION TEXTO DE USUARIO
@@ -949,6 +980,9 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		this.menuItem_math_fft_calculate.addActionListener(c);
 		this.menuItem_math_fft_graph_module.addActionListener(c);
 		this.menuItem_math_fft_graph_angle.addActionListener(c);
+		
+		this.menuItem_math_fdiff_calculate.addActionListener(c);
+		this.menuItem_math_fdiff_graph.addActionListener(c);
 		// Config section
 			
 			//CONFIG GRAPH
@@ -1084,6 +1118,48 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		//return graph_frame;
 	}
 	
+	// Se configura el grafico y se agrega en el layout
+		private void configChartDIFF(JInternalFrame frame_graph,String chart_name) {
+			
+			frame_graph.getContentPane().setLayout(new BorderLayout());
+			graficaDIFF = new XYchart();
+			//grafica.createDataset();
+			graficaDIFF.startChart(chart_name,"t[s]");
+
+			frame_graph.getContentPane().add(graficaDIFF.getChartPanel());
+
+	     	//frame_graph.setVisible(true);
+			
+		}
+	
+		private void setGraphDIFF() {
+		    frameDIFF = new JFrame();
+		    frameDIFF.setVisible(false);
+			JPanel panel_p = new JPanel();
+			panel_p.setLayout(new FlowLayout());
+			
+		    Toolkit mi_pantalla = Toolkit.getDefaultToolkit();	//en mi_pantalla (variable objeto) guardamos el sistema nativo de ventanas
+		    Dimension dim = mi_pantalla.getScreenSize();
+					
+				
+		    frameDIFF.getContentPane().setLayout(new FlowLayout());
+			
+			//setConfigGraphObjects(panel_p);
+			graficaDIFF = new XYchart();
+			//grafica.createDataset();
+			graficaDIFF.startChart("Signal's First Difference","t[s]");
+
+			frameDIFF.getContentPane().add(graficaDIFF.getChartPanel());
+		    frameDIFF.getContentPane().add(panel_p);
+		
+			frameDIFF.setSize((int)(((double)dim.width)/1.8),(int)(((double)dim.height)/1.6));
+			frameDIFF.setLocation((int)(((double)dim.width)/5),(int)(((double)dim.height)/7));
+			frameDIFF.setTitle("1º Difference");
+			frameDIFF.setResizable(true);
+			
+	}
+	
+		
 	// Se configura el grafico y se agrega en el layout
 	private void configChartFFT(JInternalFrame frame_graph,String chart_name) {
 		
@@ -1255,6 +1331,12 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		//grafica.startChart(signal_name, "f[Hz]");
 		//graph_frame.getContentPane().add(grafica.getChartPanel());
 		switch(option){
+		case InterfaceVista.firstDiffChart:
+			
+			frameDIFF.setVisible(true);
+			graficaDIFF.actualiceDataset(signal_name, data);
+			break;
+		
 		case InterfaceVista.fftChart:
 			
 			frameFFT.setVisible(true);

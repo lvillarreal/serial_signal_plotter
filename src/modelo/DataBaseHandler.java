@@ -50,7 +50,7 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 	private String portId;	// para verificar si el puerto esta conectado o no
 
 	private boolean fft_flag;	// verdadero si fft esta calculada para el dato actual
-	
+	private boolean fdiff_flag;	// verdadero si fdiff esta calculada para el dato actual
 	
 	// Seccion archivos
 //	private static String FILE_NAME;
@@ -73,10 +73,29 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 		this.port_name = null;
 		this.portId = null;
 		this.fft_flag = false;
-	
+		this.fdiff_flag = false;
 		
 	}
 	
+	@Override
+	public void calculateFirstDIFF() throws IOException, FileNotFoundException{
+		int N = data_base.getCantMuestras();
+		double[] dato = new double[N];
+		double[] resul = new double[N];
+		
+		dato = data_base.getData()[1];
+		
+		for(int i=0;i<dato.length-1;i++){
+			resul[i] = dato[i+1]-dato[i];
+		}
+		resul[dato.length-1] = resul[dato.length-2];
+		
+		
+		
+		saveFirstDIFF(resul);
+		
+		this.fdiff_flag = true;
+	}
 	
 	@Override
 	public void calculateFFT() throws IOException, FileNotFoundException{
@@ -103,6 +122,23 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 		
 		fftModFile.delete();
 		fftPhFile.delete();
+	}
+	
+	private void saveFirstDIFF(double[] x)throws IOException, FileNotFoundException{
+		FileOutputStream fos_fdiff = new FileOutputStream(InterfaceModelo.firstDiffFile);
+        DataOutputStream salida_fdiff = new DataOutputStream(fos_fdiff);
+        
+        for(int i=0;i<x.length;i++){
+        	salida_fdiff.writeFloat((float)x[i]);
+        }
+        
+        
+        if (fos_fdiff != null) {
+            fos_fdiff.close();
+        }
+        if (salida_fdiff != null) {
+            salida_fdiff.close();
+        }
 	}
 	
 	private void saveFFT(Complex[] X) throws IOException, FileNotFoundException {
@@ -162,7 +198,7 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 	/******************** METODOS GETTER ********************/
 	
 	@Override
-	public double[][] getFFT(String option) throws IOException, FileNotFoundException{
+	public double[][] getMathData(String option) throws IOException, FileNotFoundException{
 		FileInputStream fis = new FileInputStream(option);
 		DataInputStream dis = new DataInputStream(fis);
 		
@@ -178,16 +214,23 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 		if(dis != null) dis.close();
 		
 		double N = (double)data.size();	//cantidad de muestras
-		double[][] fft = new double[2][data.size()];
+		double[][] resul = new double[2][data.size()];
 		
-		// se genera el vector frecuencia
-		for (int i=(int)(-(data.size())*0.5);i<data.size()*0.5;i++){
-			fft[0][index] = (((double)i)*fs)/N;
-			fft[1][index] = data.get(index).doubleValue();
-			index = index+1;
+		if(option == InterfaceModelo.firstDiffFile){
+			for (int i=0;i<data.size();i++){
+				resul[0][index] = (((double)i)*fs)/N;
+				resul[1][index] = data.get(index).doubleValue();
+				index = index+1;
+			}
+		}else{
+			// se genera el vector frecuencia
+			for (int i=(int)(-(data.size())*0.5);i<data.size()*0.5;i++){
+				resul[0][index] = (((double)i)*fs)/N;
+				resul[1][index] = data.get(index).doubleValue();
+				index = index+1;
+			}
 		}
-
-		return fft;
+		return resul;
 		
 		
 	}
@@ -374,6 +417,7 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 	@Override
 	public void setData(byte MSB, byte LSB, int i) throws Exception{
 		this.fft_flag = false;
+		this.fdiff_flag = false;
 		data_base.setData(MSB, LSB, i);
 		data_base.setImportDataFlag(false);
 		

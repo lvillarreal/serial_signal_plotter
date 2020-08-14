@@ -187,6 +187,10 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.GraphFFTangle)){
 				t_barOptions.start();
+			}else if(e.getActionCommand().equals(InterfaceVista.CalculateFirstDiff)){
+				t_barOptions.start();
+			}else if(e.getActionCommand().equals(InterfaceVista.GraphFirsDiff)){
+				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.ConfigSetBaudRate)){
 				t_barOptions.start();
 			}else if(e.getActionCommand().equals(InterfaceVista.MenuButtonOpenFile)){
@@ -755,14 +759,23 @@ class barOptions implements Runnable{
 				
 			case InterfaceVista.GraphFFTmodule:
 				//actualiceChartFFT(InterfaceModelo.fileFFTmodule);
-				graphFFT(InterfaceModelo.fft_module_file);
+				graphMath(InterfaceModelo.fft_module_file);
 				break;
 				
 			case InterfaceVista.GraphFFTangle:
 				//actualiceChartFFT(InterfaceModelo.fileFFTmodule);
-				graphFFT(InterfaceModelo.fft_phase_file);
+				graphMath(InterfaceModelo.fft_phase_file);
+				break;
+			
+			case InterfaceVista.CalculateFirstDiff:
+				//actualiceChartFFT(InterfaceModelo.fileFFTmodule);
+				calculateFirstDIFF();
 				break;
 				
+			case InterfaceVista.GraphFirsDiff:
+				//actualiceChartFFT(InterfaceModelo.fileFFTmodule);
+				graphMath(InterfaceModelo.firstDiffFile);
+				break;
 			case InterfaceVista.ConfigSetBaudRate:
 				int baud = vista.getBaudRate();
 				if (baud > -1) {
@@ -820,7 +833,22 @@ class barOptions implements Runnable{
 						  "\n>> Peak-to-peak value: "+(modelo.getMaxValue()-modelo.getMinValue()));
 	}
     
-
+	private void calculateFirstDIFF(){
+		try {
+			vista.writeConsole("First Diff proccessing . . .");
+			modelo.calculateFirstDIFF();
+			vista.writeConsole("First Diff done! Saved at firstDiff.bin");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			vista.writeConsole("ERROR! THE FILE CANNOT BE CREATED. CHECK PERMITS");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
 	private void calculateFFT() {
 		
 		try {
@@ -838,22 +866,37 @@ class barOptions implements Runnable{
 		
 	}
 	
-	private void graphFFT(String option){
+	
+	private void graphMath(String option){
 		String name = null;
+		byte graph_option = 0;
+		
 		try {
 			if(option ==  InterfaceModelo.fft_module_file){
 				name = "FFT module [Adim]";
-			}
-			else{
+				graph_option = InterfaceVista.fftChart;
+			}else if(option == InterfaceModelo.fft_phase_file){
 				name = "FFT phase [Radians]";
+				graph_option = InterfaceVista.fftChart;
+			}else if(option == InterfaceModelo.firstDiffFile){
+				name = "Signal's First Difference [seconds]";
+				graph_option = InterfaceVista.firstDiffChart;
 			}
-			vista.actualiceChartData(name, modelo.getFFT(option),InterfaceVista.fftChart);
+			
+			vista.actualiceChartData(name, modelo.getMathData(option),graph_option);
 			
 			
 		} catch (FileNotFoundException e) {
 			try {
-				this.calculateFFT();
-				vista.actualiceChartData(name, modelo.getFFT(option),InterfaceVista.fftChart);
+				if(option ==  InterfaceModelo.fft_module_file || option == InterfaceModelo.fft_phase_file){
+					this.calculateFFT();
+					graph_option = InterfaceVista.fftChart;
+				}else if(option == InterfaceModelo.firstDiffFile){
+					this.calculateFirstDIFF();
+					graph_option = InterfaceVista.firstDiffChart;
+				}
+				
+				vista.actualiceChartData(name, modelo.getMathData(option),graph_option);
 			} catch (FileNotFoundException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
