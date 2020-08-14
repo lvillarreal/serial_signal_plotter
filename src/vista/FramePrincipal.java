@@ -63,8 +63,8 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	
 	
 	
-	
-	
+	/*FFT*/
+	private JFrame frameFFT;
 	
 	/*GRAFICA*/
 	private XYchart grafica;
@@ -223,6 +223,9 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 	}
 
 	
+	
+	
+
 	
 	
 	
@@ -623,10 +626,14 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 		c.weightx = 0.0;
 		c.weighty = 0.0;
 		
+		
+		
+		
 		// SECCION GRAFICA FFT
-		setGraphFFT(c,1,0,1,3,1.0,1.0,10);	// frame_graph es un JInternalFrame
-		configChartFFT(graph_frameFFT,this.actualSerie);
-		panel_principal.add(graph_frameFFT,c);
+		//setGraphFFT(c,1,0,1,3,1.0,1.0,10);	// frame_graph es un JInternalFrame
+		setGraphFFT();
+		//configChartFFT(graph_frameFFT,this.actualSerie);
+		//panel_principal.add(graph_frameFFT,c);
 		
 
 		c.weightx = 0.0;
@@ -1091,8 +1098,36 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		
 	}
 
-	// Configura el JInternalFrame que contendrá la grafica 
+	private void setGraphFFT() {
+	    frameFFT = new JFrame();
+	    frameFFT.setVisible(false);
+		JPanel panel_p = new JPanel();
+		panel_p.setLayout(new FlowLayout());
+		
+	    Toolkit mi_pantalla = Toolkit.getDefaultToolkit();	//en mi_pantalla (variable objeto) guardamos el sistema nativo de ventanas
+	    Dimension dim = mi_pantalla.getScreenSize();
+				
+			
+	    frameFFT.getContentPane().setLayout(new FlowLayout());
+		
+		//setConfigGraphObjects(panel_p);
+		graficaFFT = new XYchart();
+		//grafica.createDataset();
+		graficaFFT.startChart("Fast Fourier Transform (Cooley-Tukey Algorithm)","f[Hz]");
+
+		frameFFT.getContentPane().add(graficaFFT.getChartPanel());
+	    frameFFT.getContentPane().add(panel_p);
+	
+		frameFFT.setSize((int)(((double)dim.width)/1.8),(int)(((double)dim.height)/1.6));
+		frameFFT.setLocation((int)(((double)dim.width)/5),(int)(((double)dim.height)/7));
+		frameFFT.setTitle("FFT Chart");
+		frameFFT.setResizable(true);
+		
+}
+	
+	/*// Configura el JInternalFrame que contendrá la grafica 
 	private void setGraphFFT(GridBagConstraints c,int gridx, int gridy,int gridwidth, int gridheight,double weightx,double weighty, int gap) {
+		this.frameFFT = new JFrame("FFT");
 		graph_frameFFT = new JInternalFrame();
 	    graph_frameFFT.setVisible(false);
 		c.gridx = gridx; 		// El campo de texto empieza en la columna cero.
@@ -1105,7 +1140,7 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		c.fill = GridBagConstraints.BOTH;
 	
 		//return graph_frame;
-	}
+	}*/
 	
 	// option = 0 Guardar archivo
 	// option = 1 Abrir archivo
@@ -1222,17 +1257,18 @@ private void setConfigGraphObjects(JPanel panel_principal) {
 		switch(option){
 		case InterfaceVista.fftChart:
 			
+			frameFFT.setVisible(true);
 			graficaFFT.actualiceDataset(signal_name,data);
 			
-			this.graph_frameFFT.setVisible(true);
-			this.graph_frame.setVisible(false);
+			//this.graph_frameFFT.setVisible(true);
+			//this.graph_frame.setVisible(false);
 			break;
 			
 		case InterfaceVista.dataChart:		
 			grafica.actualiceDataset(signal_name,data);
 			
-			this.graph_frame.setVisible(true);
-			this.graph_frameFFT.setVisible(false);
+			//this.graph_frame.setVisible(true);
+			//this.graph_frameFFT.setVisible(false);
 		}
 		
 		//grafica.removeLegend();

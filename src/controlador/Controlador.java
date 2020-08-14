@@ -495,72 +495,12 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 				}
 			}
 			
-//			byte stat = openSavedData(vista.fileWindow(InterfaceVista.optionOpenFile));
-//			if(stat > -1) {
-//				features_flag = false;
-//				user_text_flag = false;
-//				vista.featuresVisible(this.features_flag);
-//				vista.textUserVisible(this.user_text_flag);
-//				
-//				vista.deleteConsole();
-//    			vista.writeConsole("*****************************************************");
-//    			vista.writeConsole("FILE OPENED SUCCESSFULLY");
-//    			vista.writeConsole("Sample rate: "+modelo.getSamplingRate()+" Hz");
-//    			vista.writeConsole("ADC bit count: "+modelo.getCantBits()+" bits");
-//    			vista.writeConsole("ADC input range: +-"+modelo.getInputRange()+" [V]");
-//    			vista.writeConsole("Date: "+modelo.getDate());
-//    			vista.writeConsole("*****************************************************");
-//				
-//    			vista.setSignalName(modelo.getSignalName());
-//    			
-//			}else if(stat == -1){
-//				vista.writeConsole("File has not been opened");
-//			}
+
 		}
-		
-//		private byte openSavedData(String fichero){
-//			byte status = -1;
-//	        try{
-//	        	if(fichero != "_CANCEL_") {	
-//		            // Se crea un ObjectInputStream
-//	        		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fichero));
-//	        		this.modelo =(InterfaceModelo) ois.readObject();
-//	        		ois.close();
-//	        		status = 0;
-//	        	}else {
-//	        		status = -2;
-//	        	}
-//	        }
-//	        catch (Exception e2){
-//	            e2.printStackTrace();
-//	        }
-//	        return status;
-//	    }
 		
 
 		
-		
-		
-//		private void saveData(String fichero) throws FileNotFoundException, IOException  {
-//
-//			modelo.setUserText(vista.getUserText());
-//			ObjectOutputStream oos1 = new ObjectOutputStream(new FileOutputStream(fichero));
-//			oos1.writeObject(modelo);
-//			oos1.close();
-//			/*	try {
-//						modelo.setUserText(vista.getUserText());
-//						ObjectOutputStream oos1 = new ObjectOutputStream(new FileOutputStream(fichero));
-//						oos1.writeObject(modelo);
-//						oos1.close();
-//					
-//				} catch (FileNotFoundException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				} catch (IOException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}*/
-//		}
+
 		
 		
 		// grafica los datos 
