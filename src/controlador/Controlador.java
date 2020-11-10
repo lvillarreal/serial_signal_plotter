@@ -48,6 +48,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 	private boolean shapes_flag;	// indica si estan habilitados o deshabilitados los shapes en la grafica
 	private boolean user_text_flag;
 	private boolean features_flag;
+	private boolean first_diff_flag;	// true si la primer derivada esta calculada
 	
 	private int datos;	// dato recibido por puerto serie
 //	private int i;	// variable auxiliar para saber que byte se esta recibiendo
@@ -85,7 +86,7 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		shapes_flag = false;
 		user_text_flag = false;
 		features_flag = false;
-		
+		this.first_diff_flag = false;
 		
 		datos = 0;
 
@@ -538,14 +539,17 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 		
 		// se encarga de la manejar la comunicacion serial
 		private void commHandler() {
-			if(status == 1) {	//Espera confirmacion (ACK)
-   
+			if(status == 1) {	//Espera confirmacion (ACK) o NAK
+				System.out.println("espera dato");
         		datos = serial_comm.readData();
-        		System.out.println("RECIBE ACK: "+datos);
-        		if(datos == 6) {
+        		
+        		if(datos == 6) {	//ACK
+        			System.out.println("RECIBE ACK: "+datos);
         			status = 3;
         			fs = 0;
         			count = 0;
+        		}else if(datos == 15){ //NAK
+        			status = 6;
         		}
         	}else if(status == 3) {	// tasa de muestreo
         		datos = serial_comm.readData();
@@ -587,9 +591,11 @@ public class Controlador implements ActionListener, SerialPortEventListener{
         			vista.writeConsole("Date: "+modelo.getDate());
         			vista.writeConsole("*****************************************************");
         			vista.writeConsole("         MEASURING . . .");
-        			
+        			setFirstDiffFlag(false);	
+        		}else if(status == 6) {	// recibio NAK. PCB desconectado
+        			vista.writeConsole("ERROR! CHECK PCB CONNECTION.");
         		}else {
-        			vista.writeConsole("ERROR! WRONG CONFIGURATION DATA. PLEASE RESET MODULE");
+        			vista.writeConsole("ERROR! WRONG CONFIGURATION DATA. PLEASE RESET MODULE.");
         		}
         	}
 		}
@@ -679,6 +685,14 @@ public class Controlador implements ActionListener, SerialPortEventListener{
 
 		public void setFeaturesFlag(boolean option) {
 			this.features_flag = option; 
+		}
+		
+		public void setFirstDiffFlag(boolean status){
+			this.first_diff_flag = status;
+		}
+		
+		public boolean getFirstDiffFlag(){
+			return this.first_diff_flag;
 		}
 
 }
@@ -838,6 +852,7 @@ class barOptions implements Runnable{
 			vista.writeConsole("First Diff proccessing . . .");
 			modelo.calculateFirstDIFF();
 			vista.writeConsole("First Diff done! Saved at firstDiff.bin");
+			controlador.setFirstDiffFlag(true);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -879,8 +894,11 @@ class barOptions implements Runnable{
 				name = "FFT phase [Radians]";
 				graph_option = InterfaceVista.fftChart;
 			}else if(option == InterfaceModelo.firstDiffFile){
-				name = "Signal's First Difference [seconds]";
+				name = "Signal's First Difference";
 				graph_option = InterfaceVista.firstDiffChart;
+				if(!controlador.getFirstDiffFlag()){
+					calculateFirstDIFF();
+				}
 			}
 			
 			vista.actualiceChartData(name, modelo.getMathData(option),graph_option);

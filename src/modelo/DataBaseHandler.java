@@ -85,8 +85,8 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 		
 		dato = data_base.getData()[1];
 		
-		for(int i=0;i<dato.length-1;i++){
-			resul[i] = dato[i+1]-dato[i];
+		for(int i=0;i<N-1;i++){
+			resul[i] = (dato[i+1]-dato[i])*data_base.getSamplingRate();
 		}
 		resul[dato.length-1] = resul[dato.length-2];
 		
@@ -218,7 +218,8 @@ public class DataBaseHandler implements InterfaceModelo, Serializable {
 		
 		if(option == InterfaceModelo.firstDiffFile){
 			for (int i=0;i<data.size();i++){
-				resul[0][index] = (((double)i)*fs)/N;
+				//resul[0][index] = (((double)i)*fs)/N;
+				resul[0][index] = (((double)i)/fs);
 				resul[1][index] = data.get(index).doubleValue();
 				index = index+1;
 			}

@@ -354,7 +354,7 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 			
 			// Items de Math
 				menuItem_math_fft = new JMenu("FFT");
-				this.menu_math_first_diff = new JMenu("First Difference");
+				this.menu_math_first_diff = new JMenu("First Derivate");
 				
 				// Items de FFT
 				this.menuItem_math_fft_calculate = new JMenuItem("Calculate");
@@ -367,9 +367,9 @@ public class FramePrincipal extends JFrame implements InterfaceVista{
 				
 				// ITEMS DE FIRST DIFFERENCE
 				this.menuItem_math_fdiff_calculate = new JMenuItem("Calculate");	
-				this.menuItem_math_fdiff_calculate.setToolTipText("Calcula la primer diferencia de la señal (análogo discreto a la primer derivada)");
+				this.menuItem_math_fdiff_calculate.setToolTipText("Calcula la primer derivada de la señal.");
 				this.menuItem_math_fdiff_graph = new JMenuItem("Graph");
-				this.menuItem_math_fdiff_graph.setToolTipText("Grafica la primer diferencia de la señal");
+				this.menuItem_math_fdiff_graph.setToolTipText("Grafica la primer diferencia de la señal.");
 					
 				
 			// Items de Config
